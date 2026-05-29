@@ -1,87 +1,507 @@
 # Stashly Performance Baseline
 
-## Date
+Purpose:
 
-2026-05-29
+Maintain a historical record of system performance.
 
----
+Future optimizations should always be compared against recorded baselines.
 
-## Async Ingestion Pipeline Benchmark
-
-### Test Environment
-
-- Local development
-- Next.js 16
-- Supabase
-- BullMQ
-- Redis
-- YouTube extractor: youtubei.js
+Without baselines, performance improvements cannot be measured objectively.
 
 ---
 
-## Test Result
+# Measurement Environment
 
-### Worker Metrics
+Date:
 
-Metadata extraction: 2760 ms
+2026-05-28
 
-Database update: 324 ms
+Environment:
 
-Total worker time: 3103 ms
+Local Development
 
----
+Machine:
 
-## Observations
+MacBook Air M2
 
-### Working
+RAM:
 
-- Optimistic save appears instantly
-- Realtime updates working
-- Metadata enrichment updates automatically
-- No page refresh required
-- Queue architecture functioning correctly
+8 GB
 
-### Bottleneck
+Frontend:
 
-Current bottleneck is YouTube metadata extraction.
+Next.js 16
 
-Approximate breakdown:
+Database:
 
-- YouTube extraction: ~89%
-- Database update: ~10%
-- Other overhead: ~1%
+Supabase PostgreSQL
 
----
+Queue:
 
-## Baseline UX
+BullMQ
 
-Current user experience:
+Broker:
 
-0 ms
-→ Placeholder card appears
+Redis
 
-~3.1 sec
-→ Full metadata enrichment appears
+Realtime:
+
+Supabase Realtime
+
+Metadata Source:
+
+YouTube
 
 ---
 
-## Optimization Priority
+# Current Save Flow
 
-Current recommendation:
+User Clicks Save
 
-Do NOT optimize extraction yet.
+↓
 
-Higher leverage work:
+API Validation
 
-1. OpenGraph extractor
-2. Platform detector
-3. Progressive enrichment
-4. Multi-platform ingestion
+↓
+
+Database Insert
+
+↓
+
+Queue Job Creation
+
+↓
+
+Immediate Response
+
+↓
+
+Optimistic Card Appears
+
+↓
+
+Worker Starts
+
+↓
+
+Metadata Extraction
+
+↓
+
+Database Update
+
+↓
+
+Realtime Event
+
+↓
+
+Card Enriched
 
 ---
 
-## Milestone
+# User Experience Metrics
 
-Async distributed enrichment architecture completed.
+---
 
-Status: COMPLETE
+## Time To Feedback
+
+Definition:
+
+Time from Save click until placeholder appears.
+
+Measured:
+
+<100 ms
+
+Status:
+
+Excellent
+
+---
+
+## Time To Visible Memory
+
+Definition:
+
+Time until placeholder card appears.
+
+Measured:
+
+Immediate
+
+Status:
+
+Excellent
+
+---
+
+## Time To Enriched Memory
+
+Definition:
+
+Time until final card displays metadata.
+
+Measured:
+
+3–4 seconds
+
+Status:
+
+Acceptable
+
+---
+
+# Worker Metrics
+
+Measured Job:
+
+YouTube Metadata Extraction
+
+---
+
+## Metadata Extraction
+
+Measured:
+
+2760 ms
+
+Status:
+
+Largest bottleneck
+
+Contribution:
+
+~89%
+
+---
+
+## Database Update
+
+Measured:
+
+324 ms
+
+Status:
+
+Healthy
+
+Contribution:
+
+~11%
+
+---
+
+## Total Worker Time
+
+Measured:
+
+3103 ms
+
+Status:
+
+Acceptable
+
+---
+
+# Realtime Metrics
+
+Subscription Status:
+
+Operational
+
+Authentication:
+
+Operational
+
+RLS:
+
+Operational
+
+Observed Delivery:
+
+Near Instant
+
+Estimated:
+
+<200 ms
+
+Status:
+
+Healthy
+
+---
+
+# Queue Metrics
+
+Current Worker Count:
+
+1
+
+Current Queue:
+
+memory-processing
+
+Observed Throughput:
+
+Single-job execution
+
+Status:
+
+Healthy
+
+---
+
+# Frontend Metrics
+
+Optimistic Rendering:
+
+Working
+
+Realtime Updates:
+
+Working
+
+Store Synchronization:
+
+Working
+
+Reconciliation Layer:
+
+Working
+
+Status:
+
+Healthy
+
+---
+
+# Bottleneck Analysis
+
+Ranked By Impact
+
+---
+
+## Bottleneck #1
+
+Metadata Extraction
+
+Time:
+
+2760 ms
+
+Impact:
+
+Very High
+
+Priority:
+
+P1
+
+Future Options:
+
+Caching
+
+Parallel extraction
+
+Platform-specific optimization
+
+---
+
+## Bottleneck #2
+
+Database Update
+
+Time:
+
+324 ms
+
+Impact:
+
+Low
+
+Priority:
+
+P3
+
+No action required.
+
+---
+
+## Bottleneck #3
+
+Realtime Propagation
+
+Time:
+
+<200 ms
+
+Impact:
+
+Very Low
+
+Priority:
+
+P4
+
+No action required.
+
+---
+
+# Capacity Estimates
+
+Current Architecture
+
+Single Worker
+
+Expected:
+
+Several thousand memories/day
+
+without issue.
+
+---
+
+Future Architecture
+
+Multiple Workers
+
+Shared Redis
+
+Expected:
+
+Hundreds of thousands/day
+
+---
+
+# Performance Targets
+
+## MVP Target
+
+Placeholder:
+
+<200 ms
+
+Enriched Card:
+
+<5 seconds
+
+Status:
+
+PASS
+
+---
+
+## V1 Target
+
+Placeholder:
+
+<100 ms
+
+Enriched Card:
+
+<3 seconds
+
+Status:
+
+NEEDS OPTIMIZATION
+
+---
+
+## Long-Term Target
+
+Placeholder:
+
+Instant
+
+Enriched Card:
+
+<1 second
+
+Status:
+
+Future Goal
+
+---
+
+# Historical Record
+
+## Baseline 2026-05-28
+
+Metadata Extraction:
+
+2760 ms
+
+Database Update:
+
+324 ms
+
+Total Worker:
+
+3103 ms
+
+Enriched Card:
+
+3–4 seconds
+
+Result:
+
+Accepted
+
+---
+
+# Optimization Backlog
+
+1. Metadata cache
+
+2. Extractor registry
+
+3. Parallel extraction
+
+4. Queue concurrency
+
+5. Multiple workers
+
+6. Structured monitoring
+
+7. Performance dashboard
+
+8. Extraction benchmarking suite
+
+---
+
+# Current Assessment
+
+Frontend:
+
+Excellent
+
+Realtime:
+
+Excellent
+
+Queue:
+
+Healthy
+
+Database:
+
+Healthy
+
+Worker:
+
+Healthy
+
+Metadata Speed:
+
+Needs Optimization
+
+Overall System:
+
+MVP Ready
+
+---
+
+# Last Updated
+
+2026-05-28
