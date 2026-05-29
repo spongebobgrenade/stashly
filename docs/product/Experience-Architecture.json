@@ -1,0 +1,398 @@
+{
+  "metadata": {
+    "document": "Stashly Experience Architecture",
+    "version": "1.1",
+    "status": "Exploratory but Structured",
+    "layer": "Experience Architecture",
+    "purpose": "Defines how Stashly should feel emotionally, spatially, visually, and behaviorally during interaction."
+  },
+
+  "experience_vision": {
+    "desired_feelings": [
+      "entering a memory universe",
+      "interacting with living memories",
+      "recalling thoughts naturally",
+      "rediscovering forgotten value",
+      "exploring contextual connections",
+      "offloading mental burden"
+    ],
+
+    "undesired_feelings": [
+      "file management",
+      "enterprise software",
+      "productivity dashboards",
+      "cloud storage",
+      "manual organization systems",
+      "database search"
+    ]
+  },
+
+  "core_experiential_principle": {
+    "desired_user_feeling": "My memories are alive and retrievable.",
+
+    "undesired_user_feeling": "My files are stored somewhere."
+  },
+
+  "experience_pillars": {
+    "retrieval_feels_magical": {
+      "goal": "Create emotional satisfaction through successful memory recovery.",
+
+      "system_should_create_feeling_of": [
+        "forgotten information reappearing naturally",
+        "memories remaining connected",
+        "intuitive retrieval",
+        "retrieval without perfect recall"
+      ],
+
+      "reward_behaviors": [
+        "vague memory queries",
+        "incomplete recollection",
+        "exploratory retrieval",
+        "rediscovery behavior"
+      ]
+    },
+
+    "interaction_feels_conversational": {
+      "desired_feelings": [
+        "conversation",
+        "remembering",
+        "rediscovery",
+        "assisted recall"
+      ],
+
+      "avoid_feelings": [
+        "search engine interaction",
+        "folder navigation",
+        "archives",
+        "admin panel interaction"
+      ]
+    },
+
+    "memories_feel_dynamic": {
+      "experience_may_include": [
+        "motion",
+        "depth",
+        "layering",
+        "resurfacing",
+        "relationship discovery",
+        "immersive transitions"
+      ],
+
+      "interface_should_imply": "Memories moving through a living system.",
+
+      "avoid_implying": "Files sitting in storage."
+    },
+
+    "discovery_feels_organic": {
+      "users_should_encounter": [
+        "related memories",
+        "connected themes",
+        "contextual bundles",
+        "forgotten saves",
+        "resurfaced interests"
+      ],
+
+      "discovery_should_feel": [
+        "fluid",
+        "contextual",
+        "lightweight",
+        "emotionally rewarding"
+      ],
+
+      "avoid": [
+        "aggressive algorithmic behavior"
+      ]
+    }
+  },
+
+  "spatial_experience_philosophy": {
+    "avoid": [
+      "dense tables",
+      "rigid grids",
+      "enterprise dashboards",
+      "folder trees",
+      "spreadsheet behavior"
+    ],
+
+    "prioritize": [
+      "focus",
+      "depth",
+      "motion",
+      "layering",
+      "contextual proximity",
+      "fluid exploration"
+    ]
+  },
+
+  "homepage_experience_philosophy": {
+    "homepage_definition": "Memory Home",
+
+    "homepage_should_communicate": [
+      "calmness",
+      "curiosity",
+      "intelligence",
+      "retrieval readiness",
+      "low friction",
+      "memory accessibility"
+    ],
+
+    "primary_interaction_focus": [
+      "retrieval",
+      "rediscovery"
+    ]
+  },
+
+  "ai_presence_philosophy": {
+    "ai_should_feel": [
+      "calm",
+      "intelligent",
+      "assistive",
+      "responsive",
+      "emotionally aware",
+      "contextually adaptive"
+    ],
+
+    "ai_should_not_feel": [
+      "robotic",
+      "corporate",
+      "mechanical",
+      "transactional",
+      "overly verbose",
+      "surveillance-oriented"
+    ]
+  },
+
+  "thinking_state_experience": {
+    "purpose": [
+      "create anticipation",
+      "reinforce intelligence perception",
+      "increase emotional engagement",
+      "increase retrieval confidence"
+    ],
+
+    "possible_patterns": [
+      "pulsing visuals",
+      "contextual motion",
+      "memory connection animations",
+      "node-like relationship activity",
+      "immersive transitions"
+    ],
+
+    "thinking_states_should_be": [
+      "lightweight",
+      "fast",
+      "emotionally supportive",
+      "non-blocking"
+    ],
+
+    "avoid": [
+      "slow theatrical delays"
+    ]
+  },
+
+  "motion_philosophy": {
+    "motion_should_communicate": [
+      "connection",
+      "continuity",
+      "resurfacing",
+      "memory flow",
+      "relationship movement"
+    ],
+
+    "motion_should_avoid": [
+      "distraction",
+      "excessive spectacle",
+      "chaotic animation",
+      "visual overload"
+    ],
+
+    "desired_motion_feeling": [
+      "cinematic",
+      "calm",
+      "fluid",
+      "intelligent",
+      "emotionally coherent"
+    ]
+  },
+
+  "discovery_system_experience": {
+    "possible_directions": [
+      "film-roll inspired movement",
+      "floating memory stacks",
+      "layered cards",
+      "invisible boundaries",
+      "contextual grouping",
+      "flowing navigation"
+    ],
+
+    "goal": "Make memories feel alive and explorable.",
+
+    "not_goal": "Visual novelty for its own sake."
+  },
+
+  "mobile_experience_philosophy": {
+    "prioritize": [
+      "immediacy",
+      "simplicity",
+      "one-handed interaction",
+      "low friction",
+      "quick retrieval",
+      "rapid capture"
+    ],
+
+    "desired_feeling": [
+      "lightweight",
+      "fluid",
+      "personal",
+      "always accessible"
+    ]
+  },
+
+  "desktop_experience_philosophy": {
+    "prioritize": [
+      "immersion",
+      "exploration",
+      "depth",
+      "memory relationships",
+      "contextual discovery"
+    ],
+
+    "desktop_should_feel": [
+      "expansive",
+      "immersive"
+    ],
+
+    "encourage": [
+      "wandering",
+      "rediscovery",
+      "contextual exploration",
+      "memory navigation"
+    ]
+  },
+
+  "emotional_design_goals": {
+    "users_should_feel": [
+      "relief",
+      "trust",
+      "curiosity",
+      "rediscovery delight",
+      "ownership",
+      "wonder",
+      "calmness",
+      "reduced cognitive load"
+    ],
+
+    "users_should_not_feel": [
+      "pressure to organize",
+      "fear of forgetting",
+      "productivity guilt",
+      "information anxiety",
+      "surveillance discomfort",
+      "administrative fatigue"
+    ]
+  },
+
+  "trust_experience_philosophy": {
+    "system_should_communicate": [
+      "why something was retrieved",
+      "what signals were used",
+      "how memories are connected",
+      "what information is user-provided"
+    ],
+
+    "system_should_never_imply": [
+      "hidden surveillance",
+      "real-world inference",
+      "emotional manipulation",
+      "fabricated personalization"
+    ],
+
+    "trust_should_feel": [
+      "calm",
+      "transparent",
+      "explainable",
+      "respectful"
+    ]
+  },
+
+  "sound_and_sensory_direction": {
+    "possible_directions": [
+      "soft startup tones",
+      "ambient interaction feedback",
+      "subtle retrieval audio cues",
+      "lightweight haptic reinforcement"
+    ],
+
+    "sensory_feedback_should_be": [
+      "minimal",
+      "elegant",
+      "non-disruptive",
+      "optional"
+    ]
+  },
+
+  "personalization_philosophy": {
+    "users_should_feel": [
+      "ownership",
+      "comfort",
+      "identity",
+      "familiarity"
+    ],
+
+    "possible_personalization": [
+      "color themes",
+      "gradients",
+      "motion preferences",
+      "ambient settings",
+      "accessibility preferences"
+    ],
+
+    "constraint": "Customization should not increase setup burden."
+  },
+
+  "onboarding_experience_philosophy": {
+    "onboarding_should_feel_like": "Entering a memory universe.",
+
+    "onboarding_should_not_feel_like": "Configuring software.",
+
+    "onboarding_should_communicate": [
+      "simplicity",
+      "intelligence",
+      "emotional safety",
+      "low effort",
+      "retrieval potential"
+    ],
+
+    "system_should_establish_quickly": [
+      "trust",
+      "emotional connection",
+      "behavioral clarity",
+      "capture simplicity"
+    ]
+  },
+
+  "experience_constraints": {
+    "experience_layer_should_never": [
+      "introduce organizational burden",
+      "prioritize aesthetics over retrieval",
+      "slow down interactions excessively",
+      "become visually overwhelming",
+      "obscure transparency",
+      "create addictive dark patterns"
+    ],
+
+    "experience_quality_must_support": [
+      "retrieval speed",
+      "trust",
+      "clarity",
+      "emotional comfort",
+      "long-term usability"
+    ]
+  },
+
+  "final_experience_principle": {
+    "desired_feeling": "A living memory layer for a user's digital life.",
+
+    "undesired_feeling": "Software used to manage files."
+  }
+}

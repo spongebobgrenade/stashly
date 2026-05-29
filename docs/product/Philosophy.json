@@ -1,0 +1,349 @@
+{
+  "metadata": {
+    "document": "Stashly Philosophy",
+    "version": "1.1",
+    "status": "Frozen",
+    "layer": "Foundational Truth System",
+    "purpose": "Defines immutable product principles, behavioral philosophy, trust rules, and governance for Stashly."
+  },
+
+  "core_identity": {
+    "product_name": "Stashly",
+
+    "product_type": "AI Memory Layer",
+
+    "is_not": [
+      "Bookmark manager",
+      "Read-later app",
+      "Manual organization tool",
+      "Productivity workspace",
+      "Traditional social network",
+      "Folder-based storage system"
+    ],
+
+    "core_behavior": {
+      "primary_loop": [
+        "Share",
+        "Forget",
+        "Ask"
+      ],
+
+      "avoid_loop": [
+        "Save",
+        "Organize",
+        "Browse"
+      ]
+    },
+
+    "core_statement": "Stashly functions as an external memory system for a user's digital life."
+  },
+
+  "mission": {
+    "primary_goal": "Reduce cognitive load by allowing users to offload memory to AI.",
+
+    "user_should_not_need_to_remember": [
+      "where something was saved",
+      "when something was saved",
+      "which platform something came from",
+      "what category something belongs to",
+      "how information was organized"
+    ],
+
+    "system_responsibilities": [
+      "organization",
+      "contextual relationships",
+      "resurfacing",
+      "retrieval",
+      "recall assistance",
+      "memory connections"
+    ]
+  },
+
+  "product_promise": {
+    "primary": "Share once. Never lose it again.",
+
+    "expanded_interpretation": "The place where your internet life remembers itself."
+  },
+
+  "user_mental_model": {
+    "desired_thought": "I'll send it to Stashly and forget it.",
+
+    "undesired_thought": "I should organize this before I lose it."
+  },
+
+  "behavioral_philosophy": {
+    "retrieval_is_core_value": true,
+
+    "optimize_for": [
+      "recognition",
+      "recall speed",
+      "reduced cognitive effort",
+      "natural interaction",
+      "confidence in memory recovery"
+    ],
+
+    "do_not_optimize_for": [
+      "manual organization",
+      "folder maintenance",
+      "database-style browsing",
+      "administrative workflows"
+    ]
+  },
+
+  "universal_capture_philosophy": {
+    "goal": "Capture information from anywhere with minimal friction.",
+
+    "supported_memory_sources": [
+      "URLs",
+      "social media posts",
+      "reels",
+      "videos",
+      "screenshots",
+      "PDFs",
+      "voice notes",
+      "files",
+      "notes",
+      "images",
+      "copied text",
+      "products",
+      "articles"
+    ],
+
+    "capture_system_principle": "The capture system should remain universal and extensible."
+  },
+
+  "organizational_burden_principle": {
+    "principle_name": "Zero Organizational Burden",
+
+    "users_should_not_need_to": [
+      "create folders",
+      "manually tag information",
+      "maintain collections",
+      "classify information",
+      "manage taxonomies",
+      "remember storage locations"
+    ],
+
+    "manual_organization_policy": "Manual organization may exist as an optional enhancement.",
+
+    "primary_interaction_model": "AI-assisted retrieval"
+  },
+
+  "ai_behavior_philosophy": {
+    "desired_feeling": "Memory retrieval",
+
+    "undesired_feeling": "Database search",
+
+    "good_interaction_example": "Connecting your memories...",
+
+    "bad_interaction_example": "Searching files...",
+
+    "ai_should": [
+      "feel effortless",
+      "reduce mental load",
+      "assist memory recovery",
+      "surface likely remembered information",
+      "explain retrieval transparently"
+    ],
+
+    "ai_should_not": [
+      "behave like enterprise software",
+      "expose internal complexity unnecessarily",
+      "imply hidden knowledge",
+      "require organizational maintenance"
+    ]
+  },
+
+  "memory_trust_principle": {
+    "principle_statement": "Stashly must never imply knowledge it did not derive from user-provided information, user-approved integrations, observable metadata, or explicit system signals.",
+
+    "allowed_retrieval_signals": [
+      "shared content",
+      "timestamps",
+      "explicit metadata",
+      "content similarity",
+      "retrieval relationships",
+      "user-approved integrations",
+      "saved bundle relationships"
+    ],
+
+    "forbidden_retrieval_behavior": [
+      "hidden assumptions",
+      "inferred life context",
+      "emotionally manipulative inference",
+      "fabricated personalization",
+      "pretending to know real-world user circumstances"
+    ],
+
+    "examples": {
+      "bad": "You saved this during exam season.",
+
+      "good": "Saved on March 14. Similar to startup-related content you previously saved."
+    }
+  },
+
+  "product_emotion_philosophy": {
+    "users_should_feel": [
+      "relief",
+      "trust",
+      "ownership",
+      "rediscovery delight",
+      "wonder",
+      "reduced cognitive load"
+    ],
+
+    "users_should_not_feel": [
+      "organizational anxiety",
+      "productivity guilt",
+      "fear of losing information",
+      "confusion about why something was retrieved",
+      "surveillance discomfort"
+    ],
+
+    "core_emotional_outcome": "My assistant remembered this for me."
+  },
+
+  "product_decision_filter": {
+    "reject_features_if": [
+      "increases organizational burden",
+      "adds unnecessary complexity",
+      "requires maintenance behavior",
+      "interrupts quick capture",
+      "turns the product into productivity software",
+      "weakens retrieval speed"
+    ],
+
+    "prioritize_features_if": [
+      "reduces remembering burden",
+      "improves retrieval confidence",
+      "improves memory resurfacing",
+      "improves capture simplicity",
+      "increases trust",
+      "strengthens retrieval magic"
+    ]
+  },
+
+  "dashboard_philosophy": {
+    "dashboard_definition": "Memory Home",
+
+    "avoid": [
+      "KPI dashboards",
+      "CRM layouts",
+      "enterprise interfaces",
+      "table-first interaction",
+      "dense productivity UI"
+    ],
+
+    "prioritize": [
+      "AI-first interaction",
+      "conversational retrieval",
+      "resurfaced memories",
+      "immersive discovery",
+      "low cognitive friction",
+      "emotionally engaging interaction"
+    ]
+  },
+
+  "design_philosophy": {
+    "status": "Exploratory",
+
+    "design_goals": [
+      "premium",
+      "minimal",
+      "immersive",
+      "emotionally engaging",
+      "intelligent",
+      "calm",
+      "fluid",
+      "memorable"
+    ],
+
+    "experience_hypotheses": [
+      "conversational interfaces",
+      "center-focused interaction",
+      "immersive retrieval states",
+      "dynamic memory exploration",
+      "film-roll inspired discovery",
+      "floating memory systems",
+      "contextual resurfacing"
+    ],
+
+    "constraint": "These are directional hypotheses, not frozen UI specifications."
+  },
+
+  "thinking_state_philosophy": {
+    "purpose": [
+      "create anticipation",
+      "reinforce intelligence perception",
+      "communicate active retrieval",
+      "maintain emotional engagement"
+    ],
+
+    "possible_patterns": [
+      "pulsing globe",
+      "memory connection visualization",
+      "contextual node animation",
+      "relationship mapping visuals"
+    ],
+
+    "thinking_state_should_not": [
+      "unnecessarily delay retrieval",
+      "become distracting",
+      "block interaction excessively"
+    ]
+  },
+
+  "product_boundary_definition": {
+    "stashly_is_not": [
+      "traditional bookmark manager",
+      "read-later tool",
+      "productivity workspace",
+      "manual organization app",
+      "folder system",
+      "traditional social network",
+      "cloud storage replacement"
+    ],
+
+    "stashly_is": "AI-assisted memory layer for the user's digital life."
+  },
+
+  "source_of_truth_governance": {
+    "principle_id": "source_truth_governance_v1",
+
+    "governance_statement": "Any finalized philosophy rule, UX principle, trust principle, AI behavior rule, product principle, interaction philosophy, or governance decision must immediately be added to source-of-truth files.",
+
+    "governance_rules": [
+      "Finalized decisions must not remain only in chat history.",
+      "Important product reasoning should be externalized.",
+      "Philosophy defines truth.",
+      "PRD defines product behavior.",
+      "TRD defines implementation.",
+      "Lower layers inherit from higher layers.",
+      "Implementation must not redefine philosophy.",
+      "Documentation drift should be corrected immediately.",
+      "Machine-readable and human-readable versions must remain synchronized."
+    ]
+  },
+
+  "documentation_hierarchy": {
+    "hierarchy": [
+      "Philosophy",
+      "PRD",
+      "TRD",
+      "Implementation"
+    ],
+
+    "layer_responsibilities": {
+      "Philosophy": "Immutable truths",
+      "PRD": "Product behavior",
+      "TRD": "Engineering implementation",
+      "Implementation": "Actual system execution"
+    }
+  },
+
+  "final_principle": {
+    "statement": "Stashly is an AI Memory Layer.",
+
+    "system_goal": "Reduce remembering burden, not increase organizational burden."
+  }
+}

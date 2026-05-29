@@ -1,0 +1,728 @@
+{
+  "metadata": {
+    "product": "Stashly",
+    "tagline": "Stash it. Find it. Share it.",
+    "version": "4.1",
+    "status": "Locked",
+    "phase": "Retrieval-First MVP",
+    "classification": "Internal"
+  },
+
+  "executive_summary": {
+    "problem": {
+      "description": "People save large volumes of digital information across platforms but fail to retrieve it meaningfully later.",
+
+      "sources": [
+        "Instagram",
+        "TikTok",
+        "YouTube",
+        "Safari",
+        "screenshots",
+        "PDFs",
+        "notes",
+        "products",
+        "recipes",
+        "articles",
+        "videos",
+        "files"
+      ],
+
+      "root_causes": [
+        "saving is fragmented",
+        "retrieval is weak",
+        "organization is manual",
+        "information becomes buried",
+        "users forget where things were saved",
+        "saved systems become digital graveyards"
+      ]
+    },
+
+    "solution": {
+      "description": "Stashly is an AI-assisted memory layer for a user's digital life.",
+
+      "primary_flow": [
+        "See something valuable",
+        "Share to Stashly",
+        "Forget about it",
+        "Retrieve naturally later"
+      ],
+
+      "optimization_goals": [
+        "memory recovery",
+        "low cognitive effort",
+        "retrieval confidence",
+        "rediscovery",
+        "contextual recall"
+      ]
+    }
+  },
+
+  "product_positioning": {
+    "what_stashly_is": "Universal memory layer for anything users want to remember.",
+
+    "core_purpose": "Reduce remembering burden.",
+
+    "what_stashly_is_not": [
+      "bookmark manager",
+      "read-later tool",
+      "productivity workspace",
+      "manual organization system",
+      "folder-based archive",
+      "traditional social network"
+    ],
+
+    "core_differentiators": [
+      "universal intake",
+      "conversational retrieval",
+      "AI-assisted memory recovery",
+      "cross-platform memory layer",
+      "retrieval-first interaction architecture",
+      "invisible organization",
+      "rediscovery-oriented experience"
+    ]
+  },
+
+  "product_principles": {
+    "locked_principles": [
+      "retrieval-first architecture",
+      "AI handles complexity invisibly",
+      "users should not organize manually",
+      "saving should require minimal decisions",
+      "heavy processing should remain asynchronous",
+      "backend owns business logic",
+      "retrieval quality is the primary product value",
+      "simplicity is preferred over feature density",
+      "build lean while designing for scale"
+    ]
+  },
+
+  "universal_intake": {
+    "primary_capture_flow": [
+      "Anything",
+      "Share",
+      "Stashly",
+      "Done"
+    ],
+
+    "supported_content_types": [
+      "URLs",
+      "reels",
+      "videos",
+      "articles",
+      "PDFs",
+      "screenshots",
+      "images",
+      "notes",
+      "copied text",
+      "products",
+      "files",
+      "voice notes"
+    ]
+  },
+
+  "user_personas": [
+    {
+      "id": "P1",
+      "name": "Social Saver",
+
+      "behavior": [
+        "saves reels frequently",
+        "discovers content socially",
+        "rarely revisits saved tabs",
+        "remembers ideas vaguely"
+      ],
+
+      "goals": [
+        "retrieve forgotten content naturally",
+        "avoid losing useful discoveries",
+        "resurface interesting content quickly"
+      ]
+    },
+
+    {
+      "id": "P2",
+      "name": "Research Collector",
+
+      "behavior": [
+        "saves articles",
+        "stores research links",
+        "captures references across platforms",
+        "struggles with scattered information"
+      ],
+
+      "goals": [
+        "conversational retrieval",
+        "unified memory layer",
+        "reduced information fragmentation"
+      ]
+    },
+
+    {
+      "id": "P3",
+      "name": "Taste Curator",
+
+      "behavior": [
+        "saves travel ideas",
+        "saves food inspiration",
+        "saves interiors and recommendations"
+      ],
+
+      "goals": [
+        "rediscovery",
+        "sharing curated taste",
+        "memory resurfacing"
+      ]
+    },
+
+    {
+      "id": "P4",
+      "name": "Screenshot Memory User",
+
+      "behavior": [
+        "captures information impulsively",
+        "rarely organizes screenshots",
+        "forgets stored content"
+      ],
+
+      "goals": [
+        "screenshot retrieval",
+        "OCR-assisted recovery",
+        "contextual resurfacing"
+      ]
+    }
+  ],
+
+  "core_product_systems": {
+    "frictionless_saving": {
+      "principle": "Saving should require minimal cognitive effort.",
+
+      "must_have": [
+        "mobile share sheet",
+        "URL saving",
+        "screenshot upload",
+        "note attachment",
+        "background processing",
+        "instant save confirmation",
+        "automatic metadata extraction",
+        "automatic categorization",
+        "optional reinforcement note"
+      ],
+
+      "should_have": [
+        "bulk import",
+        "image-only save",
+        "browser extension support"
+      ]
+    },
+
+    "conversational_retrieval": {
+      "principle": "Users should retrieve memories naturally rather than browse manually.",
+
+      "must_have": [
+        "natural language retrieval",
+        "semantic search",
+        "keyword fallback",
+        "contextual retrieval",
+        "time-aware retrieval",
+        "retrieval explanation",
+        "related memory suggestions",
+        "original source access",
+        "retrieval confidence handling"
+      ]
+    },
+
+    "homepage_retrieval_experience": {
+      "principle": "Homepage exists primarily for retrieval and rediscovery.",
+
+      "homepage_definition": "Memory Home",
+
+      "must_have": [
+        "AI-centered retrieval input",
+        "suggested prompts",
+        "conversational interaction",
+        "retrieval-first interaction hierarchy",
+        "exact memory surfaced first",
+        "transparent retrieval explanation",
+        "original source access",
+        "related memory bundles",
+        "rediscovery surfaces",
+        "mobile-first accessibility",
+        "immersive desktop exploration"
+      ],
+
+      "example_queries": [
+        "show me that startup reel",
+        "find the protein article",
+        "that Rome travel thing I saved",
+        "show the workout screenshot I shared"
+      ]
+    },
+
+    "memory_discovery_system": {
+      "principle": "Discovery should feel organic rather than administratively organized.",
+
+      "discovery_goals": [
+        "rediscovery",
+        "contextual resurfacing",
+        "related memory exploration",
+        "thematic grouping",
+        "relationship-based navigation"
+      ],
+
+      "experience_direction": [
+        "film-roll inspired interaction",
+        "floating memory stacks",
+        "layered content systems",
+        "immersive exploration",
+        "contextual bundles",
+        "fluid navigation"
+      ]
+    },
+
+    "rediscovery_engine": {
+      "must_have": [
+        "forgotten memory resurfacing",
+        "contextual rediscovery",
+        "weekly memory digest",
+        "related memory suggestions"
+      ],
+
+      "future_possibilities": [
+        "save streaks",
+        "retrieval reminders",
+        "smart resurfacing timing",
+        "AI-curated memory groups"
+      ]
+    },
+
+    "stashes_and_sharing": {
+      "principle": "Sharing should extend memory utility without turning the product into a social feed.",
+
+      "must_have": [
+        "private-by-default behavior",
+        "public stashes",
+        "shareable stash links",
+        "quick re-stash",
+        "profile system",
+        "stash importing"
+      ],
+
+      "constraints": [
+        "must not become feed-first",
+        "must not become engagement-maximizing",
+        "must not become creator-economy dependent",
+        "must not become socially addictive"
+      ]
+    },
+
+    "platform_foundation": {
+      "must_have": [
+        "Google authentication",
+        "email authentication",
+        "permanent persistence",
+        "PWA support",
+        "Android share support",
+        "iOS share support"
+      ]
+    }
+  },
+
+  "retrieval_system": {
+    "retrieval_goal": "Surface the likely remembered item rather than the most technically accurate keyword match.",
+
+    "retrieval_results_should_include": [
+      "saved timestamp",
+      "source platform",
+      "retrieval explanation",
+      "original source access",
+      "related memory bundles"
+    ],
+
+    "retrieval_ranking_priorities": [
+      "semantic similarity",
+      "optional note relevance",
+      "OCR relevance",
+      "contextual similarity",
+      "recency",
+      "retrieval history"
+    ],
+
+    "retrieval_explanation_rules": {
+      "allowed_sources": [
+        "user-provided content",
+        "timestamps",
+        "explicit metadata",
+        "content similarity",
+        "bundle relationships",
+        "user-approved integrations"
+      ],
+
+      "forbidden_behavior": [
+        "hidden knowledge implication",
+        "inferred life context",
+        "fabricated personalization"
+      ]
+    },
+
+    "example_retrieval_card": {
+      "source_type": "Instagram Reel",
+
+      "title": "10 startup ideas no one is building in India",
+
+      "saved_date": "March 14",
+
+      "source_platform": "Instagram",
+
+      "retrieval_explanation": [
+        "matched startup-related query",
+        "similar to previously saved founder content"
+      ],
+
+      "actions": [
+        "Open Original",
+        "View Summary"
+      ]
+    }
+  },
+
+  "memory_cue_system": {
+    "purpose": "Improve recognition and retrieval confidence.",
+
+    "sources": [
+      "timestamps",
+      "source platform",
+      "OCR",
+      "metadata",
+      "optional notes",
+      "content similarity",
+      "retrieval relationships"
+    ],
+
+    "example_memory_cues": [
+      "Shared alongside restaurant and hotel links",
+      "Similar to startup content previously saved",
+      "Saved from Instagram",
+      "Matched your AI tools bundle"
+    ]
+  },
+
+  "reinforcement_layer": {
+    "optional_prompt": "Why did I save this?",
+
+    "examples": [
+      "buy later",
+      "gym routine",
+      "travel idea",
+      "startup inspiration"
+    ],
+
+    "constraint": "This layer should remain optional."
+  },
+
+  "ai_interaction_model": {
+    "ai_responsibilities": [
+      "metadata enrichment",
+      "content understanding",
+      "contextual relationships",
+      "memory ranking",
+      "retrieval orchestration",
+      "rediscovery support",
+      "summarization",
+      "memory grouping"
+    ],
+
+    "user_should_not_need_to": [
+      "manually organize",
+      "maintain folders",
+      "classify information",
+      "build taxonomies"
+    ],
+
+    "supported_memory_categories": [
+      "recipes",
+      "workouts",
+      "places",
+      "products",
+      "articles",
+      "videos",
+      "screenshots",
+      "audio",
+      "notes",
+      "social posts"
+    ]
+  },
+
+  "platform_support": {
+    "supported_platforms": [
+      "iOS",
+      "Android",
+      "desktop browsers",
+      "Windows",
+      "Linux",
+      "ChromeOS"
+    ],
+
+    "future_platforms_possible": true
+  },
+
+  "notification_philosophy": {
+    "goal": "Create retrieval value rather than engagement addiction.",
+
+    "allowed_notifications": [
+      "rediscovery moments",
+      "retrieval reminders",
+      "forgotten memory resurfacing"
+    ],
+
+    "example_notifications": [
+      "You saved this ramen place months ago.",
+      "Remember this workout routine?",
+      "You may want to revisit this travel guide."
+    ]
+  },
+
+  "emotional_product_goals": {
+    "users_should_feel": [
+      "relief",
+      "trust",
+      "rediscovery delight",
+      "ownership",
+      "reduced cognitive load",
+      "confidence in retrieval"
+    ],
+
+    "users_should_not_feel": [
+      "pressure to organize",
+      "productivity guilt",
+      "fear of forgetting",
+      "surveillance discomfort",
+      "administrative fatigue"
+    ]
+  },
+
+  "habit_loop": {
+    "loop": [
+      "See something valuable",
+      "Share to Stashly",
+      "Instant save confidence",
+      "Forget naturally",
+      "Retrieve successfully later",
+      "Trust increases",
+      "Saving behavior compounds"
+    ]
+  },
+
+  "legal_constraints": {
+    "never_allowed": [
+      "scrape Instagram",
+      "scrape TikTok",
+      "download protected media",
+      "bypass platform restrictions"
+    ],
+
+    "permanent_policy": [
+      "share flows",
+      "user-provided content",
+      "approved integrations",
+      "accessible metadata"
+    ]
+  },
+
+  "competitive_positioning": {
+    "competitors": [
+      {
+        "name": "Instagram Saved",
+        "limitation": "Weak retrieval"
+      },
+
+      {
+        "name": "Pinterest",
+        "limitation": "Discovery-first rather than retrieval-first"
+      },
+
+      {
+        "name": "Notion",
+        "limitation": "Manual organization burden"
+      },
+
+      {
+        "name": "Readwise",
+        "limitation": "Narrow capture scope"
+      },
+
+      {
+        "name": "WhatsApp self-chat",
+        "limitation": "Poor retrieval structure"
+      },
+
+      {
+        "name": "Screenshot folders",
+        "limitation": "Retrieval failure at scale"
+      }
+    ],
+
+    "stashly_position": "Universal memory layer plus AI-assisted conversational retrieval."
+  },
+
+  "success_metrics": {
+    "north_star": "Time to first retrieval magic moment.",
+
+    "core_metrics": [
+      "successful retrieval rate",
+      "retrieval latency",
+      "week-2 retention",
+      "saves per week",
+      "rediscovery engagement",
+      "retrieval confidence success"
+    ],
+
+    "product_market_fit_events": [
+      "save_created",
+      "save_opened",
+      "retrieval_attempted",
+      "retrieval_success",
+      "stash_imported",
+      "rediscovery_opened"
+    ]
+  },
+
+  "accessibility_requirements": {
+    "supported_accessibility_features": [
+      "screen readers",
+      "keyboard navigation",
+      "reduced motion",
+      "large text",
+      "high contrast modes"
+    ],
+
+    "constraint": "Accessibility must not become post-launch cleanup work."
+  },
+
+  "empty_state_philosophy": {
+    "goal": "Users should never encounter emotionally empty interfaces.",
+
+    "example_empty_states": [
+      "Try asking about something you saved.",
+      "Share your first memory.",
+      "Upload screenshots to begin.",
+      "Ask Stashly to find something for you."
+    ]
+  },
+
+  "onboarding_direction": {
+    "core_goal": [
+      "trust",
+      "simplicity",
+      "retrieval potential",
+      "capture ease"
+    ],
+
+    "possible_personalization_questions": [
+      "What do you save most?",
+      "Reels?",
+      "Screenshots?",
+      "Recipes?",
+      "Travel ideas?",
+      "Research?",
+      "Shopping?"
+    ],
+
+    "purpose": [
+      "personalize examples",
+      "improve onboarding relevance",
+      "accelerate understanding"
+    ]
+  },
+
+  "technical_product_assumptions": {
+    "architecture": "modular monolith",
+
+    "processing_model": "asynchronous processing",
+
+    "infrastructure_strategy": "low-cost infrastructure initially",
+
+    "business_logic_owner": "backend",
+
+    "system_design": "retrieval-first"
+  },
+
+  "internationalization": {
+    "mvp_language": "English-first",
+
+    "future_direction": [
+      "multilingual OCR",
+      "multilingual retrieval",
+      "localization",
+      "mixed-language search"
+    ]
+  },
+
+   "monetization_direction": {
+   "status": "exploratory",
+
+   "core_goal": "Stashly should become a sustainable revenue-generating platform.",
+
+   "current_state": "Pricing structures during MVP are exploratory placeholders and may evolve.",
+
+   "pricing_inputs": [
+     "user behavior",
+     "retention",
+     "retrieval frequency",
+     "infrastructure cost",
+     "AI processing cost",
+     "willingness-to-pay signals",
+     "platform evolution"
+    ],
+
+   "potential_future_directions": [
+     "premium retrieval capabilities",
+     "expanded storage tiers",
+     "collaborative memory systems",
+     "creator/public stash ecosystems",
+     "AI-assisted organization",
+     "team/workspace memory systems",
+     "API access"
+    ],
+
+   "constraints": [
+     "must not reduce memory trust",
+     "must not degrade retrieval quality",
+     "must not create manipulative engagement loops",
+     "must not pressure users into organizational complexity"
+    ]
+  },
+
+  "non_goals": [
+    "folder-management system",
+    "productivity workspace",
+    "media scraping platform",
+    "cloud storage replacement",
+    "social messaging platform"
+  ],
+
+  "product_assumptions": [
+    "share behavior can become habitual",
+    "conversational retrieval improves retention",
+    "memory cues improve recognition",
+    "rediscovery creates long-term engagement",
+    "retrieval quality drives trust"
+  ],
+
+  "roadmap_direction": {
+    "phase_1": "MVP Retrieval System",
+
+    "phase_2": "Recommendations and Extensions",
+
+    "phase_3": "Native Apps and Integrations",
+
+    "phase_4": "Community and APIs"
+  },
+
+  "prd_status": {
+    "version": "4.1",
+
+    "status": "LOCKED",
+
+    "note": "This PRD may evolve through future version upgrades, but foundational behavior should remain stable."
+  }
+}
