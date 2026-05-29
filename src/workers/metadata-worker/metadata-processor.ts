@@ -1,6 +1,12 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
-import { extractYoutubeMetadata } from "@/services/metadata/youtube";
+import {
+  resolveInput,
+} from "@/services/metadata/platform-resolver";
+
+import {
+  extractMetadata,
+} from "@/services/metadata/extractor";
 
 type ProcessMemoryJob = {
   memoryId: string;
@@ -18,40 +24,24 @@ export async function processMemoryJob(
   console.log("🚀 Processing memory job...");
   console.log(jobData);
 
-  const supabase = getSupabaseAdmin();
-
-  // TECH_DEBT:
-  // Platform detection currently inline.
-  // Move to dedicated platform resolver later.
-
-  let metadata = {
-    title: null as string | null,
-
-    description: null as string | null,
-
-    thumbnailUrl: null as string | null,
-
-    creatorName: null as string | null,
-
-    canonicalUrl: null as string | null,
-
-    rawMetadata: null as unknown,
-
-    sourcePlatform: "unknown",
-  };
+  const supabase =
+    getSupabaseAdmin();
 
   const extractionStartedAt =
     Date.now();
 
-  // YouTube extraction
+  const resolved =
+    resolveInput(url);
 
-  if (
-    url.includes("youtube.com") ||
-    url.includes("youtu.be")
-  ) {
-    metadata =
-      await extractYoutubeMetadata(url);
-  }
+  console.log(
+    "Resolved content:",
+    resolved
+  );
+
+  const metadata =
+    await extractMetadata(
+      resolved
+    );
 
   console.log(
     "⏱️ Metadata extraction:",
@@ -59,6 +49,17 @@ export async function processMemoryJob(
       extractionStartedAt,
     "ms"
   );
+
+  if (
+    !metadata.title &&
+    !metadata.description &&
+    !metadata.thumbnailUrl
+  ) {
+    console.warn(
+      "No metadata extracted for:",
+      url
+    );
+  }
 
   console.log(
     "Updating memory:",
@@ -75,7 +76,8 @@ export async function processMemoryJob(
         source_platform:
           metadata.sourcePlatform,
 
-        title: metadata.title,
+        title:
+          metadata.title,
 
         description:
           metadata.description,
@@ -121,7 +123,8 @@ export async function processMemoryJob(
 
   console.log(
     "⏱️ Total worker time:",
-    Date.now() - startedAt,
+    Date.now() -
+      startedAt,
     "ms"
   );
 
