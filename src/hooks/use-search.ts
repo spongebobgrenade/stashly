@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from "react";
 
+import type { Memory } from "@/types/memory";
+
 export function useSearch(query: string) {
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<Memory[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const trimmedQuery = query.trim();
 
     if (!trimmedQuery) {
-      setResults([]);
       return;
     }
 

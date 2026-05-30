@@ -1,4 +1,6 @@
-import type { Memory } from "@/lib/memories/store";
+import Image from "next/image";
+
+import type { Memory } from "@/types/memory";
 
 type MemoryCardProps = {
   memory: Memory;
@@ -33,21 +35,25 @@ export function MemoryCard({
   );
 
   const memoryUrl =
-    memory.url ??
+    memory.canonical_url ??
     memory.original_input ??
     "#";
 
   return (
     <div className="border border-zinc-800 rounded-xl overflow-hidden bg-zinc-950">
       {memory.thumbnail_url ? (
-        <img
-          src={memory.thumbnail_url}
-          alt={
-            memory.title ??
-            "Memory thumbnail"
-          }
-          className="w-full aspect-video object-cover"
-        />
+        <div className="relative w-full aspect-video">
+          <Image
+            src={memory.thumbnail_url}
+            alt={
+              memory.title ??
+              "Memory thumbnail"
+            }
+            fill
+            unoptimized
+            className="object-cover"
+          />
+        </div>
       ) : (
         <div className="w-full aspect-video bg-zinc-900 flex items-center justify-center text-sm text-zinc-500">
           No Preview

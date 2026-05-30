@@ -3,7 +3,10 @@ import path from "path";
 import dotenv from "dotenv";
 
 dotenv.config({
-  path: path.resolve(process.cwd(), ".env.worker"),
+  path: path.resolve(
+    process.cwd(),
+    ".env.worker"
+  ),
 });
 
 console.log(
@@ -11,40 +14,54 @@ console.log(
   process.env.SUPABASE_URL
 );
 
-import { Worker } from "bullmq";
+import {
+  Worker,
+  type Job,
+} from "bullmq";
 
 import IORedis from "ioredis";
 
 import { processMemoryJob } from "./metadata-processor";
 
-const workerConnection = new IORedis({
-  host: process.env.UPSTASH_REDIS_HOST,
+import type { ProcessMemoryJob } from "@/types/jobs";
 
-  port: Number(process.env.UPSTASH_REDIS_PORT),
+const workerConnection =
+  new IORedis({
+    host: process.env
+      .UPSTASH_REDIS_HOST,
 
-  password: process.env.UPSTASH_REDIS_PASSWORD,
+    port: Number(
+      process.env
+        .UPSTASH_REDIS_PORT
+    ),
 
-  tls: {},
+    password:
+      process.env
+        .UPSTASH_REDIS_PASSWORD,
 
-  maxRetriesPerRequest: null,
-});
+    tls: {},
 
-const memoryWorker = new Worker(
+    maxRetriesPerRequest:
+      null,
+  });
+
+new Worker(
   "memory-processing",
 
-  async (job) => {
-    await processMemoryJob(job.data);
+  async (
+    job: Job<ProcessMemoryJob>
+  ) => {
+    await processMemoryJob(
+      job.data
+    );
   },
 
   {
-    // TECH_DEBT:
-    // BullMQ + ioredis typing incompatibility.
-    // Runtime works correctly.
-    // Replace with centralized typed Redis/BullMQ factory
-    // during infrastructure hardening phase.
-
-    connection: workerConnection as any,
+    connection:
+      workerConnection as never,
   }
 );
 
-console.log("👂 Memory worker listening for jobs...");
+console.log(
+  "👂 Memory worker listening for jobs..."
+);

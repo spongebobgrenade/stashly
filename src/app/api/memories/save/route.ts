@@ -12,7 +12,6 @@ export async function POST(req: Request) {
   try {
     const supabase = await createClient();
 
-    // Get authenticated user
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -56,27 +55,25 @@ export async function POST(req: Request) {
 
     const memoryId = randomUUID();
 
-    // TECH_DEBT:
-    // Temporary minimal memory schema.
-    // Will evolve into normalized memory persistence layer.
+    const { data: memory, error } =
+      await supabase
+        .from("saves")
+        .insert({
+          id: memoryId,
 
-    const { data: memory, error } = await supabase
-      .from("saves")
-      .insert({
-        id: memoryId,
+          user_id: user.id,
 
-        user_id: user.id,
+          original_input: url,
 
-        original_input: url,
+          content_type: "link",
 
-        content_type: "link",
+          source_platform: "unknown",
 
-        source_platform: "unknown",
-
-        processing_status: "pending",
-      })
-      .select()
-      .single();
+          processing_status:
+            "queued",
+        })
+        .select()
+        .single();
 
     if (error) {
       throw error;
@@ -98,11 +95,15 @@ export async function POST(req: Request) {
       memory,
     });
   } catch (error) {
-    console.error("MEMORY SAVE ERROR:", error);
+    console.error(
+      "MEMORY SAVE ERROR:",
+      error
+    );
 
     return NextResponse.json(
       {
-        error: "Internal server error",
+        error:
+          "Internal server error",
       },
       {
         status: 500,

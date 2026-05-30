@@ -3,11 +3,6 @@ import * as cheerio from "cheerio";
 export async function extractOpenGraphMetadata(
   url: string
 ) {
-  console.log(
-    "🔍 OPEN GRAPH EXTRACTOR CALLED:",
-    url
-  );
-
   try {
     const response = await fetch(url, {
       headers: {
@@ -16,34 +11,11 @@ export async function extractOpenGraphMetadata(
       },
     });
 
-    const html = await response.text();
+    const html =
+      await response.text();
 
-    console.log(
-     "Response status:",
-     response.status
-    );
-
-    console.log(
-     "HTML length:",
-     html.length
-    );
-
-    console.log(
-     "First 500 chars:",
-     html.slice(0, 500)
-    );
-
-    const $ = cheerio.load(html);
-
-    console.log(
-     "OG title:",
-     $('meta[property="og:title"]').attr("content")
-    );
-
-    console.log(
-     "Page title:",
-     $("title").text()
-    );
+    const $ =
+      cheerio.load(html);
 
     const title =
       $('meta[property="og:title"]').attr(

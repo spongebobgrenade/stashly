@@ -1,17 +1,9 @@
+import type { Tables } from "@/types/database.types";
+
+export type Memory = Tables<"saves">;
+
 export type MemoryProcessingStatus =
-  | "pending"
+  | "queued"
   | "processing"
   | "completed"
   | "failed";
-
-export interface Memory {
-  id: string;
-
-  userId: string;
-
-  url: string;
-
-  processingStatus: MemoryProcessingStatus;
-
-  createdAt: string;
-}

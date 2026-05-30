@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       save_processing_jobs: {
@@ -76,12 +51,15 @@ export type Database = {
       }
       saves: {
         Row: {
+          canonical_url: string | null
           content_type: string
           created_at: string | null
+          creator_name: string | null
           description: string | null
           id: string
           original_input: string
           processing_status: string | null
+          raw_metadata: Json | null
           source_platform: string | null
           thumbnail_url: string | null
           title: string | null
@@ -89,12 +67,15 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          canonical_url?: string | null
           content_type: string
           created_at?: string | null
+          creator_name?: string | null
           description?: string | null
           id?: string
           original_input: string
           processing_status?: string | null
+          raw_metadata?: Json | null
           source_platform?: string | null
           thumbnail_url?: string | null
           title?: string | null
@@ -102,12 +83,15 @@ export type Database = {
           user_id: string
         }
         Update: {
+          canonical_url?: string | null
           content_type?: string
           created_at?: string | null
+          creator_name?: string | null
           description?: string | null
           id?: string
           original_input?: string
           processing_status?: string | null
+          raw_metadata?: Json | null
           source_platform?: string | null
           thumbnail_url?: string | null
           title?: string | null
@@ -250,9 +234,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },

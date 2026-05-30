@@ -1,91 +1,186 @@
 import { create } from "zustand";
 
-export type Memory = {
-  id: string;
+import type { Memory } from "@/types/memory";
+
+type OptimisticMemory = Memory & {
   url?: string | null;
-  original_input?: string | null;
-  title: string | null;
-  description: string | null;
-  thumbnail_url: string | null;
-  source_platform: string | null;
-  creator_name: string | null;
-  processing_status: string | null;
-  created_at?: string;
 };
 
 type MemoryStore = {
-  memories: Memory[];
-  initializeMemories: (memories: Memory[]) => void;
-  addOptimisticMemory: (url: string) => void;
-  upsertMemory: (memory: Memory) => void;
+  memories: OptimisticMemory[];
+
+  initializeMemories: (
+    memories: Memory[]
+  ) => void;
+
+  addOptimisticMemory: (
+    url: string
+  ) => void;
+
+  upsertMemory: (
+    memory: Memory
+  ) => void;
 };
 
-export const useMemoryStore = create<MemoryStore>((set, get) => ({
-  memories: [],
+export const useMemoryStore =
+  create<MemoryStore>(
+    (set, get) => ({
+      memories: [],
 
-  initializeMemories: (memories) => {
-    if (get().memories.length > 0) {
-      return;
-    }
-    set({ memories });
-  },
+      initializeMemories: (
+        memories
+      ) => {
+        if (
+          get().memories.length > 0
+        ) {
+          return;
+        }
 
-  addOptimisticMemory: (url) => {
-    const optimisticMemory: Memory = {
-      id: `optimistic-${Date.now()}`,
-      url,
-      title: "Saving memory...",
-      description: "Preparing metadata enrichment...",
-      thumbnail_url: null,
-      source_platform: "Pending",
-      creator_name: null,
-      processing_status: "queued",
-      created_at: new Date().toISOString(),
-    };
+        set({
+          memories,
+        });
+      },
 
-    set((state) => ({
-      memories: [optimisticMemory, ...state.memories],
-    }));
-  },
+      addOptimisticMemory: (
+        url
+      ) => {
+        const optimisticMemory: OptimisticMemory =
+          {
+            id: `optimistic-${Date.now()}`,
 
-  upsertMemory: (memory) => {
-    set((state) => {
-      const incomingUrl = (memory.original_input || memory.url || "")
-        .trim()
-        .replace(/\/$/, "");
+            user_id: "",
 
-      // Remove matching optimistic entry (normalize URLs on both sides)
-      const filtered = state.memories.filter((existingMemory) => {
-        if (!existingMemory.id.startsWith("optimistic-")) return true;
+            original_input: url,
 
-        const existingUrl = (
-          existingMemory.url ||
-          existingMemory.original_input ||
-          ""
-        )
-          .trim()
-          .replace(/\/$/, "");
+            content_type:
+              "link",
 
-        // Remove optimistic entry only if URLs match
-        return existingUrl !== incomingUrl;
-      });
+            source_platform:
+              "pending",
 
-      // Check if real record already exists in the list
-      const existsIndex = filtered.findIndex(
-        (existingMemory) => existingMemory.id === memory.id
-      );
+            canonical_url:
+              null,
 
-      if (existsIndex !== -1) {
-        // Update in place, preserving any fields not in the incoming payload
-        const updated = [...filtered];
-        updated[existsIndex] = { ...filtered[existsIndex], ...memory };
-        return { memories: updated };
-      }
+            title:
+              "Saving memory...",
 
-      // New real record — prepend to list
-      return {
-        memories: [memory, ...filtered],
-      };
-    });
-  },
-}));
+            description:
+              "Preparing metadata enrichment...",
+
+            thumbnail_url:
+              null,
+
+            creator_name:
+              null,
+
+            raw_metadata:
+              null,
+
+            processing_status:
+              "queued",
+
+            created_at:
+              new Date().toISOString(),
+
+            updated_at:
+              new Date().toISOString(),
+
+            url,
+          };
+
+        set((state) => ({
+          memories: [
+            optimisticMemory,
+            ...state.memories,
+          ],
+        }));
+      },
+
+      upsertMemory: (
+        memory
+      ) => {
+        set((state) => {
+          const incomingUrl =
+            (
+              memory.original_input ??
+              ""
+            )
+              .trim()
+              .replace(
+                /\/$/,
+                ""
+              );
+
+          const filtered =
+            state.memories.filter(
+              (
+                existingMemory
+              ) => {
+                if (
+                  !existingMemory.id.startsWith(
+                    "optimistic-"
+                  )
+                ) {
+                  return true;
+                }
+
+                const existingUrl =
+                  (
+                    existingMemory.url ??
+                    existingMemory.original_input ??
+                    ""
+                  )
+                    .trim()
+                    .replace(
+                      /\/$/,
+                      ""
+                    );
+
+                return (
+                  existingUrl !==
+                  incomingUrl
+                );
+              }
+            );
+
+          const existingIndex =
+            filtered.findIndex(
+              (
+                existingMemory
+              ) =>
+                existingMemory.id ===
+                memory.id
+            );
+
+          if (
+            existingIndex !== -1
+          ) {
+            const updated = [
+              ...filtered,
+            ];
+
+            updated[
+              existingIndex
+            ] = {
+              ...filtered[
+                existingIndex
+              ],
+              ...memory,
+            };
+
+            return {
+              memories:
+                updated,
+            };
+          }
+
+          return {
+            memories: [
+              memory,
+              ...filtered,
+            ],
+          };
+        });
+      },
+    })
+  );

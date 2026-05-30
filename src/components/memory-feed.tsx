@@ -17,8 +17,10 @@ import {
   useMemoryStore,
 } from "@/lib/memories/store";
 
+import type { Memory } from "@/types/memory";
+
 type MemoryFeedProps = {
-  initialMemories: any[];
+  initialMemories: Memory[];
 };
 
 export function MemoryFeed({
@@ -50,7 +52,10 @@ export function MemoryFeed({
     return () => {
       teardownMemoryRealtime();
     };
-  }, []);
+  }, [
+    initialMemories,
+    initializeMemories,
+  ]);
 
   if (memories.length === 0) {
     return (

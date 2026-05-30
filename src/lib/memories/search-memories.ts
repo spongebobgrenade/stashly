@@ -1,6 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 
-export async function searchMemories(query: string) {
+import type { Memory } from "@/types/memory";
+
+export async function searchMemories(
+  query: string
+): Promise<Memory[]> {
   const supabase = await createClient();
 
   const {
@@ -25,8 +29,8 @@ export async function searchMemories(query: string) {
       [
         `title.ilike.%${trimmedQuery}%`,
         `description.ilike.%${trimmedQuery}%`,
+        `creator_name.ilike.%${trimmedQuery}%`,
         `source_platform.ilike.%${trimmedQuery}%`,
-        `content_type.ilike.%${trimmedQuery}%`,
         `original_input.ilike.%${trimmedQuery}%`,
       ].join(",")
     )
@@ -36,7 +40,12 @@ export async function searchMemories(query: string) {
     .limit(50);
 
   if (error) {
-    throw error;
+    console.error(
+      "SEARCH ERROR:",
+      error
+    );
+
+    return [];
   }
 
   return data ?? [];

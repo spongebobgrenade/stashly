@@ -16,16 +16,32 @@ export async function extractMetadata(
   switch (
     resolved.platform
   ) {
-    case "youtube":
-      return extractYoutubeMetadata(
-        resolved.normalizedUrl
-      );
+    case "youtube": {
+      const metadata =
+        await extractYoutubeMetadata(
+          resolved.normalizedUrl
+        );
+
+      return {
+        ...metadata,
+        contentType:
+          resolved.contentType,
+      };
+    }
 
     case "github":
-    case "website":
-      return extractOpenGraphMetadata(
-        resolved.normalizedUrl
-      );
+    case "website": {
+      const metadata =
+        await extractOpenGraphMetadata(
+          resolved.normalizedUrl
+        );
+
+      return {
+        ...metadata,
+        contentType:
+          resolved.contentType,
+      };
+    }
 
     default:
       return {
@@ -38,6 +54,8 @@ export async function extractMetadata(
         rawMetadata: null,
         sourcePlatform:
           "unknown",
+        contentType:
+          resolved.contentType,
       };
   }
 }

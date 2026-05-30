@@ -8,11 +8,7 @@ import {
   extractMetadata,
 } from "@/services/metadata/extractor";
 
-type ProcessMemoryJob = {
-  memoryId: string;
-  url: string;
-  userId: string;
-};
+import type { ProcessMemoryJob } from "@/types/jobs";
 
 export async function processMemoryJob(
   jobData: ProcessMemoryJob
@@ -21,60 +17,38 @@ export async function processMemoryJob(
 
   const { memoryId, url } = jobData;
 
-  console.log("🚀 Processing memory job...");
-  console.log(jobData);
-
   const supabase =
     getSupabaseAdmin();
 
-  const extractionStartedAt =
-    Date.now();
+  try {
+    await supabase
+      .from("saves")
+      .update({
+        processing_status:
+          "processing",
+      })
+      .eq("id", memoryId);
 
-  const resolved =
-    resolveInput(url);
-
-  console.log(
-    "Resolved content:",
-    resolved
-  );
-
-  const metadata =
-    await extractMetadata(
-      resolved
+    console.log(
+      "🚀 Processing memory job..."
     );
 
-  console.log(
-    "⏱️ Metadata extraction:",
-    Date.now() -
-      extractionStartedAt,
-    "ms"
-  );
+    const resolved =
+      resolveInput(url);
 
-  if (
-    !metadata.title &&
-    !metadata.description &&
-    !metadata.thumbnailUrl
-  ) {
-    console.warn(
-      "No metadata extracted for:",
-      url
-    );
-  }
+    const metadata =
+      await extractMetadata(
+        resolved
+      );
 
-  console.log(
-    "Updating memory:",
-    memoryId
-  );
-
-  const dbUpdateStartedAt =
-    Date.now();
-
-  const { data, error } =
     await supabase
       .from("saves")
       .update({
         source_platform:
           metadata.sourcePlatform,
+
+        content_type:
+          metadata.contentType,
 
         title:
           metadata.title,
@@ -97,38 +71,32 @@ export async function processMemoryJob(
         processing_status:
           "completed",
       })
-      .eq("id", memoryId)
-      .select();
+      .eq("id", memoryId);
 
-  console.log(
-    "⏱️ Database update:",
-    Date.now() -
-      dbUpdateStartedAt,
-    "ms"
-  );
+    console.log(
+      "✅ Memory processing completed"
+    );
 
-  if (error) {
+    console.log(
+      "⏱️ Total worker time:",
+      Date.now() -
+        startedAt,
+      "ms"
+    );
+  } catch (error) {
     console.error(
-      "SUPABASE UPDATE ERROR:",
+      "❌ Memory processing failed",
       error
     );
 
+    await supabase
+      .from("saves")
+      .update({
+        processing_status:
+          "failed",
+      })
+      .eq("id", memoryId);
+
     throw error;
   }
-
-  console.log(
-    "Updated rows:",
-    data
-  );
-
-  console.log(
-    "⏱️ Total worker time:",
-    Date.now() -
-      startedAt,
-    "ms"
-  );
-
-  console.log(
-    "✅ Memory processing completed"
-  );
 }

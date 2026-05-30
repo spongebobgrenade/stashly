@@ -1,7 +1,9 @@
 import { MemoryCard } from "@/components/memory-card";
 
+import type { Memory } from "@/types/memory";
+
 interface SearchResultsProps {
-  memories: any[];
+  memories: Memory[];
 }
 
 export function SearchResults({
