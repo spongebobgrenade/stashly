@@ -1,28 +1,42 @@
 # Stashly Engineering Debt Register
 
+Status: Active
+
 Purpose:
 
-Track all known shortcuts, temporary implementations, architectural compromises, and future refactors.
+Track known engineering debt, accepted shortcuts, deferred scalability work, and implementation compromises.
 
 Engineering debt is not a bug.
 
-Engineering debt is a conscious decision to move faster now while accepting future cleanup cost.
+Engineering debt is a conscious decision to accept future cleanup cost in exchange for current execution speed.
+
+This document only tracks active debt.
+
+Resolved debt should be removed rather than retained.
 
 ---
 
 # Debt Classification
 
-P0 = Must Fix Before Scale
+## P0
 
-P1 = Fix Before Public Launch
+Must fix before scale.
 
-P2 = Fix Before Major Feature Expansion
+## P1
 
-P3 = Cleanup Opportunity
+Fix before public launch.
+
+## P2
+
+Fix before major feature expansion.
+
+## P3
+
+Cleanup opportunity.
 
 ---
 
-# Current Engineering Debt
+# Active Engineering Debt
 
 ---
 
@@ -30,68 +44,7 @@ P3 = Cleanup Opportunity
 
 Title:
 
-Inline Platform Detection
-
-Priority:
-
-P2
-
-Status:
-
-Open
-
-Location:
-
-processMemoryJob()
-
-Current Implementation:
-
-```ts
-if (
-  url.includes("youtube.com") ||
-  url.includes("youtu.be")
-)
-```
-
-Problem:
-
-Platform logic is embedded inside worker code.
-
-As more platforms are added:
-
-Instagram
-TikTok
-Twitter
-GitHub
-Notion
-Spotify
-
-worker complexity will increase rapidly.
-
-Future Solution:
-
-Create:
-
-platform-resolver.ts
-
-Example:
-
-```ts
-const platform =
-  resolvePlatform(url);
-```
-
-Benefit:
-
-Single source of platform detection.
-
----
-
-## ED-002
-
-Title:
-
-YouTube Only Metadata Support
+Metadata Retry Strategy Missing
 
 Priority:
 
@@ -101,78 +54,39 @@ Status:
 
 Open
 
-Problem:
+Current State:
 
-Current extraction supports only YouTube.
+Metadata extraction attempts exactly once.
 
-Future Requirement:
+Failure path:
 
-Support:
-
-Instagram
-TikTok
-Twitter/X
-LinkedIn
-GitHub
-Notion
-Spotify
-Articles
-PDFs
-
-Future Solution:
-
-Extractor Registry
-
-```ts
-extractMetadata(
-  platform,
-  url
-)
-```
-
-Benefit:
-
-Open/Closed architecture.
-
----
-
-## ED-003
-
-Title:
-
-Loose Metadata Typing
-
-Priority:
-
-P2
-
-Status:
-
-Open
-
-Current:
-
-```ts
-let metadata = {
- ...
-}
-```
+queued
+↓
+processing
+↓
+failed
 
 Problem:
 
-Weak compile-time guarantees.
+Temporary network failures become permanent failures.
 
 Future Solution:
 
-```ts
-type MetadataResult
-```
+BullMQ retry policies.
 
-Shared contract across extractors.
+Example:
+
+- 3 retries
+- exponential backoff
+- retryable error classification
+
+Expected Benefit:
+
+Higher enrichment success rates.
 
 ---
 
-## ED-004
+## ED-002
 
 Title:
 
@@ -186,35 +100,39 @@ Status:
 
 Open
 
+Current State:
+
+raw_metadata is stored without size controls.
+
 Problem:
 
-Large platform payloads may significantly increase database size.
+Large platform payloads may significantly increase:
 
-Potential Impact:
-
-Storage costs
-
-Slower queries
-
-Larger backups
+- storage cost
+- backup size
+- replication cost
 
 Future Solution:
 
 Store:
 
-Required Fields Only
+- required fields only
 
-OR
+or
 
-Move raw payloads to object storage.
+- archive raw payloads into object storage
+
+Expected Benefit:
+
+Controlled storage growth.
 
 ---
 
-## ED-005
+## ED-003
 
 Title:
 
-Memory Feed Uses Any[]
+Reconciliation Polling Is Always Active
 
 Priority:
 
@@ -224,33 +142,49 @@ Status:
 
 Open
 
-Current:
+Current State:
 
-```ts
-initialMemories: any[]
+Synchronization Layer polls:
+
+```text
+/api/memories/pending
 ```
+
+every 15 seconds.
 
 Problem:
 
-Loss of type safety.
+Polling continues even when no pending memories exist.
+
+Impact:
+
+Unnecessary API traffic.
 
 Future Solution:
 
-```ts
-Memory[]
-```
+State-aware synchronization.
 
-Benefit:
+Example:
 
-Safer refactors.
+Pending Memories Exist
+↓
+Polling Enabled
+
+No Pending Memories
+↓
+Polling Disabled
+
+Expected Benefit:
+
+Reduced infrastructure load.
 
 ---
 
-## ED-006
+## ED-004
 
 Title:
 
-Reconciliation Polling
+Realtime Lifecycle Exists Only In Browser Memory
 
 Priority:
 
@@ -260,43 +194,13 @@ Status:
 
 Open
 
-Purpose:
+Current State:
 
-Recover from missed realtime events.
-
-Problem:
-
-Extra API calls.
-
-Not ideal at scale.
-
-Future Solution:
-
-Improve realtime reliability.
-
-Reduce polling frequency.
-
-Eventually eliminate reconciliation.
-
----
-
-## ED-007
-
-Title:
-
-Realtime Singleton Exists Only In Browser Memory
-
-Priority:
-
-P2
-
-Status:
-
-Open
+Realtime channel lifecycle is managed in browser runtime.
 
 Problem:
 
-Channel state resets on refresh.
+Subscriptions are recreated on refresh.
 
 Current Impact:
 
@@ -304,89 +208,18 @@ Acceptable.
 
 Future Impact:
 
-Potential subscription management complexity.
+May complicate:
+
+- multi-tab coordination
+- future synchronization transports
 
 Future Solution:
 
-Dedicated Realtime Manager.
+Dedicated synchronization manager.
 
 ---
 
-## ED-008
-
-Title:
-
-Memory Card Uses Native img Tag
-
-Priority:
-
-P3
-
-Status:
-
-Open
-
-Current:
-
-```tsx
-<img />
-```
-
-Problem:
-
-No image optimization.
-
-Future Solution:
-
-Next.js Image component.
-
-Benefit:
-
-Lazy loading.
-
-Compression.
-
-Responsive sizing.
-
----
-
-## ED-009
-
-Title:
-
-No Retry Strategy For Metadata Extraction
-
-Priority:
-
-P1
-
-Status:
-
-Open
-
-Current Behavior:
-
-Single extraction attempt.
-
-Failure = failed status.
-
-Future Solution:
-
-BullMQ retries.
-
-Example:
-
-3 retries
-
-Exponential backoff
-
-Benefit:
-
-Improved reliability.
-
----
-
-## ED-010
+## ED-005
 
 Title:
 
@@ -400,63 +233,39 @@ Status:
 
 Open
 
-Current:
+Current State:
+
+Worker logging uses:
 
 ```ts
 console.log()
+console.error()
 ```
 
 Problem:
 
-Not searchable.
+Logs are not structured.
 
-Not structured.
+Logs are difficult to query.
 
 Future Solution:
 
 Structured logging.
 
-Potential tools:
+Potential Tools:
 
-Pino
+- Pino
+- Axiom
+- OpenTelemetry
+- Datadog
 
-Axiom
+Expected Benefit:
 
-Datadog
-
-OpenTelemetry
-
----
-
-## ED-011
-
-Title:
-
-No Distributed Worker Support
-
-Priority:
-
-P3
-
-Status:
-
-Deferred
-
-Current:
-
-Single worker.
-
-Future:
-
-Multiple workers.
-
-Shared Redis.
-
-Horizontal scaling.
+Better debugging and observability.
 
 ---
 
-## ED-012
+## ED-006
 
 Title:
 
@@ -470,27 +279,115 @@ Status:
 
 Open
 
+Current State:
+
+Queue visibility exists only through logs.
+
+Missing:
+
+- queue health visibility
+- failure visibility
+- processing metrics
+
 Future Solution:
 
 Bull Board
 
 or
 
-Custom Admin Panel
+Custom Operations Dashboard
 
 Metrics:
 
-Jobs queued
+- queued jobs
+- processing jobs
+- failed jobs
+- retry count
+- processing latency
 
-Jobs processing
+Expected Benefit:
 
-Jobs failed
-
-Average processing time
+Operational visibility.
 
 ---
 
-## ED-013
+## ED-007
+
+Title:
+
+Loose Metadata Typing
+
+Priority:
+
+P2
+
+Status:
+
+Open
+
+Current State:
+
+Metadata contracts are improving but extractor outputs are still not enforced through a fully canonical extraction interface.
+
+Problem:
+
+Future platform growth may introduce contract drift.
+
+Future Solution:
+
+Formal extractor contract hierarchy.
+
+Example:
+
+```ts
+MetadataEnrichment
+ExtractedMetadata
+```
+
+become mandatory interfaces across all extractors.
+
+Expected Benefit:
+
+Compile-time enforcement.
+
+---
+
+## ED-008
+
+Title:
+
+Distributed Worker Architecture Deferred
+
+Priority:
+
+P3
+
+Status:
+
+Deferred
+
+Current State:
+
+Single metadata worker.
+
+Future Requirement:
+
+Multiple workers sharing:
+
+- Redis
+- BullMQ queues
+
+Future Solution:
+
+Horizontal worker scaling.
+
+Expected Benefit:
+
+Higher throughput.
+
+---
+
+## ED-009
 
 Title:
 
@@ -504,13 +401,15 @@ Status:
 
 Accepted
 
-Current:
+Current State:
 
-~2.7 seconds
+Typical enrichment:
+
+~2–5 seconds
 
 Impact:
 
-Users wait 3–4 seconds for enrichment.
+Users wait several seconds before full enrichment appears.
 
 Current Decision:
 
@@ -518,33 +417,104 @@ Acceptable for MVP.
 
 Future Solution:
 
-Parallel extraction.
+- caching
+- platform-specific optimizations
+- parallel enrichment
+- extractor performance tuning
 
-Platform-specific optimizations.
+Expected Benefit:
 
-Caching.
+Faster enrichment.
+
+---
+
+## ED-010
+
+Title:
+
+Synchronization Layer Transport Consolidation
+
+Priority:
+
+P2
+
+Status:
+
+Deferred
+
+Current State:
+
+Realtime Transport and Reconciliation Transport independently deliver updates.
+
+Problem:
+
+Future transports will increase synchronization complexity.
+
+Future Requirement:
+
+Unified synchronization manager.
+
+Future Transports:
+
+- Realtime
+- Reconciliation
+- Mobile Sync
+- Extension Sync
+- Offline Recovery
+
+Future Solution:
+
+Dedicated Sync Manager abstraction.
+
+Expected Benefit:
+
+Single synchronization ownership model.
+
+---
+
+# Resolved Debt
+
+The following debt has been repaid and is no longer considered active:
+
+✓ Platform Resolver
+
+✓ Extractor Registry
+
+✓ GitHub Classification Ownership
+
+✓ Resolver-Owned Classification
+
+✓ MemoryFeed Type Safety
+
+✓ Search Architecture V1
+
+✓ MemoryBootstrap Extraction
+
+✓ Synchronization Layer V1 Foundation
+
+✓ User-Scoped Reconciliation Endpoint
+
+These items should not be reintroduced into future debt registers.
 
 ---
 
 # Debt Accepted For MVP
 
-The following debts are intentionally accepted:
+The following debt is intentionally accepted:
+
+✓ Reconciliation Polling
+
+✓ Console Logging
 
 ✓ Single Worker
 
-✓ YouTube-only extraction
+✓ No Queue Dashboard
 
-✓ Reconciliation polling
-
-✓ Console logging
-
-✓ Native image rendering
-
-✓ Manual platform detection
+✓ Metadata Extraction Latency
 
 Reason:
 
-Speed of execution is currently more valuable than architectural perfection.
+Current priority is expanding Memory capabilities rather than operational optimization.
 
 ---
 
@@ -554,13 +524,15 @@ Review every sprint.
 
 Questions:
 
-1. Is this debt slowing development?
+1. Is this slowing development?
 
-2. Is this debt creating bugs?
+2. Is this causing production issues?
 
-3. Is this debt increasing costs?
+3. Is this increasing operational cost?
 
-4. Is this debt blocking scale?
+4. Is this blocking platform expansion?
+
+5. Is this blocking semantic retrieval?
 
 If YES:
 
@@ -568,13 +540,18 @@ Schedule repayment.
 
 Otherwise:
 
-Keep shipping.
+Continue shipping.
 
 ---
 
 # Last Updated
 
-2026-05-28
+After:
+
+- Metadata Architecture V1
+- Search Architecture V1
+- Synchronization Layer V1
+- Extractor Registry Refactor
 
 Status:
 

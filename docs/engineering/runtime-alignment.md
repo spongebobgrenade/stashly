@@ -4,27 +4,28 @@
 > Type: Engineering Governance Document  
 > Status: Active  
 > Layer: Engineering  
-> Authority: Memory Architecture -> Runtime Alignment -> Implementation
+> Authority: Memory Architecture → Runtime Alignment → Implementation
 
 ---
 
 # 1. Purpose
 
-This document exists to prevent runtime drift between:
+This document prevents runtime drift between:
 
 - Memory Architecture
 - Database Schema
 - Generated Types
-- Application Types
-- Workers
 - APIs
+- Workers
+- Synchronization Layer
+- Retrieval Layer
 - Client State
 
-The Memory Architecture defines Memory truth.
+Memory Architecture defines Memory semantics.
 
-Runtime systems must align with that truth.
+Runtime Alignment defines how those semantics are implemented in code.
 
-This document records how Memory Architecture is implemented in code.
+Implementation must align with Runtime Alignment.
 
 ---
 
@@ -44,6 +45,8 @@ Runtime Alignment
 ↓
 Implementation
 
+Rules:
+
 If implementation conflicts with Runtime Alignment:
 
 Implementation changes.
@@ -52,7 +55,7 @@ If Runtime Alignment conflicts with Memory Architecture:
 
 Runtime Alignment changes.
 
-Memory Architecture remains authoritative for Memory semantics.
+Memory Architecture remains authoritative.
 
 ---
 
@@ -67,14 +70,16 @@ No implementation layer may redefine:
 - Memory identity
 - Memory ownership
 - Memory lifecycle
-- Memory field meaning
 - Memory trust boundaries
+- Memory semantics
+
+Memory Architecture owns those definitions.
 
 ---
 
 # 4. Canonical Persistence Layer
 
-The database schema is the persisted representation of Memory.
+The database is the persisted representation of Memory.
 
 Current canonical Memory columns:
 
@@ -93,13 +98,13 @@ Current canonical Memory columns:
 - created_at
 - updated_at
 
-Columns outside the canonical Memory Architecture are considered schema drift.
+Columns outside Memory Architecture constitute schema drift.
+
+Schema drift must be corrected.
 
 ---
 
 # 5. Generated Type Rules
-
-Generated database types must always mirror the database schema.
 
 Source:
 
@@ -107,10 +112,12 @@ src/types/database.types.ts
 
 Rules:
 
-- Never manually edit generated types.
+- Generated types mirror database schema.
+- Generated types are never manually edited.
 - Regenerate after schema changes.
-- Application Memory types derive from generated types.
 - Generated types do not define Memory semantics.
+
+Generated types represent persistence structure only.
 
 ---
 
@@ -126,9 +133,13 @@ Current rule:
 export type Memory = Tables<"saves">;
 ```
 
-Application Memory types derive from database truth.
+Rules:
 
-No duplicate handwritten Memory entity definitions are allowed.
+- Memory derives from generated database types.
+- No duplicate Memory definitions.
+- No handwritten Memory entities.
+
+Database truth remains authoritative.
 
 ---
 
@@ -144,48 +155,61 @@ queued
 → processing
 → failed
 
-Lifecycle ownership belongs to the processing layer.
+Ownership:
+
+Processing Layer
+
+Responsibilities:
+
+- lifecycle transitions
+- lifecycle persistence
 
 UI may display lifecycle state.
 
-UI may not redefine lifecycle meaning.
+UI may not redefine lifecycle semantics.
 
 Retrieval may read lifecycle state.
 
-Retrieval may not redefine lifecycle meaning.
+Retrieval may not redefine lifecycle semantics.
 
 ---
 
-# 8. Save Flow Contract
+# 8. Capture Layer Contract
 
 Capture Layer responsibilities:
 
-- create Memory
+- validate input
 - preserve original_input
 - assign owner
+- create memory
 - enqueue processing
 
 Current initial state:
 
+```text
 processing_status = queued
+```
 
-The Save Layer does not own enrichment completion.
+Capture Layer does not own enrichment.
+
+Capture Layer does not own lifecycle completion.
 
 ---
 
 # 9. Worker Contract
 
-Processing Layer responsibilities:
+Worker responsibilities:
 
 - transition queued → processing
-- enrich metadata
-- update canonical fields
+- perform enrichment
+- persist metadata
 - transition processing → completed
 - transition processing → failed
 
 Worker may write:
 
 - source_platform
+- content_type
 - canonical_url
 - title
 - description
@@ -196,9 +220,147 @@ Worker may write:
 
 Worker may not redefine Memory semantics.
 
+Worker may not bypass resolver ownership.
+
 ---
 
-# 10. State Ownership Rules
+# 10. Resolver Ownership Rules
+
+Resolver owns classification.
+
+Implementation:
+
+platform-resolver.ts
+
+Resolver owns:
+
+- platform
+- contentType
+- normalizedUrl
+- identifier
+
+Resolver classification is authoritative.
+
+No downstream component may override classification.
+
+---
+
+# 11. Extractor Ownership Rules
+
+Extractors own enrichment only.
+
+Extractors may produce:
+
+- title
+- description
+- thumbnailUrl
+- creatorName
+- canonicalUrl
+- rawMetadata
+
+Extractors must not produce:
+
+- sourcePlatform
+- contentType
+
+Classification ownership belongs to the Resolver.
+
+---
+
+# 12. Extractor Registry Rules
+
+Implementation:
+
+extractor-registry.ts
+
+Registry owns extractor selection.
+
+Current supported registry entries:
+
+- youtube
+- github
+- website
+- unknown
+
+New platform support must be added through registry registration.
+
+Avoid switch-statement growth.
+
+Avoid platform detection inside workers.
+
+---
+
+# 13. Synchronization Layer Contract
+
+Synchronization owns Memory delivery.
+
+Synchronization does not own Memory truth.
+
+Memory truth remains the database.
+
+Current transports:
+
+## Realtime Transport
+
+Responsibilities:
+
+- subscribe to memory updates
+- receive database changes
+- deliver updates to store
+
+Flow:
+
+Database
+↓
+Realtime
+↓
+upsertMemory()
+
+---
+
+## Reconciliation Transport
+
+Responsibilities:
+
+- recover missed updates
+- maintain client consistency
+
+Current implementation:
+
+15-second polling
+
+Flow:
+
+/api/memories/pending
+↓
+Memory[]
+↓
+upsertMemory()
+
+---
+
+## Synchronization Rule
+
+All transports must update state through:
+
+```ts
+upsertMemory()
+```
+
+UI must not require transport-specific logic.
+
+Future transports:
+
+- Mobile Sync
+- Extension Sync
+- Offline Recovery
+- Multi-Device Synchronization
+
+must follow the same contract.
+
+---
+
+# 14. State Ownership Rules
 
 Capture Layer owns:
 
@@ -207,6 +369,11 @@ Capture Layer owns:
 Processing Layer owns:
 
 - lifecycle transitions
+- enrichment
+
+Synchronization Layer owns:
+
+- state delivery
 
 Retrieval Layer owns:
 
@@ -220,38 +387,108 @@ No layer owns Memory semantics except Memory Architecture.
 
 ---
 
-# 11. Schema Drift Rules
+# 15. Store Ownership Rules
 
-The following indicate schema drift:
+Implementation:
 
-- columns existing in schema but not Memory Architecture
-- application types differing from generated types
-- workers writing undeclared Memory fields
-- UI requiring fields absent from canonical Memory
+src/lib/memories/store.ts
 
-Schema drift must be corrected immediately.
+Store responsibilities:
 
-Do not build around drift.
+- memory cache
+- optimistic insertion
+- state updates
 
-Do not patch around drift.
+Canonical store actions:
 
-Align the system instead.
+initializeMemories()
+
+addOptimisticMemory()
+
+upsertMemory()
+
+All runtime transports must use:
+
+```ts
+upsertMemory()
+```
+
+for Memory updates.
 
 ---
 
-# 12. Deferred Architecture Decisions
+# 16. Search Alignment Rules
 
-## Memory Type Mapping Layer
+Current search:
+
+Keyword Search V1
+
+Implementation:
+
+- SearchBar
+- useSearch()
+- /api/search
+- SearchResults
+
+Current retrieval strategy:
+
+ILIKE matching across:
+
+- title
+- description
+- creator_name
+- source_platform
+- original_input
+
+Future retrieval systems:
+
+- semantic search
+- embeddings
+- relationships
+- rediscovery
+
+must derive from canonical Memory.
+
+They may not redefine Memory.
+
+---
+
+# 17. Schema Drift Rules
+
+The following indicate schema drift:
+
+- schema fields not present in Memory Architecture
+- application types differing from generated types
+- workers writing undeclared fields
+- extractors owning classification
+- transport layers bypassing upsertMemory()
+- UI requiring undeclared Memory fields
+
+Drift must be corrected immediately.
+
+Do not build around drift.
+
+Align the system.
+
+---
+
+# 18. Deferred Architecture Decisions
+
+## RA-001: Memory Taxonomy Expansion
 
 Status:
 
 Deferred
 
-Reason:
+Current behavior:
 
-Resolver taxonomy and Memory taxonomy intentionally differ.
+Resolver classifications are written directly into:
 
-Resolver content types:
+```text
+saves.content_type
+```
+
+Examples:
 
 - video
 - short
@@ -259,348 +496,140 @@ Resolver content types:
 - repository
 - article
 - website
-- unknown
 
-Canonical Memory content types:
+Reason:
 
-- link
+Current taxonomy is sufficient for MVP.
+
+Future Memory Architecture may introduce:
+
 - note
 - image
 - screenshot
 - pdf
 - file
-- text
 - audio
-- video
 
-Decision:
-
-Resolver content types must never be written directly into Memory.
-
-A dedicated Memory Type Mapping Layer will be introduced when non-link memory capture begins.
-
-Planned mapping:
-
-video → video
-
-short → video
-
-playlist → video
-
-repository → link
-
-article → link
-
-website → link
-
-unknown → link
-
-Owner:
-
-Memory Architecture
+At that point a dedicated mapping layer may be required.
 
 ---
 
-# 13. Future Alignment Rules
+## RA-002: Attribution Model Expansion
 
-Whenever a future architectural decision is intentionally deferred:
+Status:
 
-Either:
+Deferred
 
-1. implement it immediately
+Current behavior:
 
-or
+```text
+og:site_name
+↓
+creator_name
+```
 
-2. document it here
+Known limitation:
 
-No architectural decision may exist only in chat history.
+Publisher and creator are not always the same entity.
 
-This document exists to preserve alignment across:
-
-- new chats
-- future contributors
-- future Codex runs
-- future implementation phases
-
----
-
-# 14. Current Alignment Status
-
-Aligned:
-
-- Memory Architecture
-- Database Schema
-- Generated Types
-- Worker Metadata Contract
-- Canonical Metadata Fields
-
-Remaining Future Work:
-
-- Memory Type Mapping Layer
-- Retrieval Architecture
-- Search Architecture
-- Relationship Architecture
-- Rediscovery Architecture
-
-These systems must derive from Memory rather than redefine it.
-
-## Deferred UI Optimization
-
-### Next.js Image Migration
-
-Status: Deferred
-
-File:
-- src/components/memory-card.tsx
-
-Reason:
-- Does not affect Memory Architecture
-- Does not affect persistence correctness
-- Does not affect retrieval correctness
-- Does not affect async processing lifecycle
-
-May be addressed during UI optimization phase.
-
-## Thumbnail Rendering Decision
-
-Stashly V1 uses:
-
-<Image unoptimized />
-
-Reason:
-- Memory thumbnails originate from arbitrary OpenGraph sources.
-- Maintaining a growing Next.js image-domain allowlist creates operational overhead and causes Memory cards to fail when new domains appear.
-- Thumbnail optimization may be reintroduced in a future dedicated Media Pipeline.
-- V1 prioritizes Memory reliability over image optimization.
-
-## UI Performance Backlog
-
-### Next.js Image LCP Warning
-
-Observed:
-
-Image was detected as Largest Contentful Paint (LCP).
-Please add loading="eager".
-
-Decision:
-
-No action in Stashly V1.
-
-Reason:
-
-- The warning does not affect correctness.
-- The warning does not affect Memory Architecture.
-- The warning does not affect retrieval reliability.
-- Thumbnail rendering works correctly.
-
-Future Consideration:
-
-Evaluate selective use of:
-
-loading="eager"
-
-for above-the-fold Memory cards during a dedicated UI performance optimization pass.
-
-## Website Attribution
-
-Current State
-
-OpenGraph extraction maps:
-
-og:site_name -> creator_name
-
-Reason
-
-Provides a useful attribution signal for V1.
-
-Known Limitation
-
-Website brand and content creator are not always the same entity.
-
-Future Work
-
-Introduce a dedicated attribution model separating:
+Future model may separate:
 
 - creator_name
 - publisher_name
 - platform_name
 
-Local Development Startup
-
-Terminal 1:
-npm run dev
-
-Terminal 2:
-npm run worker
-
-Worker is mandatory.
-
-If worker is not running:
-- saves remain queued
-- enrichment never happens
-- metadata never appears
-
-# RA-003: Content Type Mapping Layer Deferred
-
-## Status
-
-Accepted
-
-## Date
-
-2026-05-30
-
-## Context
-
-The Memory Architecture defines:
-
-```text
-content_type
-```
-
-as a canonical Memory field.
-
-Current metadata extraction flow produces platform-specific content classifications such as:
-
-```text
-video
-short
-playlist
-repository
-article
-website
-unknown
-```
-
-These values are generated by the Platform Resolver and Metadata Extractors.
-
-The long-term Memory Architecture may eventually support a richer content taxonomy than the current resolver output.
-
-Directly coupling resolver classifications to canonical Memory semantics creates a risk of future schema drift.
-
 ---
 
-## Current Runtime Behavior
+## RA-003: Synchronization Optimization
 
-Current implementation writes:
+Status:
 
-```ts
-metadata.contentType
-```
+Deferred
 
-directly into:
+Current behavior:
 
-```ts
-saves.content_type
-```
+Reconciliation polls every 15 seconds.
 
-during worker enrichment.
+Reason:
 
-This behavior is currently operational and accepted.
+Simple and reliable.
 
-No production issue exists.
+Future architecture:
 
----
-
-## Decision
-
-A dedicated Content Type Mapping Layer is deferred.
-
-The worker may continue writing resolver content types directly into:
-
-```text
-saves.content_type
-```
-
-until a broader Memory Taxonomy is introduced.
-
----
-
-## Future Architecture
-
-Future flow:
-
-```text
-Resolver
-↓
-Platform Content Type
-↓
-Content Type Mapper
-↓
-Canonical Memory Content Type
-↓
-Database
-```
+State-aware synchronization.
 
 Example:
 
-```text
-youtube_short
+Pending Memories Exist
 ↓
-video
-```
+Polling Enabled
 
-```text
-github_repository
+No Pending Memories
 ↓
-repository
-```
+Polling Disabled
 
-```text
-medium_article
-↓
-article
-```
-
-The mapping layer will become the only component allowed to translate platform-specific content into canonical Memory types.
+This optimization is intentionally deferred.
 
 ---
 
-## Reason
+# 19. Local Development Requirements
 
-Current implementation is sufficient for MVP functionality.
+Terminal 1:
 
-Introducing a mapping layer now would add complexity without providing immediate user value.
-
-The architecture should remain simple until multiple platforms create meaningful taxonomy conflicts.
-
----
-
-## Consequences
-
-Accepted short-term drift:
-
-```text
-Resolver Content Type
-=
-Database Content Type
+```bash
+npm run dev
 ```
 
-Future versions introducing:
+Terminal 2:
 
-- Instagram
-- TikTok
-- Spotify
-- Notion
-- PDFs
-- Images
-- Notes
-- Voice Memories
+```bash
+npm run worker
+```
 
-may require a dedicated mapping layer.
+Worker is mandatory.
 
-At that point this decision should be revisited.
+Without worker:
+
+- memories remain queued
+- enrichment never occurs
+- metadata never appears
+- synchronization receives no lifecycle updates
 
 ---
 
-## Review Trigger
+# 20. Current Alignment Status
 
-Re-evaluate when:
+Aligned:
 
-- More than 3 platform-specific extractors exist
-OR
-- Memory Architecture introduces richer content taxonomy
-OR
-- Resolver classifications diverge from canonical Memory semantics
+✓ Memory Architecture
 
-Until then, direct assignment remains acceptable.
+✓ Database Schema
+
+✓ Generated Types
+
+✓ Worker Contract
+
+✓ Resolver Ownership
+
+✓ Extractor Ownership
+
+✓ Extractor Registry
+
+✓ Synchronization Layer
+
+✓ Search Architecture V1
+
+✓ Optimistic Save Architecture
+
+Remaining Future Work:
+
+- Platform Expansion
+- Memory Taxonomy Expansion
+- Semantic Retrieval
+- Embeddings
+- Knowledge Graph
+- Relationships
+- Rediscovery
+- AI Retrieval
+
+These systems must build on canonical Memory rather than redefine it.

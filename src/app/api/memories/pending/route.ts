@@ -1,17 +1,39 @@
 import { NextResponse } from "next/server";
 
-import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
-  const supabase = getSupabaseAdmin();
+  const supabase =
+    await createClient();
 
-  const { data, error } = await supabase
-    .from("saves")
-    .select("*")
-    .neq("processing_status", "completed")
-    .order("created_at", {
-      ascending: false,
-    });
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
+  const { data, error } =
+    await supabase
+      .from("saves")
+      .select("*")
+      .eq("user_id", user.id)
+      .neq(
+        "processing_status",
+        "completed"
+      )
+      .order("created_at", {
+        ascending: false,
+      });
 
   if (error) {
     console.error(

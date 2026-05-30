@@ -2,28 +2,106 @@
 
 ## Purpose
 
-This document describes the current technical architecture of Stashly, the responsibilities of each system component, data flow, realtime architecture, worker architecture, and future scaling considerations.
+This document describes the current technical architecture of Stashly, system responsibilities, ownership boundaries, runtime data flow, synchronization architecture, worker architecture, and future scaling strategy.
+
+This document reflects the actual implementation currently running in the repository.
 
 ---
 
 # System Overview
 
-Stashly is an AI-powered memory operating system that transforms links, content, and future media types into structured, searchable memories.
+Stashly is an AI Memory Operating System.
 
-The architecture is intentionally designed around asynchronous processing.
+The system transforms captured content into structured memories that can later power retrieval, rediscovery, recommendations, semantic search, relationships, and AI reasoning.
 
-Users should never wait for metadata extraction before seeing feedback.
+The architecture is intentionally asynchronous.
 
-The system uses:
+Users should never wait for enrichment before receiving feedback.
 
-- Next.js
+Current stack:
+
+- Next.js 16
 - Supabase
 - PostgreSQL
 - Supabase Realtime
 - Redis
 - BullMQ
-- Background Workers
+- Dedicated Metadata Worker
 - Zustand
+
+---
+
+# Architectural Principles
+
+## 1. Immediate User Feedback
+
+The user should always receive feedback immediately after capture.
+
+Capture success must not depend on enrichment completion.
+
+Users receive:
+
+- optimistic memory card
+- queued state
+- realtime enrichment updates
+
+---
+
+## 2. Asynchronous Processing
+
+Capture and enrichment are independent systems.
+
+Capture path:
+
+User
+↓
+Save API
+↓
+Database
+↓
+Response
+
+Processing path:
+
+Queue
+↓
+Worker
+↓
+Metadata Extraction
+↓
+Database Update
+
+These paths remain intentionally decoupled.
+
+---
+
+## 3. Transport Independence
+
+Memory updates should not depend on a single delivery mechanism.
+
+Current transports:
+
+- Realtime Transport
+- Reconciliation Transport
+
+Future transports:
+
+- Extension Sync
+- Mobile Sync
+- Offline Recovery
+- Multi-Device Synchronization
+
+All transports ultimately update Memory state through a shared store contract.
+
+---
+
+## 4. Database Authority
+
+The database is the canonical source of truth.
+
+Client state is a temporary projection.
+
+Realtime events are delivery mechanisms, not sources of truth.
 
 ---
 
@@ -35,65 +113,144 @@ Next.js Frontend
 ↓
 Save API
 ↓
-Supabase (saves table)
+Supabase (saves)
 ↓
 BullMQ Queue
 ↓
-Worker
+Metadata Worker
 ↓
 Metadata Extraction
 ↓
 Supabase Update
 ↓
+Synchronization Layer
+↓
+Zustand Store
+↓
+UI
+
+---
+
+# Runtime Layers
+
+## Capture Layer
+
+Responsibilities:
+
+- receive user input
+- validate input
+- create memory record
+- enqueue processing
+
+Current implementation:
+
+src/app/api/memories/save/route.ts
+
+Capture does not perform enrichment.
+
+---
+
+## Processing Layer
+
+Responsibilities:
+
+- lifecycle transitions
+- metadata extraction
+- enrichment persistence
+
+Current lifecycle:
+
+queued
+→ processing
+→ completed
+
+queued
+→ processing
+→ failed
+
+Current implementation:
+
+workers/metadata-worker/
+
+---
+
+## Synchronization Layer
+
+Responsibilities:
+
+- deliver database changes to clients
+- recover missed updates
+- maintain client consistency
+
+Current transports:
+
+### Realtime Transport
+
+Provider:
+
 Supabase Realtime
+
+Purpose:
+
+Primary update mechanism.
+
+Flow:
+
+Database Update
 ↓
-Frontend Store Update
+Postgres Change
 ↓
-UI Re-render
+Realtime Event
+↓
+upsertMemory()
+↓
+UI Update
+
+### Reconciliation Transport
+
+Purpose:
+
+Recover missed realtime events.
+
+Flow:
+
+15-second interval
+↓
+/api/memories/pending
+↓
+Memory[]
+↓
+upsertMemory()
+↓
+UI Update
+
+Both transports share the same store update path.
 
 ---
 
-# Core Principles
+## Retrieval Layer
 
-## 1. Immediate Feedback
+Responsibilities:
 
-Users should receive feedback instantly.
+- memory feed
+- keyword search
+- future semantic retrieval
 
-Never block the UI while metadata extraction is occurring.
+Current implementation:
 
-The user should see a placeholder card immediately.
+Memory Feed
+Search API
+Search Results
 
----
+Current search:
 
-## 2. Asynchronous Processing
+Keyword search using ILIKE matching across:
 
-All enrichment happens outside request-response cycles.
-
-Request path:
-
-User → Save
-
-Processing path:
-
-Worker → Metadata → Database Update
-
-These systems remain independent.
-
----
-
-## 3. Event Driven Updates
-
-The frontend should not poll for updates.
-
-State changes are delivered through realtime events.
-
----
-
-## 4. Single Source of Truth
-
-Database is always authoritative.
-
-Frontend state exists only as a temporary cache.
+- title
+- description
+- creator_name
+- source_platform
+- original_input
 
 ---
 
@@ -108,8 +265,15 @@ Current routes:
 /
 /login
 /dashboard
+
+API routes:
+
 /api/memories/save
 /api/memories/pending
+/api/search
+
+Authentication:
+
 /auth/callback
 
 ---
@@ -126,10 +290,10 @@ src/lib/memories/store.ts
 
 Responsibilities:
 
-- Memory cache
-- Optimistic updates
-- Realtime updates
-- State reconciliation
+- memory cache
+- optimistic memory insertion
+- realtime updates
+- reconciliation updates
 
 Core actions:
 
@@ -139,9 +303,45 @@ addOptimisticMemory()
 
 upsertMemory()
 
+All transports use:
+
+upsertMemory()
+
+as the canonical state update path.
+
 ---
 
-# Memory Feed
+# Memory Bootstrap Architecture
+
+Location:
+
+src/components/memory/memory-bootstrap.tsx
+
+Responsibilities:
+
+- initialize store
+- initialize realtime
+- initialize reconciliation
+
+Flow:
+
+initializeMemories()
+↓
+initializeMemoryRealtime()
+↓
+startMemoryReconciliation()
+
+Cleanup:
+
+teardownMemoryRealtime()
+↓
+stopMemoryReconciliation()
+
+MemoryBootstrap owns infrastructure startup.
+
+---
+
+# Memory Feed Architecture
 
 Location:
 
@@ -149,49 +349,44 @@ src/components/memory-feed.tsx
 
 Responsibilities:
 
-- Render memory cards
-- Bootstrap memory system
-- Initialize realtime
-- Start reconciliation loop
+- render memories
+- render empty state
+
+MemoryFeed contains no infrastructure logic.
+
+MemoryFeed is a presentation component only.
 
 ---
 
-# Memory Card
+# Search Architecture V1
 
-Location:
+Components:
 
-src/components/memory-card.tsx
+SearchBar
+↓
+useSearch()
+↓
+/api/search
+↓
+SearchResults
 
-Responsibilities:
+Behavior:
 
-- Thumbnail display
-- Metadata display
-- Processing status display
-- Source link access
+Empty Query
+↓
+Memory Feed
 
----
+Query Present
+↓
+Search Results
 
-# Backend Architecture
-
-## Save Endpoint
-
-Location:
-
-src/app/api/memories/save/route.ts
-
-Responsibilities:
-
-- Validate input
-- Create memory record
-- Queue worker job
-
-Returns immediately.
-
-No metadata extraction occurs here.
+No Results
+↓
+Search Empty State
 
 ---
 
-# Database
+# Database Architecture
 
 Provider:
 
@@ -201,25 +396,28 @@ Primary Table:
 
 saves
 
-Important columns:
+Canonical columns:
 
-id
-user_id
-original_input
-canonical_url
-source_platform
-title
-description
-thumbnail_url
-creator_name
-raw_metadata
-processing_status
-created_at
-updated_at
+- id
+- user_id
+- original_input
+- content_type
+- source_platform
+- canonical_url
+- title
+- description
+- thumbnail_url
+- creator_name
+- raw_metadata
+- processing_status
+- created_at
+- updated_at
+
+Database remains the canonical Memory store.
 
 ---
 
-# Queue System
+# Queue Architecture
 
 Provider:
 
@@ -229,53 +427,94 @@ Broker:
 
 Redis
 
-Purpose:
-
-Background job execution.
-
 Queue:
 
 memory-processing
 
----
+Purpose:
 
-# Worker Architecture
+Execute enrichment outside request-response cycles.
 
-Location:
+Current job payload:
 
-Worker process
-
-Responsibilities:
-
-- Pull jobs from queue
-- Extract metadata
-- Update database
-- Mark completion
+memoryId
+url
+userId
 
 ---
 
-# Metadata Extraction Layer
+# Metadata Architecture
 
-Current Support:
+## Resolver Ownership
 
-YouTube
+Resolver owns:
 
-Extractor:
+- platform
+- contentType
+- normalizedUrl
+- identifier
 
-extractYoutubeMetadata()
+Implementation:
 
-Future Platforms:
+platform-resolver.ts
 
-Instagram
-TikTok
-Twitter/X
-LinkedIn
-GitHub
-Notion
-Spotify
-Articles
-Blogs
-PDFs
+---
+
+## Extractor Registry
+
+Implementation:
+
+extractor-registry.ts
+
+Current registry:
+
+youtube
+github
+website
+unknown
+
+The registry selects extractors without requiring switch-statement growth.
+
+Future platforms register new extractors.
+
+---
+
+## Extractor Ownership
+
+Extractors own:
+
+- title
+- description
+- thumbnailUrl
+- creatorName
+- canonicalUrl
+- rawMetadata
+
+Extractors do not own classification.
+
+---
+
+## Current Platform Support
+
+Supported:
+
+- YouTube Videos
+- YouTube Shorts
+- GitHub Repositories
+- Generic Websites
+
+Partially Supported:
+
+- YouTube Playlists
+
+Unsupported:
+
+- Instagram
+- TikTok
+- X
+- LinkedIn
+- Spotify
+- Notion
 
 ---
 
@@ -285,196 +524,149 @@ Provider:
 
 Supabase Realtime
 
+Subscription Scope:
+
+user_id = current authenticated user
+
 Purpose:
 
-Push memory updates to frontend.
+Push worker updates to active clients.
+
+Realtime updates flow through:
+
+upsertMemory()
+
+and never directly manipulate UI.
 
 ---
 
-# Realtime Flow
-
-Worker updates database
-
-↓
-
-Postgres row changes
-
-↓
-
-Supabase Realtime
-
-↓
-
-Frontend subscription
-
-↓
-
-Zustand upsertMemory()
-
-↓
-
-UI updates automatically
-
----
-
-# Authentication
+# Authentication Architecture
 
 Provider:
 
 Supabase Auth
 
-Current Model:
+Current model:
 
 Authenticated users only.
 
-Realtime subscriptions are scoped to:
+Isolation model:
 
-user_id = current_user
+User-scoped memory ownership.
 
-This ensures:
+Realtime subscriptions:
 
-- RLS compatibility
-- User isolation
-- Security
+Scoped by user_id.
 
----
+Pending-memory reconciliation:
 
-# Optimistic UI Architecture
-
-User presses Save
-
-↓
-
-Temporary card inserted
-
-↓
-
-Database row created
-
-↓
-
-Worker processes
-
-↓
-
-Realtime update received
-
-↓
-
-Temporary card replaced
-
-This creates perceived instant performance.
+Scoped by authenticated user.
 
 ---
 
-# Reconciliation Layer
+# Optimistic Save Architecture
+
+User Saves URL
+↓
+Optimistic Memory Inserted
+↓
+Database Record Created
+↓
+Queue Job Created
+↓
+Worker Processes
+↓
+Realtime/Reconciliation Update
+↓
+Optimistic Memory Replaced
 
 Purpose:
 
-Recover from missed realtime events.
-
-Responsibilities:
-
-- Query pending memories
-- Compare against store
-- Force synchronization
-
-Acts as safety net.
-
-Realtime remains primary mechanism.
+Perceived instant performance.
 
 ---
 
-# Current Performance Baseline
+# Current Performance Characteristics
 
-Measured:
+Observed:
 
-Metadata extraction:
-~2760 ms
+Optimistic Save:
+~0–100 ms
 
-Database update:
-~324 ms
+Search:
+~300–1000 ms
 
-Total worker processing:
-~3103 ms
+Metadata Enrichment:
+~2–5 seconds
 
-Typical end-user experience:
+Realtime Updates:
+Near-instant after worker completion
 
-Optimistic card:
-0–100 ms
-
-Fully enriched card:
-3–4 seconds
-
-This is acceptable for V1.
+These values are acceptable for current MVP scope.
 
 ---
 
 # Scaling Strategy
 
-Phase 1
+## Phase 1
 
-Single Worker
+Current
 
-BullMQ
+- Single Worker
+- BullMQ
+- Supabase
+- Realtime
+- Reconciliation
 
-Supabase
+Expected Capacity:
 
-Expected capacity:
-
-Thousands of memories/day
-
----
-
-Phase 2
-
-Multiple Workers
-
-Shared Redis
-
-Queue Concurrency
-
-Expected capacity:
-
-Hundreds of thousands/day
+Thousands of memories per day
 
 ---
 
-Phase 3
+## Phase 2
 
-Dedicated Metadata Services
+- Multiple Workers
+- Queue Concurrency
+- Queue Monitoring
+- Structured Logging
 
-Platform-specific extraction workers
+Expected Capacity:
 
-Expected capacity:
+Hundreds of thousands per day
 
-Millions/day
+---
+
+## Phase 3
+
+- Dedicated Metadata Services
+- Platform-Specific Processing Pipelines
+- Embeddings
+- Semantic Retrieval
+- Knowledge Graph
+
+Expected Capacity:
+
+Millions of memories per day
 
 ---
 
 # Future Architecture
 
-Planned additions:
+Planned systems:
 
-Semantic Search
+- Embeddings
+- Semantic Search
+- Knowledge Graph
+- Relationship Engine
+- Collections
+- Rediscovery Engine
+- Recommendation Engine
+- AI Retrieval
+- Agentic Memory Retrieval
+- Cross-Memory Reasoning
 
-Vector Embeddings
-
-Knowledge Graph
-
-Memory Relationships
-
-Collections
-
-AI Summaries
-
-Recommendation Engine
-
-Personal Memory Feed Ranking
-
-Agentic Memory Retrieval
-
-Cross-Memory Reasoning
+These systems must build on the canonical Memory foundation rather than redefine it.
 
 ---
 
@@ -482,19 +674,14 @@ Cross-Memory Reasoning
 
 Current V1 intentionally excludes:
 
-Real-time collaboration
+- Real-time collaboration
+- Shared workspaces
+- Offline-first operation
+- Distributed workers
+- Microservices
+- Multi-region deployment
 
-Shared workspaces
-
-Offline-first architecture
-
-Multi-region deployment
-
-Distributed workers
-
-Microservices
-
-These can be added later if justified by scale.
+These may be introduced later if justified by scale.
 
 ---
 
@@ -504,24 +691,22 @@ Architecture Status:
 
 Stable
 
-Queue System:
-
+Capture Layer:
 Operational
 
-Realtime:
-
+Processing Layer:
 Operational
 
-Optimistic Updates:
-
+Synchronization Layer:
 Operational
 
-Worker Processing:
-
+Search Architecture V1:
 Operational
 
-Memory Enrichment:
-
+Metadata Architecture V1:
 Operational
 
-Ready for MVP expansion.
+Optimistic Save Architecture:
+Operational
+
+Ready for Platform Expansion V1.

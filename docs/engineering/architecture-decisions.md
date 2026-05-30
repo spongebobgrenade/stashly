@@ -4,12 +4,16 @@ Purpose:
 
 Record important product and engineering decisions.
 
-Future developers should understand:
+Future contributors should understand:
 
 - What was decided
 - Why it was decided
 - Alternatives considered
 - Consequences
+
+This document records accepted architectural decisions.
+
+Resolved incidents may be retained if they materially shaped the architecture.
 
 ---
 
@@ -17,7 +21,7 @@ Future developers should understand:
 
 ## Decision
 
-Use asynchronous metadata enrichment.
+Use Asynchronous Metadata Enrichment
 
 Status:
 
@@ -41,7 +45,7 @@ Enrich later.
 
 ## Decision
 
-Use BullMQ + Redis.
+Use BullMQ + Redis
 
 Status:
 
@@ -67,7 +71,7 @@ Industry standard.
 
 ## Decision
 
-Use Supabase as primary backend.
+Use Supabase As Primary Backend
 
 Status:
 
@@ -78,7 +82,7 @@ Reason:
 Provides:
 
 - PostgreSQL
-- Auth
+- Authentication
 - Realtime
 - Storage
 
@@ -90,21 +94,27 @@ Reduces MVP complexity.
 
 ## Decision
 
-Use Zustand instead of Redux.
+Use Zustand For Client State
 
 Status:
 
 Accepted
 
-Reason:
+Alternatives Considered:
 
-Smaller codebase.
+- Redux
+- MobX
+- Context Only
+
+Reason:
 
 Lower complexity.
 
-Faster iteration.
+Fast iteration.
 
-Suitable for MVP.
+Small bundle size.
+
+Suitable for MVP and future growth.
 
 ---
 
@@ -112,7 +122,7 @@ Suitable for MVP.
 
 ## Decision
 
-Optimistic UI for Memory Creation.
+Optimistic Memory Creation
 
 Status:
 
@@ -120,13 +130,13 @@ Accepted
 
 Reason:
 
-Users should never wonder if Save worked.
+Users should receive immediate feedback.
 
 Behavior:
 
-Placeholder appears instantly.
+Placeholder memory appears instantly.
 
-Final data arrives later.
+Metadata arrives asynchronously.
 
 ---
 
@@ -134,7 +144,7 @@ Final data arrives later.
 
 ## Decision
 
-Database Is Source of Truth.
+Database Is Source Of Truth
 
 Status:
 
@@ -146,7 +156,9 @@ Frontend state can be lost.
 
 Realtime can disconnect.
 
-Database remains authoritative.
+Workers can restart.
+
+The database remains authoritative.
 
 ---
 
@@ -154,23 +166,24 @@ Database remains authoritative.
 
 ## Decision
 
-Realtime Updates Instead of Polling.
+Realtime As Primary Update Transport
 
 Status:
 
 Accepted
 
-Alternatives:
+Alternatives Considered:
 
-Polling every few seconds.
+- Polling
+- Manual refresh
 
 Reason:
 
-Less latency.
+Lower latency.
 
-Less server load.
+Better user experience.
 
-Better UX.
+Reduced database load.
 
 ---
 
@@ -178,7 +191,7 @@ Better UX.
 
 ## Decision
 
-Reconciliation Safety Layer.
+Reconciliation Safety Layer
 
 Status:
 
@@ -186,51 +199,50 @@ Accepted
 
 Reason:
 
-Realtime systems are not perfect.
+Realtime delivery is not guaranteed.
 
-Occasional missed events must not leave UI stale.
-
----
-
-# 2026-05-28
-
-## Incident
-
-Realtime Subscription Failure.
-
-Symptoms:
-
-CHANNEL_ERROR
-
-Infinite reconnect loops.
-
-Optimistic cards never enriched.
-
----
-
-## Root Cause
-
-Realtime channel lacked authenticated context.
-
-RLS required:
-
-auth.uid() = user_id
-
-Realtime subscription could not access rows.
-
----
-
-## Resolution
-
-Authenticate realtime channel using session.
-
-Apply filter:
-
-user_id=eq.${session.user.id}
+Missed events must not leave UI stale.
 
 Result:
 
-Realtime events successfully delivered.
+Synchronization Layer includes:
+
+- Realtime
+- Reconciliation
+
+---
+
+# 2026-05-28
+
+## Incident
+
+Realtime Subscription Failure
+
+Symptoms:
+
+- CHANNEL_ERROR
+- Infinite reconnect loops
+- Optimistic memories never updated
+
+Root Cause:
+
+Realtime subscription lacked authenticated context.
+
+RLS required:
+
+```text
+auth.uid() = user_id
+```
+
+Resolution:
+
+Authenticate channel using active session.
+
+Scope subscriptions by:
+
+```text
+user_id = current user
+```
 
 Status:
 
@@ -242,33 +254,25 @@ Resolved
 
 ## Incident
 
-Infinite Realtime Re-subscriptions.
+Infinite Realtime Re-subscriptions
 
 Symptoms:
 
-Continuous channel recreation.
+- Continuous channel recreation
+- Console spam
+- Memory duplication
 
-Console spam.
+Root Cause:
 
-Memory duplication.
+Multiple mounts created multiple channels.
 
----
+No singleton ownership existed.
 
-## Root Cause
-
-Hot reload and component remounts created multiple channels.
-
-No cleanup existed.
-
----
-
-## Resolution
+Resolution:
 
 Singleton channel pattern.
 
-Channel teardown.
-
-Explicit removeChannel().
+Explicit teardown.
 
 Status:
 
@@ -280,29 +284,23 @@ Resolved
 
 ## Incident
 
-Optimistic Card Not Replaced.
+Optimistic Memory Not Replaced
 
 Symptoms:
 
-Placeholder card remained forever.
+Placeholder memory persisted indefinitely.
 
-Realtime event arrived successfully.
+Realtime updates arrived successfully.
 
----
+Root Cause:
 
-## Root Cause
+URL mismatch prevented optimistic replacement.
 
-URL mismatch between optimistic and database records.
-
-Store could not match records.
-
----
-
-## Resolution
+Resolution:
 
 URL normalization.
 
-Improved upsert logic.
+Improved store reconciliation.
 
 Status:
 
@@ -310,11 +308,11 @@ Resolved
 
 ---
 
-# 2026-05-28
+# 2026-05-29
 
 ## Decision
 
-Keep Processing Asynchronous.
+Canonical Memory Foundation Locked
 
 Status:
 
@@ -322,139 +320,42 @@ Accepted
 
 Reason:
 
-Current worker time:
+Memory semantics had begun drifting between:
 
-~3 seconds
+- Documentation
+- Database
+- Runtime
+- Types
 
-User sees feedback immediately.
+Decision:
 
-System remains scalable.
+Memory Architecture becomes authoritative.
 
----
-
-# 2026-05-28
-
-## Decision
-
-Track Performance Baselines.
-
-Status:
-
-Accepted
-
-Reason:
-
-Future optimization requires historical benchmarks.
-
-Current Baseline:
-
-Metadata extraction:
-2760 ms
-
-Database update:
-324 ms
-
-Total:
-3103 ms
-
----
-
-# Future Decisions Pending
-
-Semantic Search
-
-Embedding Provider
-
-Knowledge Graph Design
-
-Collection Model
-
-Recommendation Engine
-
-AI Assistant Architecture
-
-Multi-Platform Extraction Strategy
-
-Vector Database Selection
-
-Agent Framework Selection
-
-Cross-Memory Reasoning Architecture
-
----
-
-# Decision Process
-
-All major decisions should include:
-
-Date
-
-Decision
-
-Reason
-
-Alternatives
-
-Consequences
-
-Status
-
-This document becomes the institutional memory of Stashly engineering.
-
-## Decision: Canonical Memory Foundation Locked
-
-Date: 2026-05-29
-
-Status: Accepted
-
-### Context
-
-Memory Architecture, database schema, generated types, worker contracts, and application memory types had drifted apart.
-
-Runtime behavior, documentation, and persistence models were no longer fully aligned.
-
-This created a risk of future architectural divergence and inconsistent Memory semantics.
-
-### Decision
-
-Memory Architecture is the authoritative definition of Memory.
-
-Implementation ownership chain:
+Ownership chain:
 
 Memory Architecture
-→ Database Schema
-→ Generated Types
-→ Runtime Alignment
-→ Implementation
+↓
+Database Schema
+↓
+Generated Types
+↓
+Runtime Alignment
+↓
+Implementation
 
-Implementation must derive from Memory Architecture.
+Consequence:
 
-Schema drift must be corrected rather than accommodated.
+All future systems derive from Memory.
 
-Generated database types are the canonical runtime representation of persisted Memory.
+No subsystem may redefine Memory semantics.
 
-Application Memory types derive from generated database types.
+---
 
-### Related Documents
+# ADR-001
 
-- docs/product/Memory-Architecture.md
-- docs/engineering/runtime-alignment.md
+## Title
 
-### Consequences
-
-Future retrieval systems must derive from Memory.
-
-Future AI systems must derive from Memory.
-
-Future relationship systems must derive from Memory.
-
-Future rediscovery systems must derive from Memory.
-
-No subsystem may independently redefine Memory semantics.
-
-Memory Foundation is considered locked unless a formal architecture review approves a change.
-
-# ADR-001: Memory Type Source of Truth
+Memory Type Source Of Truth
 
 ## Status
 
@@ -466,7 +367,7 @@ Accepted
 
 ## Decision
 
-Memory types are derived from generated Supabase database types.
+Memory derives from generated Supabase types.
 
 ```ts
 export type Memory = Tables<"saves">;
@@ -474,32 +375,27 @@ export type Memory = Tables<"saves">;
 
 ## Reason
 
-The database schema is the canonical source of truth.
+Avoid:
 
-Avoids:
-
-- Duplicate interfaces
-- Schema drift
-- Manual synchronization
-- Runtime alignment issues
+- duplicate interfaces
+- schema drift
+- manual synchronization
 
 ## Consequence
 
-Changes to the saves table must be followed by:
+Schema changes require:
 
-1. Database migration
+1. Migration
 2. Type regeneration
-3. TypeScript validation
+3. Validation
 
-Application code should consume:
+---
 
-```ts
-Memory
-```
+# ADR-002
 
-and should not redefine Memory interfaces locally.
+## Title
 
-# ADR-002: Worker Runtime Separation
+Worker Runtime Separation
 
 ## Status
 
@@ -511,50 +407,43 @@ Accepted
 
 ## Decision
 
-Metadata processing runs in a dedicated BullMQ worker process.
+Metadata processing runs in a dedicated BullMQ worker.
 
-The worker is not part of the Next.js runtime.
+Worker is independent from Next.js.
 
-Development requires:
+Required development processes:
 
 ```bash
 npm run dev
 ```
 
-and
-
 ```bash
 npm run worker
 ```
-
-running simultaneously.
 
 ## Reason
 
 Metadata extraction is asynchronous work.
 
-Running extraction inside API routes would:
+Keeping it outside request-response improves:
 
-- Increase response latency
-- Create request timeouts
-- Prevent future scaling
-- Couple user experience to external services
+- reliability
+- scalability
+- responsiveness
 
 ## Consequence
 
-A worker outage can result in:
+Worker outages can leave memories queued.
 
-- Memories remaining queued
-- Missing enrichment
-- Delayed processing
+Future observability is required.
 
-Future versions should include:
+---
 
-- Worker heartbeat monitoring
-- Queue monitoring
-- Failed job inspection
+# ADR-003
 
-# ADR-003: Optimistic Save Architecture
+## Title
+
+Optimistic Save Architecture
 
 ## Status
 
@@ -566,40 +455,39 @@ Accepted
 
 ## Decision
 
-Users receive immediate visual feedback when saving a memory.
-
-The system creates a placeholder memory card before metadata enrichment completes.
+Users receive immediate feedback before enrichment completes.
 
 Flow:
 
 User Save
-→ Placeholder Record
-→ Queue Job
-→ Worker Processing
-→ Database Update
-→ Realtime Update
-→ Enriched Card
+↓
+Optimistic Memory
+↓
+Queue Job
+↓
+Worker
+↓
+Database Update
+↓
+Synchronization
+↓
+Final Memory
 
 ## Reason
 
-Perceived performance matters more than actual enrichment time.
-
-Metadata extraction may take several seconds depending on platform.
-
-Users should never wait for enrichment before seeing confirmation.
+Perceived performance matters more than enrichment latency.
 
 ## Consequence
 
-The UI must support:
+Queued and processing states are first-class concepts.
 
-- Queued state
-- Processing state
-- Completed state
-- Failed state
+---
 
-Placeholder memories are considered a first-class part of the system.
+# ADR-004
 
-# ADR-004: Long-Term AI Provider Strategy
+## Title
+
+Provider-Agnostic AI Strategy
 
 ## Status
 
@@ -611,150 +499,235 @@ Accepted
 
 ## Decision
 
-Stashly will use a provider-agnostic AI architecture.
+AI systems must remain provider agnostic.
 
-The application will not be tightly coupled to a single AI provider.
+Future architecture:
 
-An internal AI Gateway layer will sit between Stashly and external model providers.
+Application
+↓
+AI Gateway
+↓
+Provider Layer
 
 Initial provider:
 
-- OpenRouter
+OpenRouter
 
 Future providers:
 
 - OpenAI
 - Anthropic
-- Google Gemini
+- Gemini
 - DeepSeek
 - Qwen
 - Kimi
 - Local Models
 
+## Consequence
+
+Application code requests capabilities, not models.
+
+---
+
+# ADR-005
+
+## Title
+
+Synchronization Layer Architecture
+
+## Status
+
+Accepted
+
+## Date
+
+2026-05-30
+
+## Decision
+
+Memory delivery is owned by a dedicated Synchronization Layer.
+
+Current transports:
+
+- Realtime Transport
+- Reconciliation Transport
+
+Both transports must update state through:
+
+```ts
+upsertMemory()
+```
+
 ## Reason
 
-Stashly is intended to become a long-term AI Memory Operating System.
+Memory delivery should not depend on a single transport.
 
-Direct integration with a single provider would create:
-
-- Vendor lock-in
-- Reduced flexibility
-- Higher costs
-- Lower reliability
-
-OpenRouter provides access to multiple providers through a single interface and enables rapid experimentation during early development.
-
-## Core Architectural Principles
-
-### Provider Agnostic
-
-The application should never depend on a specific model provider.
-
-### Model Routed
-
-The application requests capabilities, not models.
-
-### Fault Tolerant
-
-Model failures should trigger automatic failover whenever possible.
-
-### Cost Aware
-
-The routing layer should optimize for capability, reliability, and cost.
-
-### Replaceable
-
-Providers and models should be replaceable without requiring application-level changes.
-
-## Free-Tier Development Strategy
-
-During development, the system should prioritize:
-
-1. Free models
-2. High-context models
-3. Lowest-cost models
-4. Premium models only when required
-
-The goal is to maximize development velocity while maintaining a near-zero infrastructure budget.
-
-## Future Routing Strategy
-
-Requests should eventually be routed based on task type.
+Future transports must integrate without changing UI logic.
 
 Examples:
 
-### Metadata Understanding
+- Mobile Sync
+- Extension Sync
+- Offline Recovery
+- Multi-Device Sync
 
-Use:
+## Consequence
 
-- Fast low-cost models
+Transports become replaceable.
 
-### Classification
+State updates remain consistent.
 
-Use:
+Synchronization owns delivery.
 
-- Fast structured-output models
+Database remains authoritative.
 
-### Summarization
+---
 
-Use:
+# ADR-006
 
-- Mid-tier reasoning models
+## Title
 
-### Deep Memory Retrieval
+Resolver Owns Classification
 
-Use:
+## Status
 
-- Strong reasoning models
+Accepted
 
-### Complex Agent Work
+## Date
 
-Use:
+2026-05-30
 
-- Highest capability models
+## Decision
 
-## Future Failover Strategy
+Classification ownership belongs exclusively to the Resolver.
 
-The system should support automatic fallback.
+Resolver owns:
 
-Example:
+- platform
+- contentType
+- normalizedUrl
+- identifier
 
-Primary Model
-↓
-Rate Limited
-↓
-Fallback A
-↓
-Fallback B
-↓
-Fallback C
+Extractors own:
 
-Users should not be aware that failover occurred.
+- title
+- description
+- thumbnail
+- attribution
+- canonical URL
+- raw metadata
 
-## Long-Term Vision
+Extractors must not redefine classification.
 
-Stashly should eventually operate through an internal Model Router.
+## Reason
 
-The application should request capabilities rather than specific models.
+Classification and enrichment are different responsibilities.
 
-Example:
+Mixing them caused:
 
-"Summarize Memory"
+- GitHub classification drift
+- platform ownership confusion
+- metadata ownership ambiguity
 
-instead of
+## Consequence
 
-"Use Gemini"
+Worker persists:
 
-The router determines the optimal model based on:
+```text
+resolved.platform
+resolved.contentType
+```
 
-- Cost
-- Availability
-- Latency
-- Context Window
-- Quality Requirements
+directly.
 
-This allows models to change over time without requiring application-level changes.
+Classification becomes deterministic.
 
-Related Runtime Alignments:
+---
 
-- RA-003 Content Type Mapping Layer Deferred
+# ADR-007
+
+## Title
+
+Extractor Registry Architecture
+
+## Status
+
+Accepted
+
+## Date
+
+2026-05-30
+
+## Decision
+
+Platform-specific extractor selection is owned by an Extractor Registry.
+
+Current registry entries:
+
+- youtube
+- github
+- website
+- unknown
+
+## Reason
+
+Avoid switch-statement growth.
+
+Allow platform expansion without worker modification.
+
+## Consequence
+
+Future platforms register extractors rather than modifying processing logic.
+
+Examples:
+
+- Instagram
+- TikTok
+- Spotify
+- LinkedIn
+- Notion
+
+---
+
+# Future Decisions Pending
+
+- Platform Expansion Strategy
+- Embedding Architecture
+- Semantic Retrieval Architecture
+- Knowledge Graph Architecture
+- Collections Model
+- Rediscovery Engine
+- Relationship Engine
+- Agent Framework Selection
+- AI Retrieval Architecture
+- Cross-Memory Reasoning
+
+---
+
+# Decision Process
+
+All major decisions should include:
+
+- Date
+- Decision
+- Reason
+- Alternatives
+- Consequences
+- Status
+
+This document serves as institutional memory for Stashly engineering.
+
+---
+
+# Last Updated
+
+After:
+
+- Search Architecture V1
+- Synchronization Layer V1
+- Resolver Ownership Refactor
+- Extractor Registry Introduction
+
+Status:
+
+Active

@@ -36,3 +36,12 @@ export const memoryProcessingQueue =
         queueConnection as never,
     }
   );
+
+export const embeddingProcessingQueue =
+  new Queue(
+    "embedding-processing",
+    {
+      connection:
+        queueConnection as never,
+    }
+  );

@@ -1,61 +1,39 @@
+import type { MetadataEnrichment } from "@/types/metadata";
+
 import {
   ResolvedContent,
 } from "./content-types";
 
 import {
-  extractYoutubeMetadata,
-} from "./youtube";
+  getExtractor,
+} from "./extractor-registry";
 
-import {
-  extractOpenGraphMetadata,
-} from "./opengraph";
+export type ExtractedMetadata =
+  MetadataEnrichment & {
+    sourcePlatform:
+      ResolvedContent["platform"];
+    contentType:
+      ResolvedContent["contentType"];
+  };
 
 export async function extractMetadata(
   resolved: ResolvedContent
-) {
-  switch (
-    resolved.platform
-  ) {
-    case "youtube": {
-      const metadata =
-        await extractYoutubeMetadata(
-          resolved.normalizedUrl
-        );
+): Promise<ExtractedMetadata> {
+  const extractor =
+    getExtractor(
+      resolved.platform
+    );
 
-      return {
-        ...metadata,
-        contentType:
-          resolved.contentType,
-      };
-    }
+  const metadata =
+    await extractor(resolved);
 
-    case "github":
-    case "website": {
-      const metadata =
-        await extractOpenGraphMetadata(
-          resolved.normalizedUrl
-        );
+  return {
+    ...metadata,
 
-      return {
-        ...metadata,
-        contentType:
-          resolved.contentType,
-      };
-    }
+    sourcePlatform:
+      resolved.platform,
 
-    default:
-      return {
-        title: null,
-        description: null,
-        thumbnailUrl: null,
-        creatorName: null,
-        canonicalUrl:
-          resolved.normalizedUrl,
-        rawMetadata: null,
-        sourcePlatform:
-          "unknown",
-        contentType:
-          resolved.contentType,
-      };
-  }
+    contentType:
+      resolved.contentType,
+  };
 }

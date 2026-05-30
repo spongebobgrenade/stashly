@@ -1,11 +1,25 @@
-import { NextRequest, NextResponse } from "next/server";
-import { searchMemories } from "@/lib/memories/search-memories";
+import {
+  NextRequest,
+  NextResponse,
+} from "next/server";
 
-export async function GET(request: NextRequest) {
+import {
+  retrieveMemories,
+} from "@/lib/retrieval/retrieve-memories";
+
+export async function GET(
+  request: NextRequest
+) {
   try {
-    const query = request.nextUrl.searchParams.get("q") ?? "";
+    const query =
+      request.nextUrl.searchParams.get(
+        "q"
+      ) ?? "";
 
-    const memories = await searchMemories(query);
+    const memories =
+      await retrieveMemories({
+        query,
+      });
 
     return NextResponse.json({
       memories,
@@ -15,7 +29,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: "Search failed",
+        error:
+          "Search failed",
       },
       {
         status: 500,

@@ -1,61 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { MemoryCard } from "@/components/memory-card";
-
-import {
-  initializeMemoryRealtime,
-  teardownMemoryRealtime,
-} from "@/lib/realtime/memory-realtime";
-
-import {
-  startMemoryReconciliation,
-} from "@/lib/memories/reconciliation";
 
 import {
   useMemoryStore,
 } from "@/lib/memories/store";
 
-import type { Memory } from "@/types/memory";
-
-type MemoryFeedProps = {
-  initialMemories: Memory[];
-};
-
-export function MemoryFeed({
-  initialMemories,
-}: MemoryFeedProps) {
-  const memories = useMemoryStore(
-    (state) => state.memories
-  );
-
-  const initializeMemories =
+export function MemoryFeed() {
+  const memories =
     useMemoryStore(
-      (state) =>
-        state.initializeMemories
+      (state) => state.memories
     );
-
-  useEffect(() => {
-    console.log(
-      "BOOTSTRAPPING MEMORY SYSTEM"
-    );
-
-    initializeMemories(
-      initialMemories
-    );
-
-    initializeMemoryRealtime();
-
-    startMemoryReconciliation();
-
-    return () => {
-      teardownMemoryRealtime();
-    };
-  }, [
-    initialMemories,
-    initializeMemories,
-  ]);
 
   if (memories.length === 0) {
     return (

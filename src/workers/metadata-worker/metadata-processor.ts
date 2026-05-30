@@ -1,6 +1,10 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 import {
+  embeddingProcessingQueue,
+} from "@/lib/redis/queues";
+
+import {
   resolveInput,
 } from "@/services/metadata/platform-resolver";
 
@@ -8,14 +12,17 @@ import {
   extractMetadata,
 } from "@/services/metadata/extractor";
 
-import type { ProcessMemoryJob } from "@/types/jobs";
+import type {
+  ProcessMemoryJob,
+} from "@/types/jobs";
 
 export async function processMemoryJob(
   jobData: ProcessMemoryJob
 ) {
   const startedAt = Date.now();
 
-  const { memoryId, url } = jobData;
+  const { memoryId, url } =
+    jobData;
 
   const supabase =
     getSupabaseAdmin();
@@ -45,10 +52,10 @@ export async function processMemoryJob(
       .from("saves")
       .update({
         source_platform:
-          metadata.sourcePlatform,
+          resolved.platform,
 
         content_type:
-          metadata.contentType,
+          resolved.contentType,
 
         title:
           metadata.title,
@@ -72,6 +79,17 @@ export async function processMemoryJob(
           "completed",
       })
       .eq("id", memoryId);
+
+    await embeddingProcessingQueue.add(
+      "generate-embedding",
+      {
+        memoryId,
+      }
+    );
+
+    console.log(
+      "🧠 Embedding job queued"
+    );
 
     console.log(
       "✅ Memory processing completed"

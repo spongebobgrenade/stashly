@@ -1,6 +1,6 @@
 import { getMemories } from "@/lib/memories/get-memories";
 
-import { MemoryFeed } from "@/components/memory-feed";
+import DashboardContent from "@/components/dashboard/dashboard-content";
 
 import SaveForm from "./save-form";
 
@@ -22,7 +22,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-10">
-        <MemoryFeed
+        <DashboardContent
           initialMemories={memories}
         />
       </div>

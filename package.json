@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "worker": "tsx src/workers/metadata-worker/worker.ts"
+    "worker": "tsx src/workers/metadata-worker/worker.ts",
+    "embedding-worker": "tsx src/workers/embedding-worker/worker.ts",
+    "dev:all": "concurrently \"npm run dev\" \"npm run worker\" \"npm run embedding-worker\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",

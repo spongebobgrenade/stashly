@@ -12,6 +12,8 @@ export function useSearch(query: string) {
     const trimmedQuery = query.trim();
 
     if (!trimmedQuery) {
+      setResults([]);
+      setLoading(false);
       return;
     }
 

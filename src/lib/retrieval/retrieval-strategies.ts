@@ -1,27 +1,36 @@
 import { createClient } from "@/lib/supabase/server";
 
-import type { Memory } from "@/types/memory";
+import type {
+  RetrievalQuery,
+  RetrievalResult,
+} from "./retrieval-types";
 
-export async function searchMemories(
-  query: string
-): Promise<Memory[]> {
-  const supabase = await createClient();
+export async function keywordRetrievalStrategy(
+  input: RetrievalQuery
+): Promise<RetrievalResult> {
+  const supabase =
+    await createClient();
 
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } =
+    await supabase.auth.getUser();
 
   if (!user) {
     return [];
   }
 
-  const trimmedQuery = query.trim();
+  const trimmedQuery =
+    input.query.trim();
 
   if (!trimmedQuery) {
     return [];
   }
 
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("saves")
     .select("*")
     .eq("user_id", user.id)
@@ -41,7 +50,7 @@ export async function searchMemories(
 
   if (error) {
     console.error(
-      "SEARCH ERROR:",
+      "KEYWORD RETRIEVAL ERROR:",
       error
     );
 

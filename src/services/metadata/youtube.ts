@@ -1,8 +1,10 @@
 import { Innertube } from "youtubei.js";
 
+import type { MetadataEnrichment } from "@/types/metadata";
+
 export async function extractYoutubeMetadata(
   url: string
-) {
+): Promise<MetadataEnrichment> {
   const youtube =
     await Innertube.create();
 
@@ -37,9 +39,6 @@ export async function extractYoutubeMetadata(
 
     rawMetadata:
       info.basic_info,
-
-    sourcePlatform:
-      "youtube",
   };
 }
 

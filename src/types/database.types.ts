@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      memory_embeddings: {
+        Row: {
+          chunk_index: number
+          chunk_text: string
+          created_at: string
+          embedding: string | null
+          id: string
+          memory_id: string
+          model: string
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          chunk_index: number
+          chunk_text: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          memory_id: string
+          model: string
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          chunk_index?: number
+          chunk_text?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          memory_id?: string
+          model?: string
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_embeddings_memory_id_fkey"
+            columns: ["memory_id"]
+            isOneToOne: false
+            referencedRelation: "saves"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       save_processing_jobs: {
         Row: {
           created_at: string | null

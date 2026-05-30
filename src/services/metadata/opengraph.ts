@@ -1,8 +1,10 @@
 import * as cheerio from "cheerio";
 
+import type { MetadataEnrichment } from "@/types/metadata";
+
 export async function extractOpenGraphMetadata(
   url: string
-) {
+): Promise<MetadataEnrichment> {
   try {
     const response = await fetch(url, {
       headers: {
@@ -55,7 +57,6 @@ export async function extractOpenGraphMetadata(
       creatorName,
       canonicalUrl,
       rawMetadata: null,
-      sourcePlatform: "website",
     };
   } catch (error) {
     console.error(
@@ -70,7 +71,6 @@ export async function extractOpenGraphMetadata(
       creatorName: null,
       canonicalUrl: url,
       rawMetadata: null,
-      sourcePlatform: "website",
     };
   }
 }

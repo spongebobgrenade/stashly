@@ -1,4 +1,4 @@
-export interface ExtractedMetadata {
+export interface MetadataEnrichment {
   title: string | null;
 
   description: string | null;
@@ -10,8 +10,4 @@ export interface ExtractedMetadata {
   canonicalUrl: string | null;
 
   rawMetadata: Record<string, unknown> | null;
-
-  sourcePlatform: string;
-
-  contentType: string;
 }

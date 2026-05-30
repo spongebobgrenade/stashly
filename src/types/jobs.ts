@@ -3,3 +3,7 @@ export type ProcessMemoryJob = {
   url: string;
   userId: string;
 };
+
+export type ProcessEmbeddingJob = {
+  memoryId: string;
+};
