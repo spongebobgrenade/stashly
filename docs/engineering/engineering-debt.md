@@ -2,43 +2,26 @@
 
 Status: Active
 
-Purpose:
+---
 
-Track known engineering debt, accepted shortcuts, deferred scalability work, and implementation compromises.
+# Purpose
 
-Engineering debt is not a bug.
+This document tracks active engineering debt only.
 
-Engineering debt is a conscious decision to accept future cleanup cost in exchange for current execution speed.
-
-This document only tracks active debt.
-
-Resolved debt should be removed rather than retained.
+Completed items are removed from active debt and listed separately as resolved.
 
 ---
 
-# Debt Classification
+# Priority Levels
 
-## P0
-
-Must fix before scale.
-
-## P1
-
-Fix before public launch.
-
-## P2
-
-Fix before major feature expansion.
-
-## P3
-
-Cleanup opportunity.
+- `P0`: Must fix before scale or correctness depends on it
+- `P1`: Must fix before public launch
+- `P2`: Fix before major feature expansion
+- `P3`: Deferred cleanup opportunity
 
 ---
 
-# Active Engineering Debt
-
----
+# Active Debt
 
 ## ED-001
 
@@ -50,39 +33,13 @@ Priority:
 
 P1
 
-Status:
-
-Open
-
 Current State:
 
-Metadata extraction attempts exactly once.
+Metadata extraction still attempts once and then writes `failed`.
 
-Failure path:
+Debt:
 
-queued
-↓
-processing
-↓
-failed
-
-Problem:
-
-Temporary network failures become permanent failures.
-
-Future Solution:
-
-BullMQ retry policies.
-
-Example:
-
-- 3 retries
-- exponential backoff
-- retryable error classification
-
-Expected Benefit:
-
-Higher enrichment success rates.
+- transient platform failures become permanent failures
 
 ---
 
@@ -96,35 +53,14 @@ Priority:
 
 P1
 
-Status:
-
-Open
-
 Current State:
 
-raw_metadata is stored without size controls.
+`raw_metadata` has no size control strategy.
 
-Problem:
+Debt:
 
-Large platform payloads may significantly increase:
-
-- storage cost
-- backup size
-- replication cost
-
-Future Solution:
-
-Store:
-
-- required fields only
-
-or
-
-- archive raw payloads into object storage
-
-Expected Benefit:
-
-Controlled storage growth.
+- storage growth risk
+- backup cost growth
 
 ---
 
@@ -132,51 +68,19 @@ Controlled storage growth.
 
 Title:
 
-Reconciliation Polling Is Always Active
+Always-On Reconciliation Polling
 
 Priority:
 
 P2
 
-Status:
-
-Open
-
 Current State:
 
-Synchronization Layer polls:
+- polling every 15 seconds regardless of pending-state presence
 
-```text
-/api/memories/pending
-```
+Debt:
 
-every 15 seconds.
-
-Problem:
-
-Polling continues even when no pending memories exist.
-
-Impact:
-
-Unnecessary API traffic.
-
-Future Solution:
-
-State-aware synchronization.
-
-Example:
-
-Pending Memories Exist
-↓
-Polling Enabled
-
-No Pending Memories
-↓
-Polling Disabled
-
-Expected Benefit:
-
-Reduced infrastructure load.
+- unnecessary API traffic
 
 ---
 
@@ -184,88 +88,24 @@ Reduced infrastructure load.
 
 Title:
 
-Realtime Lifecycle Exists Only In Browser Memory
+Unstructured Worker Logging
 
 Priority:
 
 P2
 
-Status:
-
-Open
-
 Current State:
 
-Realtime channel lifecycle is managed in browser runtime.
+- metadata and embedding workers log with `console.log()` / `console.error()`
 
-Problem:
+Debt:
 
-Subscriptions are recreated on refresh.
-
-Current Impact:
-
-Acceptable.
-
-Future Impact:
-
-May complicate:
-
-- multi-tab coordination
-- future synchronization transports
-
-Future Solution:
-
-Dedicated synchronization manager.
+- poor queryability
+- weak observability
 
 ---
 
 ## ED-005
-
-Title:
-
-Worker Logging Uses Console Statements
-
-Priority:
-
-P2
-
-Status:
-
-Open
-
-Current State:
-
-Worker logging uses:
-
-```ts
-console.log()
-console.error()
-```
-
-Problem:
-
-Logs are not structured.
-
-Logs are difficult to query.
-
-Future Solution:
-
-Structured logging.
-
-Potential Tools:
-
-- Pino
-- Axiom
-- OpenTelemetry
-- Datadog
-
-Expected Benefit:
-
-Better debugging and observability.
-
----
-
-## ED-006
 
 Title:
 
@@ -275,39 +115,36 @@ Priority:
 
 P2
 
-Status:
+Current State:
 
-Open
+- queue visibility is log-only
+
+Debt:
+
+- no queue health view
+- no failed job dashboard
+
+---
+
+## ED-006
+
+Title:
+
+Embedding Storage Lifecycle Undefined
+
+Priority:
+
+P1
 
 Current State:
 
-Queue visibility exists only through logs.
+- embedding worker inserts into `memory_embeddings`
+- no documented replacement, invalidation, or regeneration strategy exists
 
-Missing:
+Debt:
 
-- queue health visibility
-- failure visibility
-- processing metrics
-
-Future Solution:
-
-Bull Board
-
-or
-
-Custom Operations Dashboard
-
-Metrics:
-
-- queued jobs
-- processing jobs
-- failed jobs
-- retry count
-- processing latency
-
-Expected Benefit:
-
-Operational visibility.
+- repeated embedding runs can create duplicate or stale derived artifacts
+- provider/model upgrades lack cleanup strategy
 
 ---
 
@@ -315,40 +152,21 @@ Operational visibility.
 
 Title:
 
-Loose Metadata Typing
+Semantic Retrieval Serving Path Missing
 
 Priority:
 
-P2
-
-Status:
-
-Open
+P1
 
 Current State:
 
-Metadata contracts are improving but extractor outputs are still not enforced through a fully canonical extraction interface.
+- embedding infrastructure exists
+- retrieval remains keyword-only
 
-Problem:
+Debt:
 
-Future platform growth may introduce contract drift.
-
-Future Solution:
-
-Formal extractor contract hierarchy.
-
-Example:
-
-```ts
-MetadataEnrichment
-ExtractedMetadata
-```
-
-become mandatory interfaces across all extractors.
-
-Expected Benefit:
-
-Compile-time enforcement.
+- V2 retrieval foundation is present but not query-serving
+- launch-critical retrieval value is still missing
 
 ---
 
@@ -356,75 +174,41 @@ Compile-time enforcement.
 
 Title:
 
-Distributed Worker Architecture Deferred
-
-Priority:
-
-P3
-
-Status:
-
-Deferred
-
-Current State:
-
-Single metadata worker.
-
-Future Requirement:
-
-Multiple workers sharing:
-
-- Redis
-- BullMQ queues
-
-Future Solution:
-
-Horizontal worker scaling.
-
-Expected Benefit:
-
-Higher throughput.
-
----
-
-## ED-009
-
-Title:
-
-Metadata Extraction Latency
+Local Embedding Provider Dependency
 
 Priority:
 
 P1
 
-Status:
+Current State:
 
-Accepted
+- default embedding provider is local Ollama at `http://localhost:11434`
+
+Debt:
+
+- no fallback provider
+- no production provider strategy implemented in runtime
+- local environment dependency can block semantic pipeline validation
+
+---
+
+## ED-09
+
+Title:
+
+Unsafe Embedding Persistence Casting
+
+Priority:
+
+P2
 
 Current State:
 
-Typical enrichment:
+- embedding worker persists vectors with `as never`
 
-~2–5 seconds
+Debt:
 
-Impact:
-
-Users wait several seconds before full enrichment appears.
-
-Current Decision:
-
-Acceptable for MVP.
-
-Future Solution:
-
-- caching
-- platform-specific optimizations
-- parallel enrichment
-- extractor performance tuning
-
-Expected Benefit:
-
-Faster enrichment.
+- type safety boundary is weak in derived retrieval persistence
 
 ---
 
@@ -432,115 +216,138 @@ Faster enrichment.
 
 Title:
 
-Synchronization Layer Transport Consolidation
+Unused Chunking Foundation
 
 Priority:
 
-P2
-
-Status:
-
-Deferred
+P3
 
 Current State:
 
-Realtime Transport and Reconciliation Transport independently deliver updates.
+- `chunk-builder.ts` exists
+- embedding pipeline currently uses `buildRetrievalDocument()` directly
 
-Problem:
+Debt:
 
-Future transports will increase synchronization complexity.
+- chunking abstraction is not integrated
+- chunk strategy remains undefined for longer retrieval documents
 
-Future Requirement:
+---
 
-Unified synchronization manager.
+## ED-011
 
-Future Transports:
+Title:
 
-- Realtime
-- Reconciliation
-- Mobile Sync
-- Extension Sync
-- Offline Recovery
+Distributed Worker Scaling Deferred
+
+Priority:
+
+P3
+
+Current State:
+
+- single metadata worker
+- single embedding worker
+
+Debt:
+
+- horizontal scaling architecture is not yet implemented
+
+---
+
+## ED-012
+
+Title:
+
+JSON Architecture Parity Drift
+
+Priority:
+
+P3
+
+Status:
+
+Accepted
+
+Current State:
+
+- Markdown architecture documents have been updated
+- JSON companion documents remain out of sync
+
+Affected Files:
+
+- PRD.json
+- Memory-Architecture.json
+- Philosophy.json
+- TRD.json
+
+Debt:
+
+- documentation drift
+- future architecture automation may consume stale JSON definitions
+- markdown and JSON sources no longer represent the same architecture state
+
+Current Decision:
+
+Accepted temporarily.
+
+Markdown documents remain authoritative until parity is restored.
 
 Future Solution:
 
-Dedicated Sync Manager abstraction.
+Perform a repository-wide JSON parity alignment pass.
 
-Expected Benefit:
+Update all JSON architecture documents to match their Markdown counterparts.
 
-Single synchronization ownership model.
+Review Trigger:
+
+- Codex budget becomes available
+OR
+- architecture automation begins consuming JSON documents
+OR
+- next major architecture review
 
 ---
 
 # Resolved Debt
 
-The following debt has been repaid and is no longer considered active:
+The following are no longer active debt:
 
-✓ Platform Resolver
-
-✓ Extractor Registry
-
-✓ GitHub Classification Ownership
-
-✓ Resolver-Owned Classification
-
-✓ MemoryFeed Type Safety
-
-✓ Search Architecture V1
-
-✓ MemoryBootstrap Extraction
-
-✓ Synchronization Layer V1 Foundation
-
-✓ User-Scoped Reconciliation Endpoint
-
-These items should not be reintroduced into future debt registers.
+- platform resolver introduction
+- extractor registry introduction
+- resolver-owned classification
+- Search V1 wiring
+- Memory bootstrap extraction
+- Synchronization V1 foundation
+- memory_embeddings migration alignment
 
 ---
 
-# Debt Accepted For MVP
+# Debt Accepted For Current Phase
 
-The following debt is intentionally accepted:
+Currently accepted:
 
-✓ Reconciliation Polling
-
-✓ Console Logging
-
-✓ Single Worker
-
-✓ No Queue Dashboard
-
-✓ Metadata Extraction Latency
+- reconciliation polling
+- console logging
+- single-worker-per-pipeline model
+- no queue dashboard
+- local Ollama dependency for embedding generation
 
 Reason:
 
-Current priority is expanding Memory capabilities rather than operational optimization.
+The current phase prioritizes retrieval architecture validation over operational polish.
 
 ---
 
-# Debt Review Process
+# Review Questions
 
-Review every sprint.
+Review active debt whenever asking:
 
-Questions:
-
-1. Is this slowing development?
-
-2. Is this causing production issues?
-
-3. Is this increasing operational cost?
-
-4. Is this blocking platform expansion?
-
-5. Is this blocking semantic retrieval?
-
-If YES:
-
-Schedule repayment.
-
-Otherwise:
-
-Continue shipping.
+1. Is this blocking public launch?
+2. Is this blocking semantic retrieval?
+3. Is this causing environment drift?
+4. Is this increasing operational risk?
+5. Is this weakening Memory or retrieval correctness?
 
 ---
 
@@ -548,11 +355,6 @@ Continue shipping.
 
 After:
 
-- Metadata Architecture V1
-- Search Architecture V1
-- Synchronization Layer V1
-- Extractor Registry Refactor
-
-Status:
-
-Active
+- Retrieval V1
+- Synchronization V1
+- Embedding Architecture V1

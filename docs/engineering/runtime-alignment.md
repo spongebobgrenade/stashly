@@ -1,37 +1,28 @@
 # Runtime Alignment
 
-> Product: Stashly  
-> Type: Engineering Governance Document  
 > Status: Active  
-> Layer: Engineering  
-> Authority: Memory Architecture → Runtime Alignment → Implementation
+> Authority: Memory Architecture -> Runtime Alignment -> Implementation
 
 ---
 
 # 1. Purpose
 
-This document prevents runtime drift between:
+This document records how canonical Memory semantics are implemented in the repository.
+
+It prevents drift between:
 
 - Memory Architecture
-- Database Schema
-- Generated Types
-- APIs
-- Workers
-- Synchronization Layer
-- Retrieval Layer
-- Client State
-
-Memory Architecture defines Memory semantics.
-
-Runtime Alignment defines how those semantics are implemented in code.
-
-Implementation must align with Runtime Alignment.
+- TRD
+- database schema and generated types
+- API contracts
+- workers
+- synchronization
+- retrieval
+- embeddings
 
 ---
 
 # 2. Authority Chain
-
-The authoritative ownership chain is:
 
 Philosophy
 ↓
@@ -45,87 +36,17 @@ Runtime Alignment
 ↓
 Implementation
 
-Rules:
+If implementation conflicts with this document, implementation changes.
 
-If implementation conflicts with Runtime Alignment:
-
-Implementation changes.
-
-If Runtime Alignment conflicts with Memory Architecture:
-
-Runtime Alignment changes.
-
-Memory Architecture remains authoritative.
+If this document conflicts with Memory Architecture, this document changes.
 
 ---
 
-# 3. Canonical Memory Ownership
-
-The canonical Memory entity is defined by:
-
-docs/product/Memory-Architecture.md
-
-No implementation layer may redefine:
-
-- Memory identity
-- Memory ownership
-- Memory lifecycle
-- Memory trust boundaries
-- Memory semantics
-
-Memory Architecture owns those definitions.
-
----
-
-# 4. Canonical Persistence Layer
-
-The database is the persisted representation of Memory.
-
-Current canonical Memory columns:
-
-- id
-- user_id
-- original_input
-- content_type
-- source_platform
-- canonical_url
-- title
-- description
-- thumbnail_url
-- creator_name
-- raw_metadata
-- processing_status
-- created_at
-- updated_at
-
-Columns outside Memory Architecture constitute schema drift.
-
-Schema drift must be corrected.
-
----
-
-# 5. Generated Type Rules
+# 3. Canonical Memory Type
 
 Source:
 
-src/types/database.types.ts
-
-Rules:
-
-- Generated types mirror database schema.
-- Generated types are never manually edited.
-- Regenerate after schema changes.
-- Generated types do not define Memory semantics.
-
-Generated types represent persistence structure only.
-
----
-
-# 6. Canonical Application Memory Type
-
-Source:
-
-src/types/memory.ts
+- `src/types/memory.ts`
 
 Current rule:
 
@@ -133,503 +54,305 @@ Current rule:
 export type Memory = Tables<"saves">;
 ```
 
-Rules:
+Memory derives from generated database types.
 
-- Memory derives from generated database types.
-- No duplicate Memory definitions.
-- No handwritten Memory entities.
-
-Database truth remains authoritative.
+No handwritten canonical Memory entity is allowed.
 
 ---
 
-# 7. Processing Lifecycle Ownership
+# 4. Canonical Persistence
 
-Canonical lifecycle:
+Current canonical Memory table:
 
-queued
-→ processing
-→ completed
+- `saves`
 
-queued
-→ processing
-→ failed
+Canonical Memory columns:
 
-Ownership:
-
-Processing Layer
-
-Responsibilities:
-
-- lifecycle transitions
-- lifecycle persistence
-
-UI may display lifecycle state.
-
-UI may not redefine lifecycle semantics.
-
-Retrieval may read lifecycle state.
-
-Retrieval may not redefine lifecycle semantics.
+- `id`
+- `user_id`
+- `original_input`
+- `content_type`
+- `source_platform`
+- `canonical_url`
+- `title`
+- `description`
+- `thumbnail_url`
+- `creator_name`
+- `raw_metadata`
+- `processing_status`
+- `created_at`
+- `updated_at`
 
 ---
 
-# 8. Capture Layer Contract
+# 5. Derived Retrieval Persistence
 
-Capture Layer responsibilities:
+Current derived retrieval table:
+
+- `memory_embeddings`
+
+Purpose:
+
+- store semantic retrieval artifacts derived from Memory
+- store pgvector-backed embedding data outside canonical Memory
+
+Current derived embedding columns observed in generated types:
+
+- `id`
+- `memory_id`
+- `chunk_index`
+- `chunk_text`
+- `embedding`
+- `provider`
+- `model`
+- `created_at`
+- `updated_at`
+
+Alignment rule:
+
+- `memory_embeddings` is not canonical Memory persistence
+- embeddings may be regenerated or replaced
+
+---
+
+# 6. Capture Contract
+
+Capture layer responsibilities:
 
 - validate input
-- preserve original_input
-- assign owner
-- create memory
-- enqueue processing
+- authenticate user
+- create Memory row
+- preserve `original_input`
+- assign `user_id`
+- initialize `processing_status = queued`
+- enqueue metadata processing
 
-Current initial state:
+Capture does not own:
 
-```text
-processing_status = queued
-```
-
-Capture Layer does not own enrichment.
-
-Capture Layer does not own lifecycle completion.
+- metadata enrichment
+- embedding generation
+- retrieval scoring
 
 ---
 
-# 9. Worker Contract
+# 7. Metadata Worker Contract
 
-Worker responsibilities:
+Metadata worker responsibilities:
 
-- transition queued → processing
-- perform enrichment
-- persist metadata
-- transition processing → completed
-- transition processing → failed
+- `queued -> processing`
+- resolver classification
+- extractor enrichment
+- persist Memory fields
+- `processing -> completed` or `failed`
+- enqueue embedding job after successful completion
 
-Worker may write:
+Worker may persist:
 
-- source_platform
-- content_type
-- canonical_url
-- title
-- description
-- thumbnail_url
-- creator_name
-- raw_metadata
-- processing_status
-
-Worker may not redefine Memory semantics.
-
-Worker may not bypass resolver ownership.
+- `source_platform`
+- `content_type`
+- `canonical_url`
+- `title`
+- `description`
+- `thumbnail_url`
+- `creator_name`
+- `raw_metadata`
+- `processing_status`
 
 ---
 
-# 10. Resolver Ownership Rules
-
-Resolver owns classification.
-
-Implementation:
-
-platform-resolver.ts
+# 8. Resolver Ownership
 
 Resolver owns:
 
-- platform
-- contentType
-- normalizedUrl
-- identifier
+- `platform`
+- `contentType`
+- `normalizedUrl`
+- `identifier`
 
-Resolver classification is authoritative.
+Classification ownership is authoritative at the resolver layer.
 
-No downstream component may override classification.
+No extractor may override it.
+
+No worker may invent alternative classification.
 
 ---
 
-# 11. Extractor Ownership Rules
+# 9. Extractor Ownership
 
 Extractors own enrichment only.
 
-Extractors may produce:
+Allowed extractor outputs:
 
-- title
-- description
-- thumbnailUrl
-- creatorName
-- canonicalUrl
-- rawMetadata
+- `title`
+- `description`
+- `thumbnailUrl`
+- `creatorName`
+- `canonicalUrl`
+- `rawMetadata`
 
-Extractors must not produce:
+Forbidden extractor outputs:
 
-- sourcePlatform
-- contentType
-
-Classification ownership belongs to the Resolver.
+- `sourcePlatform`
+- `contentType`
 
 ---
 
-# 12. Extractor Registry Rules
+# 10. Embedding Worker Contract
 
-Implementation:
+Embedding worker responsibilities:
 
-extractor-registry.ts
+- fetch completed Memory
+- build retrieval document from Memory
+- generate embedding through the gateway
+- persist derived row into `memory_embeddings`
 
-Registry owns extractor selection.
+Embedding worker does not own:
 
-Current supported registry entries:
-
-- youtube
-- github
-- website
-- unknown
-
-New platform support must be added through registry registration.
-
-Avoid switch-statement growth.
-
-Avoid platform detection inside workers.
+- Memory truth
+- Memory lifecycle semantics
+- canonical metadata fields
 
 ---
 
-# 13. Synchronization Layer Contract
+# 11. Retrieval Document Rule
 
-Synchronization owns Memory delivery.
+Retrieval documents are generated views of Memory.
 
-Synchronization does not own Memory truth.
+Current implementation builds them from:
 
-Memory truth remains the database.
+- `title`
+- `description`
+- `creator_name`
 
-Current transports:
+Alignment rule:
 
-## Realtime Transport
-
-Responsibilities:
-
-- subscribe to memory updates
-- receive database changes
-- deliver updates to store
-
-Flow:
-
-Database
-↓
-Realtime
-↓
-upsertMemory()
+- retrieval documents derive from Memory
+- retrieval documents must not replace Memory truth
 
 ---
 
-## Reconciliation Transport
+# 12. Embedding Gateway Rule
 
-Responsibilities:
-
-- recover missed updates
-- maintain client consistency
+Application code calls the embedding gateway.
 
 Current implementation:
 
-15-second polling
+- `generateEmbedding(text, options?)`
 
-Flow:
+Current provider:
 
-/api/memories/pending
-↓
-Memory[]
-↓
-upsertMemory()
+- `ollama`
+
+Alignment rule:
+
+- provider selection is an infrastructure concern
+- application layers should not couple directly to provider-specific APIs
 
 ---
 
-## Synchronization Rule
+# 13. Synchronization Contract
 
-All transports must update state through:
+Current transports:
+
+- realtime
+- reconciliation polling
+
+Both transports must update state through:
 
 ```ts
 upsertMemory()
 ```
 
-UI must not require transport-specific logic.
+Synchronization owns delivery.
 
-Future transports:
-
-- Mobile Sync
-- Extension Sync
-- Offline Recovery
-- Multi-Device Synchronization
-
-must follow the same contract.
+Synchronization does not own Memory truth.
 
 ---
 
-# 14. State Ownership Rules
+# 14. Retrieval Alignment
 
-Capture Layer owns:
+Current user-serving retrieval:
 
-- creation
+- Retrieval V1 keyword search
 
-Processing Layer owns:
-
-- lifecycle transitions
-- enrichment
-
-Synchronization Layer owns:
-
-- state delivery
-
-Retrieval Layer owns:
-
-- retrieval logic
-
-UI Layer owns:
-
-- presentation
-
-No layer owns Memory semantics except Memory Architecture.
-
----
-
-# 15. Store Ownership Rules
-
-Implementation:
-
-src/lib/memories/store.ts
-
-Store responsibilities:
-
-- memory cache
-- optimistic insertion
-- state updates
-
-Canonical store actions:
-
-initializeMemories()
-
-addOptimisticMemory()
-
-upsertMemory()
-
-All runtime transports must use:
-
-```ts
-upsertMemory()
-```
-
-for Memory updates.
-
----
-
-# 16. Search Alignment Rules
-
-Current search:
-
-Keyword Search V1
-
-Implementation:
-
-- SearchBar
-- useSearch()
-- /api/search
-- SearchResults
-
-Current retrieval strategy:
-
-ILIKE matching across:
-
-- title
-- description
-- creator_name
-- source_platform
-- original_input
-
-Future retrieval systems:
-
-- semantic search
-- embeddings
-- relationships
-- rediscovery
-
-must derive from canonical Memory.
-
-They may not redefine Memory.
-
----
-
-# 17. Schema Drift Rules
-
-The following indicate schema drift:
-
-- schema fields not present in Memory Architecture
-- application types differing from generated types
-- workers writing undeclared fields
-- extractors owning classification
-- transport layers bypassing upsertMemory()
-- UI requiring undeclared Memory fields
-
-Drift must be corrected immediately.
-
-Do not build around drift.
-
-Align the system.
-
----
-
-# 18. Deferred Architecture Decisions
-
-## RA-001: Memory Taxonomy Expansion
-
-Status:
-
-Deferred
-
-Current behavior:
-
-Resolver classifications are written directly into:
+Current API path:
 
 ```text
-saves.content_type
+/api/search
+→ retrieveMemories()
+→ keywordRetrievalStrategy()
 ```
 
-Examples:
+Current query fields:
 
-- video
-- short
-- playlist
-- repository
-- article
-- website
+- `title`
+- `description`
+- `creator_name`
+- `source_platform`
+- `original_input`
 
-Reason:
+Current semantic retrieval status:
 
-Current taxonomy is sufficient for MVP.
-
-Future Memory Architecture may introduce:
-
-- note
-- image
-- screenshot
-- pdf
-- file
-- audio
-
-At that point a dedicated mapping layer may be required.
+- embedding foundation exists
+- no semantic query-serving path yet
 
 ---
 
-## RA-002: Attribution Model Expansion
+# 15. Local Development Requirements
 
-Status:
-
-Deferred
-
-Current behavior:
-
-```text
-og:site_name
-↓
-creator_name
-```
-
-Known limitation:
-
-Publisher and creator are not always the same entity.
-
-Future model may separate:
-
-- creator_name
-- publisher_name
-- platform_name
-
----
-
-## RA-003: Synchronization Optimization
-
-Status:
-
-Deferred
-
-Current behavior:
-
-Reconciliation polls every 15 seconds.
-
-Reason:
-
-Simple and reliable.
-
-Future architecture:
-
-State-aware synchronization.
-
-Example:
-
-Pending Memories Exist
-↓
-Polling Enabled
-
-No Pending Memories
-↓
-Polling Disabled
-
-This optimization is intentionally deferred.
-
----
-
-# 19. Local Development Requirements
-
-Terminal 1:
+Current local runtime processes:
 
 ```bash
 npm run dev
+npm run worker
+npm run embedding-worker
 ```
 
-Terminal 2:
+Optional combined script:
 
 ```bash
-npm run worker
+npm run dev:all
 ```
 
-Worker is mandatory.
+Without the metadata worker:
 
-Without worker:
+- memories remain queued or incomplete
 
-- memories remain queued
-- enrichment never occurs
-- metadata never appears
-- synchronization receives no lifecycle updates
+Without the embedding worker:
+
+- `memory_embeddings` is not populated
+- semantic retrieval foundation is incomplete
 
 ---
 
-# 20. Current Alignment Status
+# 16. Accepted Current Behavior
+
+Accepted current runtime behavior:
+
+- resolver classifications are written directly to `saves.content_type` and `saves.source_platform`
+- metadata completion triggers embedding queueing
+- embeddings are stored outside canonical Memory
+- search remains keyword-first while semantic foundations are still being built
+
+---
+
+# 17. Current Alignment Status
 
 Aligned:
 
-✓ Memory Architecture
+- canonical Memory persistence
+- generated Memory typing
+- resolver-owned classification
+- extractor-owned enrichment
+- synchronization contract
+- Retrieval V1
+- Embedding Architecture V1 as a derived layer
 
-✓ Database Schema
+Not yet complete:
 
-✓ Generated Types
+- semantic retrieval serving path
+- hybrid retrieval
+- AI retrieval
+- embedding lifecycle management
 
-✓ Worker Contract
-
-✓ Resolver Ownership
-
-✓ Extractor Ownership
-
-✓ Extractor Registry
-
-✓ Synchronization Layer
-
-✓ Search Architecture V1
-
-✓ Optimistic Save Architecture
-
-Remaining Future Work:
-
-- Platform Expansion
-- Memory Taxonomy Expansion
-- Semantic Retrieval
-- Embeddings
-- Knowledge Graph
-- Relationships
-- Rediscovery
-- AI Retrieval
-
-These systems must build on canonical Memory rather than redefine it.
+These systems must continue to derive from Memory rather than redefine it.

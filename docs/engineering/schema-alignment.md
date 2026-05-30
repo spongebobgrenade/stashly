@@ -2,30 +2,22 @@
 
 Status: Active
 
-Purpose:
+---
 
-This document aligns:
+# 1. Purpose
 
-- Memory Architecture
-- Database Schema
-- Generated Types
-- Runtime Contracts
-- Worker Contracts
-- Store Contracts
+This document aligns current persisted entities with canonical Memory architecture and current retrieval infrastructure.
 
-The database schema is the persisted representation of Memory.
+It covers:
 
-Generated types derive from schema.
-
-Runtime derives from generated types.
-
-No layer may independently redefine Memory.
+- canonical Memory persistence
+- derived retrieval persistence
+- ownership boundaries
+- generated type expectations
 
 ---
 
-# Alignment Authority
-
-Ownership hierarchy:
+# 2. Authority Chain
 
 Memory Architecture
 ↓
@@ -37,188 +29,106 @@ Runtime Alignment
 ↓
 Implementation
 
-Lower layers must align with higher layers.
-
-Drift must be corrected.
-
-Drift must not be accommodated.
+Lower layers must align upward.
 
 ---
 
-# Canonical Persistence Entity
+# 3. Canonical Persistence Entity
 
-Current canonical persistence entity:
+Current canonical Memory table:
 
 ```text
 saves
 ```
 
-The table name may change in the future.
-
-The field contract is the authoritative concern.
+This table owns authoritative Memory persistence.
 
 ---
 
-# Canonical Memory Fields
+# 4. Canonical Memory Fields
 
-## Identity
+Identity:
 
 ```text
 id
 user_id
 ```
 
-Purpose:
-
-Memory ownership and identity.
-
----
-
-## Input
+Input:
 
 ```text
 original_input
 ```
 
-Purpose:
-
-Preserve original captured content.
-
----
-
-## Classification
+Classification:
 
 ```text
 content_type
 source_platform
 ```
 
-Purpose:
-
-Memory classification.
-
-Ownership:
-
-Resolver
-
----
-
-## Enrichment
+Enrichment:
 
 ```text
 canonical_url
-
 title
 description
-
 thumbnail_url
-
 creator_name
-
 raw_metadata
 ```
 
-Purpose:
-
-Metadata enrichment.
-
-Ownership:
-
-Extractors
-
----
-
-## Lifecycle
+Lifecycle:
 
 ```text
 processing_status
 ```
 
-Allowed values:
-
-```text
-queued
-processing
-completed
-failed
-```
-
-Ownership:
-
-Processing Layer
-
----
-
-## Audit
+Audit:
 
 ```text
 created_at
 updated_at
 ```
 
-Purpose:
-
-Persistence auditing.
-
-Ownership:
-
-Database
-
 ---
 
-# Canonical Lifecycle Alignment
+# 5. Derived Retrieval Entity
 
-Current lifecycle:
+Current derived retrieval table:
 
 ```text
-queued
-↓
-processing
-↓
-completed
+memory_embeddings
 ```
 
-Failure path:
+Purpose:
+
+- persist vector-ready retrieval artifacts derived from Memory
+- persist pgvector-backed semantic retrieval artifacts outside canonical Memory
+
+Current observed fields in generated types:
 
 ```text
-queued
-↓
-processing
-↓
-failed
+id
+memory_id
+chunk_index
+chunk_text
+embedding
+provider
+model
+created_at
+updated_at
 ```
 
 Rules:
 
-Save API creates:
-
-```text
-queued
-```
-
-Worker creates:
-
-```text
-processing
-```
-
-Worker completes:
-
-```text
-completed
-```
-
-Worker failures write:
-
-```text
-failed
-```
-
-No additional lifecycle states are currently allowed.
+- `memory_embeddings` derives from `saves`
+- `memory_embeddings` is not canonical Memory truth
+- `memory_embeddings` may be regenerated
 
 ---
 
-# Ownership Alignment
+# 6. Ownership Alignment
 
 ## Capture Layer
 
@@ -230,14 +140,6 @@ user_id
 processing_status = queued
 ```
 
-Implementation:
-
-```text
-/api/memories/save
-```
-
----
-
 ## Resolver
 
 Owns:
@@ -247,41 +149,20 @@ source_platform
 content_type
 ```
 
-Implementation:
-
-```text
-platform-resolver.ts
-```
-
-Resolver classifications are authoritative.
-
----
-
 ## Extractors
 
 Own:
 
 ```text
+canonical_url
 title
 description
 thumbnail_url
 creator_name
-canonical_url
 raw_metadata
 ```
 
-Implementation:
-
-```text
-youtube.ts
-opengraph.ts
-```
-
-Extractors do not own classification.
-
----
-
-## Worker
+## Processing Layer
 
 Owns:
 
@@ -289,53 +170,59 @@ Owns:
 processing_status
 ```
 
-and persistence of:
+and persistence of resolver and extractor outputs into `saves`.
 
-```text
-source_platform
-content_type
-
-title
-description
-thumbnail_url
-creator_name
-canonical_url
-raw_metadata
-```
-
-Implementation:
-
-```text
-metadata-processor.ts
-```
-
-Worker may persist fields.
-
-Worker may not redefine ownership.
-
----
-
-## Synchronization Layer
+## Embedding Layer
 
 Owns:
 
-Delivery.
-
-Does not own Memory truth.
-
-Implementation:
-
 ```text
-Realtime
-+
-Reconciliation
+chunk_index
+chunk_text
+embedding
+provider
+model
 ```
 
-Memory truth remains the database.
+within `memory_embeddings`.
 
 ---
 
-# Generated Type Alignment
+# 7. Lifecycle Alignment
+
+Current canonical Memory lifecycle:
+
+```text
+queued
+→ processing
+→ completed
+
+queued
+→ processing
+→ failed
+```
+
+Save API creates:
+
+```text
+queued
+```
+
+Metadata worker writes:
+
+```text
+processing
+completed
+failed
+```
+
+Embedding generation is downstream of completed Memory enrichment.
+
+It does not create a new base Memory lifecycle state.
+
+---
+
+# 8. Generated Type Alignment
 
 Source:
 
@@ -345,259 +232,59 @@ src/types/database.types.ts
 
 Rules:
 
-Generated types:
-
-- mirror schema
-- are never manually edited
-- are regenerated after schema changes
-
-Generated types are persistence contracts.
-
-Generated types are not semantic contracts.
+- generated types mirror current database shape
+- generated types do not define semantics
+- application Memory types derive from generated types
+- derived retrieval tables must also be represented correctly in generated types
 
 ---
 
-# Application Type Alignment
+# 9. Retrieval Alignment
 
-Source:
-
-```ts
-export type Memory = Tables<"saves">;
-```
-
-Rules:
-
-Application Memory derives from generated types.
-
-Duplicate Memory entities are forbidden.
-
-Handwritten persistence interfaces are forbidden.
-
----
-
-# Store Alignment
-
-Implementation:
+Current Retrieval V1 reads from:
 
 ```text
-src/lib/memories/store.ts
+saves
 ```
 
-Current store actions:
+Current semantic retrieval foundation writes to:
 
 ```text
-initializeMemories()
-
-addOptimisticMemory()
-
-upsertMemory()
+memory_embeddings
 ```
 
-Rules:
+Schema alignment rule:
 
-Store state derives from canonical Memory.
-
-Store may create optimistic projections.
-
-Store may not redefine Memory.
+- retrieval indexes and vectors must remain outside base Memory persistence
 
 ---
 
-# Synchronization Alignment
+# 10. Current Alignment Status
 
-Current transports:
+Aligned:
 
-## Realtime
+- `saves` as canonical Memory store
+- resolver-owned classification persistence
+- extractor-owned enrichment persistence
+- `memory_embeddings` as derived retrieval storage in generated types and runtime code
 
-Flow:
+Current repository gap:
 
-Database
-↓
-Realtime
-↓
-upsertMemory()
+- checked-in SQL migrations in `supabase/migrations/` do not yet describe the current `memory_embeddings` table used by generated types and runtime code
 
----
-
-## Reconciliation
-
-Flow:
-
-/api/memories/pending
-↓
-Memory[]
-↓
-upsertMemory()
+This is schema-source drift and must remain visible until migrations catch up.
 
 ---
 
-Rule:
-
-All transports update Memory through:
-
-```text
-upsertMemory()
-```
-
-No transport may bypass the store.
-
----
-
-# Search Alignment
-
-Current search:
-
-Keyword Search V1
-
-Search fields:
-
-```text
-title
-description
-creator_name
-source_platform
-original_input
-```
-
-Search derives from canonical Memory.
-
-Search may not introduce parallel memory models.
-
----
-
-# Extractor Registry Alignment
-
-Implementation:
-
-```text
-extractor-registry.ts
-```
-
-Current registry entries:
-
-```text
-youtube
-github
-website
-unknown
-```
-
-Rules:
-
-New platform support enters through registry registration.
-
-Workers must not contain platform-specific branching.
-
----
-
-# Current Alignment Status
-
-## Aligned
-
-✓ Memory Architecture
-
-✓ Database Schema
-
-✓ Generated Types
-
-✓ Memory Type Definition
-
-✓ Lifecycle Contract
-
-✓ Resolver Ownership
-
-✓ Extractor Ownership
-
-✓ Worker Contract
-
-✓ Synchronization Layer
-
-✓ Search Architecture V1
-
-✓ Optimistic Save Architecture
-
-✓ Extractor Registry
-
----
-
-## Accepted Runtime Behavior
-
-Current implementation writes:
-
-```text
-resolved.contentType
-```
-
-directly into:
-
-```text
-saves.content_type
-```
-
-Examples:
-
-```text
-video
-short
-playlist
-repository
-article
-website
-unknown
-```
-
-This behavior is accepted.
-
-Future Memory Taxonomy expansion may introduce a mapping layer.
-
-Current implementation remains aligned.
-
----
-
-## Future Alignment Work
-
-Future systems requiring schema alignment:
-
-- Collections
-- Relationships
-- Embeddings
-- Semantic Retrieval
-- Knowledge Graph
-- Rediscovery Engine
-- AI Retrieval
-
-These systems must derive from canonical Memory.
-
-They may not redefine Memory.
-
----
-
-# Alignment Review Triggers
+# 11. Review Triggers
 
 Review this document whenever:
 
-- schema changes
-- new memory types are introduced
-- lifecycle changes
-- new extractors are added
-- new synchronization transports are added
-- retrieval architecture changes
-- Memory Architecture changes
+- Memory fields change
+- derived retrieval entities change
+- embedding storage shape changes
+- semantic retrieval serving is introduced
+- hybrid retrieval is introduced
+- generated types are regenerated
 
 Alignment must be maintained continuously.
-
----
-
-# Last Updated
-
-After:
-
-- Canonical Memory Foundation Lock
-- Resolver Ownership Refactor
-- Extractor Registry Introduction
-- Search Architecture V1
-- Synchronization Layer V1
-
-Status:
-
-Aligned

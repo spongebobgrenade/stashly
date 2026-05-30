@@ -1,506 +1,296 @@
 # Stashly Search Architecture
 
-> Product: Stashly  
-> Type: Search Architecture Document  
-> Version: 1.0  
-> Status: Source of Truth  
-> Layer: Product Architecture  
-> Hierarchy: Philosophy → PRD → Memory Architecture → Search Architecture → TRD → Implementation
+> Version: 2.0
+> Status: Active Source of Truth
+> Layer: Product Architecture
 
 ---
 
 # 1. Purpose
 
-This document defines the canonical architecture of Search in Stashly.
+This document defines how Search and Retrieval evolve in Stashly.
 
-Its purpose is to establish:
+It establishes:
 
 - what Search is
 - what Retrieval is
-- how Search differs from Retrieval
-- how Search evolves over time
-- what information Search owns
-- what information Search does not own
-- how Search interacts with Memory
-
-This document exists to prevent Search architecture drift as Stashly evolves from a simple memory repository into an AI Memory Layer.
+- how current retrieval works
+- how future retrieval layers build on the current foundation
+- what Retrieval may derive from Memory
 
 ---
 
 # 2. Search Is Not Memory
 
-Memory and Search are different architectural layers.
+Memory stores truth.
 
-Memory answers:
-
-> What has been remembered?
-
-Search answers:
-
-> How can a remembered thing be found again?
-
-Memory persists truth.
-
-Search discovers truth.
-
-Search does not own Memory.
+Search helps users recover remembered truth.
 
 Search derives from Memory.
 
+Search does not own:
+
+- Memory persistence
+- Memory lifecycle
+- Memory semantics
+
 ---
 
-# 3. Search Is Not Retrieval
-
-Search and Retrieval are related but not identical.
+# 3. Search Is Not The Whole Retrieval Stack
 
 Search is the user-facing capability.
 
-Retrieval is the system capability.
-
----
-
-## Search
-
-Search is the experience.
-
-Examples:
-
-- searching by title
-- searching by creator
-- searching by keywords
-- searching by concepts
-- searching by vague intent
-
----
-
-## Retrieval
-
-Retrieval is the engine.
-
-Examples:
-
-- lexical matching
-- metadata matching
-- vector matching
-- ranking
-- reranking
-- confidence scoring
-
----
+Retrieval is the system capability underneath it.
 
 Relationship:
 
 ```text
-User
-  ↓
-Search
-  ↓
-Retrieval
-  ↓
-Memory
+User Intent
+→ Search Experience
+→ Retrieval Strategy
+→ Memory-Derived Artifacts
+→ Memory Results
 ```
 
 ---
 
-# 4. Search Principles
+# 4. Core Search Principle
 
-## 4.1 Search Exists To Recover Memories
+Users should not need to remember where they saved something.
 
-Search is not a database query tool.
+Users should only need to remember intent.
 
-Search exists to help users recover things they previously wanted remembered.
-
----
-
-## 4.2 Recognition Beats Recall
-
-Users often do not remember exact titles.
-
-Search should optimize for recognition.
-
-Examples:
-
-Bad:
-
-"Type exact title"
-
-Good:
-
-"Show things related to startup funding"
+This means retrieval must evolve away from exact-match query behavior over time.
 
 ---
 
-## 4.3 Search Must Remain Trust-Safe
+# 5. Current Retrieval Roadmap
 
-Search may retrieve.
+Stashly retrieval is staged explicitly.
 
-Search may rank.
+## Retrieval V1
 
-Search may recommend.
+Status:
 
-Search must never fabricate memories.
+Implemented
 
-Search can only return information grounded in stored Memories.
+Definition:
+
+- keyword retrieval
+- lexical matching
+- dashboard search UI
+- results sourced from canonical Memory
+
+Current query fields:
+
+- title
+- description
+- creator_name
+- source_platform
+- original_input
+
+## Retrieval V2
+
+Status:
+
+Foundation implemented, not yet serving user queries
+
+Definition:
+
+- semantic retrieval
+- retrieval document generation
+- embeddings
+- vector-backed similarity matching
+
+## Retrieval V3
+
+Status:
+
+Planned
+
+Definition:
+
+- hybrid retrieval
+- keyword retrieval plus semantic retrieval
+- fusion and ranking layer
+
+## Retrieval V4
+
+Status:
+
+Planned
+
+Definition:
+
+- AI retrieval
+- query understanding
+- retrieval planning
+- explanation generation
+- recovery by intent
 
 ---
 
-## 4.4 Search Evolves
+# 6. Retrieval V1 Architecture
 
-Search capability is expected to evolve.
+Current flow:
 
-Search quality improves over time.
+```text
+SearchBar
+→ useSearch()
+→ /api/search
+→ retrieveMemories()
+→ keywordRetrievalStrategy()
+→ Supabase query on saves
+→ SearchResults
+```
 
-Memory truth remains stable.
+Characteristics:
 
-Search derives from Memory.
+- user-scoped
+- keyword-only
+- metadata-backed
+- no semantic understanding
 
 ---
 
-# 5. Search Ownership Boundaries
+# 7. Retrieval V2 Foundation
+
+Current repository already contains the foundation for semantic retrieval:
+
+- `memory_embeddings` table
+- retrieval document builder
+- embedding queue
+- embedding worker
+- embedding gateway abstraction
+- Ollama embedding provider
+- pgvector-backed storage contract
+
+Current semantic foundation flow:
+
+```text
+Memory completed
+→ Retrieval Document
+→ Embedding Queue
+→ Embedding Worker
+→ Embedding Gateway
+→ Ollama Provider
+→ memory_embeddings
+```
+
+This is infrastructure, not yet a query-serving retrieval path.
+
+---
+
+# 8. Search Ownership Boundaries
 
 Search owns:
 
-- query interpretation
-- result ranking
-- result presentation
+- user query input
 - result ordering
+- result presentation
 - retrieval orchestration
 
 Search does not own:
 
 - Memory truth
 - Memory lifecycle
-- Memory ownership
-- Memory metadata
+- base Memory persistence
+- embedding truth
 
 ---
 
-# 6. Retrieval Ownership Boundaries
+# 9. Retrieval Artifact Rules
 
-Retrieval owns:
+Retrieval systems may produce:
 
-- matching
-- ranking
-- scoring
-- filtering
-- retrieval explanations
-
-Retrieval does not own:
-
-- Memory semantics
-- Memory persistence
-- Memory lifecycle
-
----
-
-# 7. Search Evolution Model
-
-Search evolves through multiple stages.
-
-Each stage builds on the previous one.
-
-Earlier stages are not discarded.
-
-They become fallback mechanisms.
-
----
-
-# 8. Search V1
-
-## Objective
-
-Allow users to find saved Memories quickly.
-
----
-
-## Retrieval Method
-
-Lexical Retrieval
-
-Search against:
-
-- title
-- description
-- creator_name
-- source_platform
-- original_input
-
----
-
-## Ranking
-
-Simple relevance ordering.
-
----
-
-## Trust Model
-
-Only return stored Memory data.
-
-No AI interpretation.
-
----
-
-## Search Flow
-
-```text
-User Query
-     ↓
-Lexical Match
-     ↓
-Rank Results
-     ↓
-Display Results
-```
-
----
-
-# 9. Search V2
-
-## Objective
-
-Improve retrieval quality.
-
----
-
-## Additional Capabilities
-
-- metadata weighting
-- creator matching
-- platform matching
-- fuzzy matching
-
----
-
-## Search Flow
-
-```text
-User Query
-     ↓
-Lexical Retrieval
-     ↓
-Ranking Layer
-     ↓
-Display Results
-```
-
----
-
-# 10. Search V3
-
-## Objective
-
-Support concept-level search.
-
----
-
-## Additional Capabilities
-
-- embeddings
-- semantic retrieval
-- meaning-based matching
-
----
-
-## Search Flow
-
-```text
-User Query
-     ↓
-Lexical Retrieval
-     ↓
-Semantic Retrieval
-     ↓
-Fusion Layer
-     ↓
-Ranking Layer
-     ↓
-Display Results
-```
-
----
-
-# 11. Search V4
-
-## Objective
-
-Support AI-assisted memory recovery.
-
----
-
-## Additional Capabilities
-
-- query understanding
-- retrieval planning
-- multi-stage retrieval
-- retrieval explanations
-
----
-
-## Search Flow
-
-```text
-User Query
-     ↓
-Query Understanding
-     ↓
-Retrieval Planning
-     ↓
-Lexical Retrieval
-     ↓
-Semantic Retrieval
-     ↓
-Fusion Layer
-     ↓
-Ranking Layer
-     ↓
-Display Results
-```
-
----
-
-# 12. Search Inputs
-
-Search may use:
-
-- title
-- description
-- creator_name
-- source_platform
-- original_input
-- future notes
-- future summaries
-
-Search may use future retrieval indexes derived from Memory.
-
-Search must not depend on information outside user-owned Memory scope.
-
----
-
-# 13. Search Outputs
-
-Search returns:
-
-- matching Memories
-- ranking order
-- retrieval metadata
-
-Search does not modify Memory.
-
-Search does not enrich Memory.
-
-Search does not redefine Memory.
-
----
-
-# 14. Retrieval Artifacts
-
-Retrieval systems may generate:
-
-- scores
-- ranks
-- confidence values
-- semantic similarity values
+- lexical matches
+- semantic matches
+- rankings
+- confidence scores
 - explanations
+- fusion outputs
 
 These are retrieval artifacts.
 
 They are not Memory fields.
 
-They must not be persisted inside the canonical Memory entity.
+They must not redefine canonical Memory.
 
 ---
 
-# 15. Search And Memory Relationship
+# 10. Embeddings and Search
 
-Memory remains authoritative.
+Embeddings are retrieval artifacts derived from Memory.
 
-Search derives from Memory.
+They support semantic retrieval.
 
-If Search and Memory disagree:
+They do not replace Memory and may be regenerated.
 
-Memory wins.
+Retrieval documents are generated views used to create embeddings.
 
-Search must adapt.
-
-Memory must not be altered to accommodate Search.
+They are not authoritative user records.
 
 ---
 
-# 16. Search And AI Relationship
+# 11. Trust Rules
 
-AI may improve Search.
+Search may:
 
-AI must not replace Search truth.
+- rank
+- match
+- explain
+- combine retrieval strategies
 
-AI may:
-
-- interpret queries
-- improve ranking
-- explain retrieval
-
-AI may not:
+Search may not:
 
 - fabricate Memories
-- invent retrieval results
-- create false source attribution
+- invent source attribution
+- imply hidden knowledge
+- weaken user isolation
+
+All retrieval must remain grounded in stored Memory and approved derived artifacts.
 
 ---
 
-# 17. Search Isolation Rules
+# 12. Isolation Rules
 
-Search remains user-scoped.
+Search and Retrieval remain user-scoped.
 
-Retrieval remains user-scoped.
+This applies to:
 
-Ranking remains user-scoped.
-
-No Search system may retrieve Memories belonging to another user unless future permission architecture explicitly allows it.
-
----
-
-# 18. Future Retrieval Systems
-
-Future retrieval systems may include:
-
+- keyword search
 - semantic retrieval
-- relationship retrieval
-- rediscovery retrieval
-- bundle retrieval
-- recommendation retrieval
+- hybrid retrieval
+- AI retrieval
+- embeddings
 
-These systems derive from Memory.
-
-They do not redefine Memory.
+Cross-user retrieval leakage is forbidden.
 
 ---
 
-# 19. Compatibility Requirements
+# 13. Product Readiness Rule
 
-Search Architecture must remain compatible with:
+Retrieval V1 proves basic usability.
 
-- Memory Architecture
-- Runtime Alignment
-- Retrieval Systems
-- AI Systems
-- Rediscovery Systems
+Public launch requires Retrieval V4 characteristics:
 
-Search evolves.
+- AI-powered retrieval
+- intent-level recovery
+- retrieval explanations
+- more than keyword lookup
 
-Memory remains stable.
+Until then, the current UI remains a validation environment.
 
 ---
 
-# 20. Final Boundary Definition
+# 14. Final Boundary Definition
 
 Search is:
 
-> the user-facing capability responsible for helping users recover remembered information.
+> the user-facing experience for recovering remembered information.
 
-Search is not:
+Retrieval is:
 
-> the owner of Memory truth.
+> the layered system that turns intent into grounded Memory results.
 
-Search derives from Memory.
-
-Memory remains authoritative.
+Memory remains authoritative across all retrieval versions.

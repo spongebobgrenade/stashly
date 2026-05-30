@@ -2,22 +2,76 @@
 
 Status: Active
 
-Purpose:
+---
 
-Document current repository limitations, unsupported capabilities, implementation constraints, and intentionally deferred functionality.
+# Purpose
 
-A limitation is not necessarily engineering debt.
+This document tracks current repository limitations, unsupported functionality, and intentionally incomplete architecture.
 
-A limitation may be:
+These are not all debt items.
 
-- unsupported functionality
-- deferred architecture
-- incomplete platform support
-- MVP scope boundary
+Some are deliberate phase boundaries.
 
 ---
 
-# Platform Support Limitations
+# Product-State Limitations
+
+## Validation UI Only
+
+Status:
+
+Current Repository State
+
+Limitation:
+
+The current UI is a validation environment for architecture and functionality.
+
+Impact:
+
+- not the final public product interface
+- not the final AI retrieval experience
+
+## No Public Launch Yet
+
+Status:
+
+Intentional
+
+Limitation:
+
+The product should not launch publicly until AI-powered retrieval exists.
+
+Impact:
+
+- current search and dashboard validate infrastructure rather than final product promise
+
+---
+
+# Capture Limitations
+
+## URL-First Capture
+
+Status:
+
+Current MVP Scope
+
+Implemented:
+
+- URLs
+
+Not implemented:
+
+- notes
+- copied text
+- screenshots
+- images
+- PDFs
+- files
+- voice notes
+
+---
+
+# Metadata Platform Limitations
 
 ## YouTube Playlists
 
@@ -25,173 +79,31 @@ Status:
 
 Partially Supported
 
-Current State:
+Limitation:
 
-The resolver recognizes YouTube playlists.
+- resolver recognizes playlists
+- enrichment path is not fully specialized end to end
 
-Current Limitation:
-
-End-to-end playlist metadata extraction is not implemented.
-
-Impact:
-
-Playlist URLs may not receive complete enrichment.
-
----
-
-## Instagram
+## Instagram / TikTok / X / LinkedIn / Spotify / Notion
 
 Status:
 
 Unsupported
 
-Current Limitation:
+Limitation:
 
-No extractor exists.
+- no dedicated extractors
+- URLs fall back to generic website extraction
 
-Impact:
-
-Instagram URLs fall back to generic website extraction.
-
----
-
-## TikTok
-
-Status:
-
-Unsupported
-
-Current Limitation:
-
-No extractor exists.
-
-Impact:
-
-TikTok URLs fall back to generic website extraction.
-
----
-
-## X (Twitter)
-
-Status:
-
-Unsupported
-
-Current Limitation:
-
-No extractor exists.
-
-Impact:
-
-X URLs fall back to generic website extraction.
-
----
-
-## LinkedIn
-
-Status:
-
-Unsupported
-
-Current Limitation:
-
-No extractor exists.
-
-Impact:
-
-LinkedIn URLs fall back to generic website extraction.
-
----
-
-## Spotify
-
-Status:
-
-Unsupported
-
-Current Limitation:
-
-No extractor exists.
-
-Impact:
-
-Spotify URLs fall back to generic website extraction.
-
----
-
-## Notion
-
-Status:
-
-Unsupported
-
-Current Limitation:
-
-No extractor exists.
-
-Impact:
-
-Notion URLs fall back to generic website extraction.
-
----
-
-## Medium
+## Medium / Product Hunt
 
 Status:
 
 Partially Supported
 
-Current State:
+Limitation:
 
-Medium URLs use generic OpenGraph extraction.
-
-Current Limitation:
-
-Metadata quality depends entirely on available OpenGraph tags.
-
-Enrichment quality is not guaranteed.
-
----
-
-## Product Hunt
-
-Status:
-
-Partially Supported
-
-Current State:
-
-Product Hunt URLs use generic OpenGraph extraction.
-
-Current Limitation:
-
-Metadata quality depends entirely on available OpenGraph tags.
-
-Enrichment quality is not guaranteed.
-
----
-
-# Metadata Extraction Limitations
-
-## OpenAI Properties
-
-Status:
-
-Known Limitation
-
-Current Limitation:
-
-Some OpenAI properties block scraping requests.
-
-Observed Result:
-
-403 responses.
-
-Impact:
-
-Metadata extraction may fail.
-
----
+- metadata quality depends on generic OpenGraph availability
 
 ## No Headless Browser Fallback
 
@@ -199,243 +111,64 @@ Status:
 
 Not Implemented
 
-Current Limitation:
+Limitation:
 
-Metadata extraction relies on direct HTTP requests.
+- extraction relies on direct HTTP requests
+- JS-rendered or protected pages may fail enrichment
 
-Current Architecture:
-
-Resolver
-↓
-Extractor
-↓
-HTTP Fetch
-
-Missing:
-
-Browser-based extraction fallback.
-
-Impact:
-
-JavaScript-rendered pages and anti-bot protected pages may fail enrichment.
-
----
-
-## Website Attribution
+## Website Attribution Ambiguity
 
 Status:
 
 Known Limitation
 
-Current State:
+Limitation:
 
-OpenGraph extraction maps:
-
-```text
-og:site_name
-↓
-creator_name
-```
-
-Current Limitation:
-
-Publisher and creator are not always the same entity.
-
-Future Work:
-
-Separate:
-
-- creator_name
-- publisher_name
-- platform_name
-
----
-
-## No Metadata Retry Strategy
-
-Status:
-
-Not Implemented
-
-Current State:
-
-Single extraction attempt.
-
-Failure Path:
-
-processing
-↓
-failed
-
-Impact:
-
-Temporary platform failures immediately become permanent failures.
-
----
-
-# Capture Limitations
-
-## URL-Only Capture
-
-Status:
-
-Current MVP Scope
-
-Supported:
-
-- URLs
-
-Unsupported:
-
-- Notes
-- Text
-- Images
-- Screenshots
-- PDFs
-- Files
-- Voice Notes
-- Audio Uploads
-
-Impact:
-
-Memory capture remains URL-centric.
+- `og:site_name` currently maps into `creator_name`
+- publisher and creator are not modeled separately
 
 ---
 
 # Retrieval Limitations
 
-## Keyword Search Only
+## Retrieval V1 Only In User Queries
 
 Status:
 
 Implemented
 
-Current Search:
+Limitation:
 
-ILIKE search across:
+- user queries currently use keyword retrieval only
 
-- title
-- description
-- creator_name
-- source_platform
-- original_input
-
-Current Limitation:
-
-Search is lexical only.
-
-Search does not understand meaning.
-
-Example:
-
-```text
-AI
-```
-
-will not automatically match:
-
-```text
-Artificial Intelligence
-```
-
-unless those words exist in metadata.
-
----
-
-## No Semantic Search
+## Semantic Retrieval Not Query-Serving Yet
 
 Status:
 
-Not Implemented
+Foundation Implemented, Serving Not Implemented
 
-Missing:
+Current foundation exists for:
 
+- retrieval documents
 - embeddings
-- vector retrieval
-- similarity search
+- embedding queue
+- embedding worker
+- `memory_embeddings`
 
----
+Current limitation:
 
-## No Hybrid Search
+- no vector query path
+- no semantic search API
 
-Status:
-
-Not Implemented
-
-Current Search:
-
-Keyword only.
-
-Future Search:
-
-Keyword
-+
-Semantic Retrieval
-
----
-
-# Memory Architecture Limitations
-
-## No Relationships
+## No Hybrid Retrieval
 
 Status:
 
 Not Implemented
 
-Current Limitation:
+Limitation:
 
-Memories exist independently.
-
-Missing:
-
-- memory links
-- parent-child relationships
-- references
-- graph edges
-
----
-
-## No Knowledge Graph
-
-Status:
-
-Not Implemented
-
-Current Limitation:
-
-No entity graph exists.
-
-No relationship graph exists.
-
----
-
-## No Collections
-
-Status:
-
-Not Implemented
-
-Current Limitation:
-
-Users cannot group memories into collections.
-
----
-
-## No Rediscovery Engine
-
-Status:
-
-Not Implemented
-
-Current Limitation:
-
-No resurfacing system exists.
-
-No recommendation system exists.
-
----
-
-# AI Layer Limitations
+- keyword and semantic signals are not fused yet
 
 ## No AI Retrieval
 
@@ -443,53 +176,62 @@ Status:
 
 Not Implemented
 
-Current Limitation:
+Limitation:
 
-Users can search memories.
-
-Users cannot ask questions across memories.
+- no query understanding
+- no retrieval planning
+- no retrieval explanations
 
 ---
 
-## No AI Summaries
+# Embedding Architecture Limitations
+
+## Local Ollama Dependency
+
+Status:
+
+Implemented With Constraint
+
+Limitation:
+
+- embedding generation depends on a local Ollama runtime by default
+
+## No Embedding Refresh Strategy
 
 Status:
 
 Not Implemented
 
-Current Limitation:
+Limitation:
 
-Memories are stored individually.
+- no re-embedding policy when Memory changes
+- no provider/model upgrade strategy
 
-No synthesized summaries exist.
-
----
-
-## No Cross-Memory Reasoning
+## No Embedding Deduplication / Replacement Policy
 
 Status:
 
 Not Implemented
 
-Current Limitation:
+Limitation:
 
-The system cannot reason across multiple memories.
+- repeated embedding jobs may create multiple rows without explicit lifecycle rules
 
----
-
-## No Agentic Retrieval
+## Retrieval Document Is Minimal
 
 Status:
 
-Not Implemented
+Implemented With Constraint
 
-Current Limitation:
+Current document uses:
 
-No agents exist.
+- title
+- description
+- creator_name
 
-No memory planning exists.
+Limitation:
 
-No autonomous retrieval workflows exist.
+- original input and richer context are not yet part of the semantic document
 
 ---
 
@@ -501,31 +243,19 @@ Status:
 
 Implemented
 
-Current State:
+Limitation:
 
-Polling occurs every 15 seconds.
+- polling runs every 15 seconds regardless of pending-state presence
 
-Current Limitation:
+## No State-Aware Synchronization
 
-Polling continues even when no pending memories exist.
+Status:
 
-Impact:
+Not Implemented
 
-Additional API traffic.
+Limitation:
 
-Future Architecture:
-
-State-aware synchronization.
-
-Example:
-
-Pending Memories Exist
-↓
-Polling Enabled
-
-No Pending Memories
-↓
-Polling Disabled
+- synchronization does not yet optimize around pending Memory lifecycle state
 
 ---
 
@@ -537,29 +267,11 @@ Status:
 
 Not Implemented
 
-Current Limitation:
-
-Queue visibility is limited to logs.
-
-Missing:
-
-- queue metrics
-- job monitoring
-- failure dashboard
-
----
-
 ## No Structured Logging
 
 Status:
 
 Not Implemented
-
-Current Limitation:
-
-Worker logging uses console statements.
-
----
 
 ## No Distributed Workers
 
@@ -567,34 +279,71 @@ Status:
 
 Deferred
 
-Current State:
+## Schema Source Drift
 
-Single metadata worker.
+Status:
 
-Impact:
+Known Limitation
 
-Horizontal scaling is not yet implemented.
+Limitation:
+
+- runtime and generated types use `memory_embeddings`
+- checked-in migrations do not currently define it
+
+## `dev:all` Dependency Gap
+
+Status:
+
+Known Limitation
+
+Limitation:
+
+- `package.json` defines `dev:all` using `concurrently`
+- `concurrently` is not present in the current dependencies
 
 ---
 
-# Current MVP Boundary
+# Memory and Discovery Limitations
 
-The following are intentionally outside current MVP scope:
+## No Relationships
 
-- Semantic Search
-- Embeddings
-- Knowledge Graph
-- Relationships
-- Collections
-- Rediscovery
-- AI Retrieval
-- AI Summaries
-- Agentic Retrieval
-- Offline Support
-- Multi-Device Synchronization
-- Collaboration
+Status:
 
-These systems will be introduced in future phases on top of the existing Memory Foundation.
+Not Implemented
+
+## No Knowledge Graph
+
+Status:
+
+Not Implemented
+
+## No Collections
+
+Status:
+
+Not Implemented
+
+## No Rediscovery Engine
+
+Status:
+
+Not Implemented
+
+---
+
+# Current Phase Boundary
+
+Still outside current implemented scope:
+
+- semantic retrieval serving
+- hybrid retrieval
+- AI retrieval
+- rediscovery engine
+- relationships
+- knowledge graph
+- non-URL capture types
+
+These remain future layers on top of the current Memory and embedding foundation.
 
 ---
 
@@ -602,6 +351,6 @@ These systems will be introduced in future phases on top of the existing Memory 
 
 After:
 
-- Metadata Architecture V1
-- Search Architecture V1
-- Synchronization Layer V1
+- Search V1
+- Synchronization V1
+- Embedding Architecture V1
