@@ -754,3 +754,7 @@ The router determines the optimal model based on:
 - Quality Requirements
 
 This allows models to change over time without requiring application-level changes.
+
+Related Runtime Alignments:
+
+- RA-003 Content Type Mapping Layer Deferred
