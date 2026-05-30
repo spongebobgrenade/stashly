@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 
-import { memoryProcessingQueue } from "@/lib/redis/queues";
+import { getMemoryProcessingQueue } from "@/lib/redis/queues";
 
 import { isValidUrl } from "@/lib/validators/memory";
 
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
       throw error;
     }
 
-    await memoryProcessingQueue.add(
+    await getMemoryProcessingQueue().add(
       "process-memory",
       {
         memoryId,

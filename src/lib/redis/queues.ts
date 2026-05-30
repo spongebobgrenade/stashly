@@ -1,47 +1,32 @@
-import dotenv from "dotenv";
-
-dotenv.config({
-  path: ".env.local",
-});
-
 import { Queue } from "bullmq";
-
 import IORedis from "ioredis";
 
-const queueConnection =
-  new IORedis({
-    host: process.env
-      .UPSTASH_REDIS_HOST,
+let queueConnection: IORedis | null = null;
 
-    port: Number(
-      process.env
-        .UPSTASH_REDIS_PORT
-    ),
+function getQueueConnection() {
+  if (queueConnection) {
+    return queueConnection;
+  }
 
-    password:
-      process.env
-        .UPSTASH_REDIS_PASSWORD,
-
+  queueConnection = new IORedis({
+    host: process.env.UPSTASH_REDIS_HOST,
+    port: Number(process.env.UPSTASH_REDIS_PORT),
+    password: process.env.UPSTASH_REDIS_PASSWORD,
     tls: {},
-
-    maxRetriesPerRequest:
-      null,
+    maxRetriesPerRequest: null,
   });
 
-export const memoryProcessingQueue =
-  new Queue(
-    "memory-processing",
-    {
-      connection:
-        queueConnection as never,
-    }
-  );
+  return queueConnection;
+}
 
-export const embeddingProcessingQueue =
-  new Queue(
-    "embedding-processing",
-    {
-      connection:
-        queueConnection as never,
-    }
-  );
+export function getMemoryProcessingQueue() {
+  return new Queue("memory-processing", {
+    connection: getQueueConnection() as never,
+  });
+}
+
+export function getEmbeddingProcessingQueue() {
+  return new Queue("embedding-processing", {
+    connection: getQueueConnection() as never,
+  });
+}

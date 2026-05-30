@@ -1,7 +1,7 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 import {
-  embeddingProcessingQueue,
+  getEmbeddingProcessingQueue,
 } from "@/lib/redis/queues";
 
 import {
@@ -80,7 +80,7 @@ export async function processMemoryJob(
       })
       .eq("id", memoryId);
 
-    await embeddingProcessingQueue.add(
+    await getEmbeddingProcessingQueue().add(
       "generate-embedding",
       {
         memoryId,
