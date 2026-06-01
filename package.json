@@ -10,6 +10,8 @@
     "worker": "tsx src/workers/metadata-worker/worker.ts",
     "embedding-worker": "tsx src/workers/embedding-worker/worker.ts",
     "backfill:embeddings": "tsx scripts/backfill-embeddings.ts",
+    "validate": "tsx scripts/validate-runtime.ts",
+    "repo:audit": "tsx scripts/repo-audit.ts",
     "dev:all": "concurrently \"npm run dev\" \"npm run worker\" \"npm run embedding-worker\""
   },
   "dependencies": {

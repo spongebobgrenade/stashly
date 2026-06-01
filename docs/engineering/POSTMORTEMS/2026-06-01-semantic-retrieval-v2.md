@@ -183,3 +183,35 @@ Every major debugging effort should end with a postmortem.
 - Standard Debugging Protocol created
 - Retrieval Verification Protocol created
 - Future retrieval work must verify authenticated execution path before implementation changes
+
+# Discovery: Historical Data Coverage
+
+Backfill increased embeddings from 3 → 62.
+
+The remaining 16 records originated from an early extraction phase where metadata retrieval failed and only the original URL was stored.
+
+These records have:
+
+- title = NULL
+- description = NULL
+- creator_name = NULL
+
+Embeddings are intentionally skipped because semantic content does not exist.
+
+Future remediation:
+- Reprocess metadata
+- Regenerate embeddings
+
+## Backfill Worker: COMPLETE
+
+Result:
+- 62 embeddings generated
+- 16 historical records skipped
+- Root cause:
+  Historical extraction failures produced saves with:
+    title = NULL
+    description = NULL
+    creator_name = NULL
+
+Expected behavior:
+  Worker skips empty retrieval documents.

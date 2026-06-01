@@ -525,3 +525,24 @@ Documentation updated
 Postmortem written if applicable
 
 No known blockers remain
+
+# Backfill Execution Protocol
+
+Before running a backfill:
+
+1. Count saves
+2. Count embeddings
+3. Calculate missing
+4. Estimate runtime
+
+Backfills must:
+
+- Be idempotent
+- Be resumable
+- Run in batches
+- Log progress
+- Skip completed records
+
+After completion:
+
+- Verify save count == embedding count
