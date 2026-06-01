@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 
 import type { Memory } from "@/types/memory";
 
+const DEFAULT_RETRIEVAL_MODE =
+  "semantic";
+
 export function useSearch(query: string) {
   const [results, setResults] = useState<Memory[]>([]);
   const [loading, setLoading] = useState(false);
@@ -22,7 +25,7 @@ export function useSearch(query: string) {
         setLoading(true);
 
         const response = await fetch(
-          `/api/search?q=${encodeURIComponent(trimmedQuery)}`
+          `/api/search?q=${encodeURIComponent(trimmedQuery)}&mode=${DEFAULT_RETRIEVAL_MODE}`
         );
 
         const data = await response.json();

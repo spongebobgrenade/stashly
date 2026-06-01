@@ -16,9 +16,20 @@ export async function GET(
         "q"
       ) ?? "";
 
+    const mode =
+      request.nextUrl.searchParams.get(
+        "mode"
+      ) ?? undefined;
+
     const memories =
       await retrieveMemories({
         query,
+        mode:
+          mode === "semantic" ||
+          mode === "keyword" ||
+          mode === "hybrid"
+            ? mode
+            : undefined,
       });
 
     return NextResponse.json({

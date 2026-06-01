@@ -9,6 +9,7 @@
     "lint": "eslint",
     "worker": "tsx src/workers/metadata-worker/worker.ts",
     "embedding-worker": "tsx src/workers/embedding-worker/worker.ts",
+    "backfill:embeddings": "tsx scripts/backfill-embeddings.ts",
     "dev:all": "concurrently \"npm run dev\" \"npm run worker\" \"npm run embedding-worker\""
   },
   "dependencies": {
@@ -32,6 +33,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^10.0.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "supabase": "^2.101.0",
