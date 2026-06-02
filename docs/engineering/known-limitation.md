@@ -354,3 +354,25 @@ After:
 - Search V1
 - Synchronization V1
 - Embedding Architecture V1
+
+# Architecture Drift Audit V1
+
+## Current Limitations
+
+### Dependency Validation
+
+Current behavior:
+
+TRD.md Memory Architecture dependency is validated using normalized text presence.
+
+Example:
+
+"Memory Architecture V1"
+
+Future improvement (V2):
+
+Dependency validation should become structure-aware and verify that a dedicated dependency section exists rather than relying on text presence alone.
+
+Reason:
+
+Text matching can produce false positives and does not guarantee architectural dependency is formally declared.

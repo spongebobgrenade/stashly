@@ -2,15 +2,28 @@
   "metadata": {
     "product": "Stashly",
     "document_type": "Technical Requirements Document",
-    "version": "3.0",
+    "version": "4.0",
     "status": "Active Architecture",
     "phase": "Retrieval-First MVP",
     "architecture_style": "AI-Assisted Memory Infrastructure Platform"
   },
-
+  "memory_architecture_dependency": {
+    "source_of_truth": "Memory-Architecture-V1",
+    "status": "LOCKED",
+    "required_alignment": true
+  },
+  "memory_representation_reference": {
+    "note": "TRD architecture depends on the canonical Five-Layer Memory Architecture.",
+    "layers": [
+      "Raw Source Layer",
+      "Extracted Content Layer",
+      "Understanding Layer",
+      "User Layer",
+      "Retrieval Layer"
+    ]
+  },
   "technical_vision": {
     "objective": "Build a retrieval-first memory infrastructure system.",
-
     "system_goals": [
       "reduce remembering burden",
       "maximize retrieval quality",
@@ -21,16 +34,13 @@
       "support long-term memory resurfacing"
     ]
   },
-
   "core_system_philosophy": {
     "architectural_principles": {
       "retrieval_first": {
         "statement": "Architecture prioritizes retrieval quality over storage complexity."
       },
-
       "ai_assisted_not_ai_dependent": {
         "statement": "The platform should avoid unnecessary LLM usage.",
-
         "preferred_systems": [
           "embeddings",
           "vector similarity",
@@ -39,7 +49,6 @@
           "ranking systems",
           "cached enrichment"
         ],
-
         "llm_usage": [
           "summarization",
           "query understanding",
@@ -48,10 +57,8 @@
           "fallback refinement"
         ]
       },
-
       "async_by_default": {
         "statement": "Heavy operations should never block user interaction.",
-
         "async_operations": [
           "metadata extraction",
           "OCR",
@@ -61,10 +68,8 @@
           "relationship graph enrichment"
         ]
       },
-
       "backend_owned_business_logic": {
         "statement": "All critical logic remains server-side.",
-
         "frontend_must_not_own": [
           "ranking logic",
           "retrieval orchestration",
@@ -74,10 +79,8 @@
           "permission boundaries"
         ]
       },
-
       "trust_safe_retrieval": {
         "statement": "The system must never imply knowledge not derived from approved sources.",
-
         "allowed_sources": [
           "user-provided content",
           "approved integrations",
@@ -85,9 +88,16 @@
           "retrieval relationships"
         ]
       }
+    },
+    "retrieval_philosophy": {
+      "primary_goal": "discovery",
+      "secondary_goal": "precision",
+      "supports": [
+        "content_discovery",
+        "knowledge_recall"
+      ]
     }
   },
-
   "high_level_architecture": {
     "system_layers": [
       "Client Layer",
@@ -98,18 +108,14 @@
       "Async Worker Infrastructure"
     ]
   },
-
   "frontend_architecture": {
     "homepage_model": {
       "type": "Memory Home",
-
       "primary_goal": "retrieval-first interaction"
     },
-
     "homepage_hierarchy": {
       "primary_layer": {
         "purpose": "AI retrieval interaction",
-
         "includes": [
           "conversational input",
           "voice support",
@@ -118,10 +124,8 @@
           "contextual suggestions"
         ]
       },
-
       "secondary_layer": {
         "purpose": "memory resurfacing",
-
         "includes": [
           "related bundles",
           "rediscovery surfaces",
@@ -129,13 +133,11 @@
           "contextual collections"
         ]
       },
-
       "tertiary_layer": {
         "purpose": "navigation and account systems"
       }
     }
   },
-
   "retrieval_result_architecture": {
     "retrieval_priority": [
       "Exact likely memory",
@@ -144,7 +146,6 @@
       "Related memory bundles",
       "Contextual resurfacing"
     ],
-
     "retrieval_result_structure": [
       "title",
       "description",
@@ -156,7 +157,6 @@
       "related memories",
       "original URL"
     ],
-
     "retrieval_explanation_rules": {
       "allowed_signals": [
         "shared content",
@@ -167,7 +167,6 @@
         "retrieval relationships",
         "user-approved integrations"
       ],
-
       "forbidden_behavior": [
         "inferred life context",
         "fabricated personalization",
@@ -176,7 +175,6 @@
       ]
     }
   },
-
   "retrieval_pipeline": {
     "query_flow": [
       "User Query",
@@ -189,17 +187,14 @@
       "Retrieval Explanation Generation",
       "Response Assembly"
     ],
-
     "query_understanding": {
       "purpose": [
         "normalize vague user memory",
         "identify retrieval intent",
         "improve semantic search quality"
       ],
-
       "example": {
         "query": "that startup reel",
-
         "possible_expansion": [
           "startup",
           "founder",
@@ -210,7 +205,6 @@
       }
     }
   },
-
   "retrieval_ranking_engine": {
     "ranking_inputs": [
       "semantic similarity",
@@ -222,7 +216,6 @@
       "relationship graph relevance",
       "bundle relevance"
     ],
-
     "confidence_scoring": {
       "purposes": [
         "improve reranking",
@@ -232,7 +225,6 @@
       ]
     }
   },
-
   "embedding_architecture": {
     "embedding_responsibilities": [
       "semantic retrieval",
@@ -241,26 +233,27 @@
       "rediscovery systems",
       "contextual relationships"
     ],
-
-    "embedding_sources": [
-      "URLs",
-      "metadata",
-      "OCR text",
-      "summaries",
-      "notes",
-      "titles",
-      "descriptions"
+    "current_runtime_state": [
+      "title",
+      "description",
+      "creator_name"
     ],
-
+    "target_architecture_state": [
+      "title",
+      "summary",
+      "topics",
+      "entities",
+      "key_insights",
+      "creator_name",
+      "user_notes"
+    ],
     "embedding_storage_rules": [
       "user-scoped",
       "permission-scoped",
       "isolated per account"
     ],
-
     "critical_constraint": "Cross-user retrieval leakage must be impossible."
   },
-
   "metadata_enrichment_pipeline": {
     "metadata_worker_responsibilities": [
       "title extraction",
@@ -270,7 +263,6 @@
       "content classification",
       "metadata normalization"
     ],
-
     "processing_states": [
       "queued",
       "processing",
@@ -278,13 +270,11 @@
       "failed"
     ]
   },
-
   "ocr_pipeline": {
     "ocr_responsibilities": [
       "screenshot retrieval enablement",
       "image text extraction"
     ],
-
     "ocr_flow": [
       "Image Upload",
       "OCR Extraction",
@@ -293,7 +283,6 @@
       "Retrieval Indexing"
     ]
   },
-
   "memory_relationship_graph": {
     "purpose": [
       "related retrieval",
@@ -302,7 +291,6 @@
       "rediscovery",
       "retrieval acceleration"
     ],
-
     "relationship_signals": [
       "embedding similarity",
       "shared source types",
@@ -312,10 +300,8 @@
       "shared themes"
     ]
   },
-
   "bundle_generation_system": {
     "bundle_purpose": "Help users rediscover related memories naturally.",
-
     "example_bundles": [
       "startup content",
       "travel research",
@@ -324,7 +310,6 @@
       "recipes",
       "creator collections"
     ],
-
     "bundle_generation_sources": [
       "embeddings",
       "retrieval relationships",
@@ -334,10 +319,8 @@
       "metadata clusters"
     ]
   },
-
   "rediscovery_engine": {
     "purpose": "Prevent memory graveyards.",
-
     "rediscovery_inputs": [
       "forgotten saves",
       "relationship graph",
@@ -346,7 +329,6 @@
       "seasonal resurfacing",
       "recent engagement"
     ],
-
     "rediscovery_outputs": [
       "resurfaced memories",
       "contextual reminders",
@@ -354,10 +336,8 @@
       "weekly digests"
     ]
   },
-
   "ai_orchestration_layer": {
     "ai_usage_policy": "AI should augment retrieval rather than dominate architecture.",
-
     "ai_responsibilities": [
       "summarization",
       "query expansion",
@@ -366,7 +346,6 @@
       "classification",
       "relationship enrichment"
     ],
-
     "ai_constraints": [
       "avoid excessive token usage",
       "avoid unnecessary generation",
@@ -375,10 +354,8 @@
       "avoid fabricated personalization"
     ]
   },
-
   "ai_cost_optimization": {
     "primary_strategy": "Use retrieval-first infrastructure before LLM reasoning.",
-
     "preferred_optimization_techniques": [
       "vector search",
       "cached summaries",
@@ -387,7 +364,6 @@
       "partial context retrieval",
       "reranking before generation"
     ],
-
     "avoid": [
       "full-context prompts",
       "repeated summarization",
@@ -395,7 +371,6 @@
       "synchronous heavy processing"
     ]
   },
-
   "caching_architecture": {
     "cache_candidates": [
       "summaries",
@@ -405,7 +380,6 @@
       "thumbnails",
       "query interpretations"
     ],
-
     "cache_goals": [
       "lower latency",
       "lower token usage",
@@ -413,21 +387,15 @@
       "faster retrieval"
     ]
   },
-
   "async_worker_infrastructure": {
     "worker_types": {
       "metadata_worker": "Extracts metadata.",
-
       "ocr_worker": "Processes screenshots and images.",
-
       "embedding_worker": "Generates embeddings.",
-
       "relationship_worker": "Builds memory graph relationships.",
-
       "rediscovery_worker": "Generates rediscovery candidates."
     }
   },
-
   "queue_architecture": {
     "queue_responsibilities": [
       "retries",
@@ -436,7 +404,6 @@
       "worker isolation",
       "failure recovery"
     ],
-
     "queue_states": [
       "queued",
       "processing",
@@ -445,7 +412,6 @@
       "retrying"
     ]
   },
-
   "failure_recovery": {
     "worker_failure_strategy": [
       "retry safely",
@@ -453,14 +419,12 @@
       "avoid blocking retrieval",
       "degrade gracefully"
     ],
-
     "fallback_behavior": [
       "preserve original save",
       "preserve source link",
       "retry later asynchronously"
     ]
   },
-
   "security_architecture": {
     "security_priorities": [
       "user isolation",
@@ -470,42 +434,31 @@
       "access enforcement",
       "retrieval boundary protection"
     ],
-
     "security_layers": {
       "authentication": "Supabase Auth",
-
       "authorization": "RLS enforcement",
-
       "transport_security": "HTTPS everywhere",
-
       "secret_management": {
         "rules": [
           "environment variables only",
           "never expose secrets client-side"
         ]
-      },
-
-      "vector_isolation": {
-        "rule": "Embeddings must remain user-scoped.",
-
-        "critical_constraint": "Cross-user vector retrieval is forbidden."
       }
+    },
+    "vector_isolation": {
+      "rule": "Embeddings must remain user-scoped.",
+      "critical_constraint": "Cross-user vector retrieval is forbidden."
     }
   },
-
   "encryption_strategy": {
     "required_layers": {
       "encryption_in_transit": "HTTPS/TLS",
-
       "encryption_at_rest": "Database provider encryption",
-
       "sensitive_secret_protection": "Environment isolation and secret rotation"
     }
   },
-
   "adaptive_intelligence_layer": {
     "purpose": "Improve retrieval quality over time.",
-
     "learning_signals": [
       "successful retrievals",
       "failed retrievals",
@@ -513,7 +466,6 @@
       "bundle interactions",
       "resurfacing engagement"
     ],
-
     "allowed_adaptation": [
       "ranking improvements",
       "retrieval quality",
@@ -521,7 +473,6 @@
       "relationship relevance",
       "contextual grouping"
     ],
-
     "forbidden_adaptation": [
       "manipulative engagement systems",
       "addictive optimization",
@@ -529,7 +480,6 @@
       "trust-breaking personalization"
     ]
   },
-
   "analytics_architecture": {
     "analytics_goals": [
       "retrieval quality",
@@ -538,14 +488,12 @@
       "rediscovery",
       "retention"
     ],
-
     "analytics_constraints": [
       "privacy-safe",
       "transparent",
       "consent-compliant"
     ]
   },
-
   "deployment_architecture": {
     "deployment_goals": [
       "reliability",
@@ -553,7 +501,6 @@
       "fast iteration",
       "low operational burden"
     ],
-
     "mvp_deployment_stack": [
       "Vercel",
       "Supabase",
@@ -562,7 +509,6 @@
       "Managed storage"
     ]
   },
-
   "testing_strategy": {
     "required_testing_layers": [
       "unit testing",
@@ -572,7 +518,6 @@
       "worker testing",
       "regression testing"
     ],
-
     "future_testing": [
       "load testing",
       "security audits",
@@ -580,7 +525,6 @@
       "AI evaluation pipelines"
     ]
   },
-
   "monitoring_and_observability": {
     "monitor": [
       "worker failures",
@@ -591,7 +535,6 @@
       "AI cost",
       "failed retrievals"
     ],
-
     "observability_goals": [
       "fast debugging",
       "retrieval quality visibility",
@@ -599,10 +542,8 @@
       "cost visibility"
     ]
   },
-
   "billing_architecture_direction": {
     "status": "exploratory",
-
     "likely_future_billing_stack": [
       "Stripe",
       "subscriptions",
@@ -610,13 +551,10 @@
       "feature gating",
       "webhook handling"
     ],
-
     "monetization_principle": "Monetization must not reduce memory trust or retrieval quality."
   },
-
   "scalability_assumptions": {
     "mvp_philosophy": "Build lean while preserving scalability paths.",
-
     "scalability_goals": [
       "millions of saves",
       "large embedding indexes",
@@ -625,7 +563,6 @@
       "distributed retrieval systems"
     ]
   },
-
   "infrastructure_philosophy": {
     "priorities": [
       "low operational complexity",
@@ -636,7 +573,6 @@
       "retrieval quality"
     ]
   },
-
   "technical_non_goals": [
     "file storage platform",
     "media scraping engine",
@@ -644,7 +580,6 @@
     "engagement-maximization platform",
     "autonomous AGI system"
   ],
-
   "future_architecture_directions": [
     "native mobile apps",
     "browser extension",
@@ -655,12 +590,9 @@
     "local-first memory caching",
     "advanced personalization"
   ],
-
   "trd_status": {
-    "version": "3.0",
-
+    "version": "4.0",
     "status": "ACTIVE",
-
     "architecture_state": "Retrieval-First Infrastructure"
   }
 }

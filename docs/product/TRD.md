@@ -138,6 +138,16 @@ Shared contract:
 
 # 7. Retrieval Architecture
 
+## Retrieval Philosophy
+
+- Primary Goal: Discovery
+- Secondary Goal: Precision
+- Supports:
+  - Content Discovery
+  - Knowledge Recall
+- User Notes participate in retrieval.
+- Key Insights participate in retrieval.
+
 ## Retrieval V1
 
 Status:
@@ -220,13 +230,36 @@ Generate semantic retrieval artifacts from canonical Memory without polluting Me
 - embedding worker
 - `memory_embeddings` persistence
 
-## Current Retrieval Document
+## Retrieval Document
 
-Built from:
+### Current Runtime State
+
+The currently implemented retrieval document contains:
 
 - `title`
 - `description`
 - `creator_name`
+
+This is the active production representation used by the embedding pipeline today.
+
+### Target Architecture State
+
+The locked Memory Architecture V1 defines the future retrieval document as:
+
+- `title`
+- `summary`
+- `topics`
+- `entities`
+- `key_insights`
+- `creator_name`
+- `user_notes`
+
+Status:
+
+- Planned
+- Not Yet Implemented
+
+Retrieval alignment, understanding-layer generation, and embedding regeneration are required before this architecture becomes active.
 
 ## Current Embedding Provider
 

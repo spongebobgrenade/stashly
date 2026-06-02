@@ -358,3 +358,102 @@ After:
 - Retrieval V1
 - Synchronization V1
 - Embedding Architecture V1
+
+## Architecture Drift Audit V2
+
+Priority: Medium
+
+Current Limitation:
+- TRD.md dependency validation uses normalized text matching.
+
+Desired State:
+- Section-aware dependency validation.
+- Dependency hierarchy validation.
+- Cross-document dependency graph verification.
+
+Reason:
+- Reduce false positives.
+- Increase trust in audit output.
+
+# Architecture Drift Audit
+
+## V1 Status
+
+Status: COMPLETE
+
+Purpose:
+Detect drift between canonical architecture documents.
+
+Coverage:
+- Memory Architecture V1
+- Memory Architecture JSON
+- TRD
+- TRD JSON
+- Architecture Status
+
+Result:
+- 41 PASS
+- 0 WARNING
+- 0 FAIL
+
+Implemented:
+- File existence validation
+- Architecture hierarchy validation
+- Version consistency validation
+- Status validation
+- Retrieval architecture validation
+
+---
+
+## V2 Backlog
+
+Priority: Medium
+
+### Section-Aware Dependency Validation
+
+Current:
+- Dependency checks rely partially on normalized text presence.
+
+Target:
+- Validate dedicated dependency sections structurally.
+
+Reason:
+- Reduce false positives.
+
+### Cross-Document Dependency Graph Validation
+
+Current:
+- Documents are validated individually.
+
+Target:
+- Verify dependency chains across architecture documents.
+
+Example:
+- Memory Architecture → TRD → Architecture Status
+
+Reason:
+- Detect architectural drift across documents.
+
+### Architecture Hierarchy Validation
+
+Current:
+- Basic hierarchy checks exist.
+
+Target:
+- Enforce the complete architecture dependency graph automatically.
+
+Reason:
+- Prevent future synchronization drift.
+
+# Schema Audit V2
+
+Status: DESIGN APPROVED
+
+## Future Improvements:
+
+- RLS policy validation
+- Function validation
+- Trigger validation
+- Extraneous table detection
+- Auto-remediation suggestions
+- CI enforcement

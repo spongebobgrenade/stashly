@@ -2,95 +2,102 @@
 
 Last Updated: 2026-06-01
 
-## Retrieval V2
+## LOCKED
 
+### Memory Representation Architecture (V1)
 Status: LOCKED
-
 Notes:
-- Semantic retrieval operational
-- Embedding worker operational
-- Backfill completed
-- 62 embeddings generated
+- Canonical memory structure finalized as the source of truth.
+- Five-layer memory architecture established.
 
----
-
-## Metadata Pipeline
-
+### Metadata Pipeline
 Status: LOCKED
-
 Notes:
 - Queue based processing
 - Background enrichment
 - Automatic completion updates
 
----
-
-## Embedding Architecture
-
+### Embedding Architecture (V1 Implementation)
 Status: LOCKED
-
 Current Representation:
 - title
 - description
 - creator_name
-
+*Note: Implementation requires an update to align with the complete Memory Representation V1 fields.*
 Embedding Provider:
 - Ollama
 - nomic-embed-text
 
----
-
-## Memory Representation Architecture
-
-Status: DRAFT
-
-Reason:
-Canonical memory structure not finalized.
-
-Next Milestone:
-Lock Memory Representation V1.
-
----
-
-## Experience Architecture
-
-Status: DRAFT
-
-Depends On:
-Memory Representation Architecture
-
----
-
-## TRD
-
-Status: PARTIALLY OUTDATED
-
-Reason:
-Needs update after Memory Representation lock.
-
----
-
-## PRD
-
+### PRD
 Status: ACTIVE
-
 Reason:
 Product direction remains valid.
 
 ---
 
-## AI Recall
+## OPERATIONAL
 
-Status: NOT STARTED
-
-Blocked By:
-Memory Representation Architecture
+### Retrieval V2
+Status: OPERATIONAL
+Notes:
+- Semantic retrieval operational
+- Embedding worker operational
+- Historical memories successfully backfilled
+- Current implementation uses:
+  - title
+  - description
+  - creator_name
+- Retrieval alignment with Memory Architecture V1 remains pending
 
 ---
 
-## Hybrid Retrieval
+## IN PROGRESS
 
-Status: NOT STARTED
+### Retrieval Alignment Project
+Status: IN PROGRESS
 
-Blocked By:
-Memory Representation Architecture
+Purpose:
+Align retrieval representation with the locked Memory Architecture V1.
+
+Current Runtime State:
+- title
+- description
+- creator_name
+
+Target State:
+- title
+- summary
+- topics
+- entities
+- key_insights
+- creator_name
+- user_notes
+
+Dependencies:
+- Understanding Layer implementation
+- Re-embedding pipeline
+- Backfill regeneration
+
+### TRD
+Status: IN PROGRESS (PARTIALLY OUTDATED)
+Reason:
+Requires updates to align with the locked Memory Representation V1.
+
+### Experience Architecture
+Status: IN PROGRESS (DRAFT)
+Notes:
+- Unblocked. Now actively adapting to Memory Representation Architecture V1.
+
+---
+
+## PLANNED
+
+### AI Recall
+Status: PLANNED
+Notes:
+- Unblocked. Awaiting implementation based on Memory Representation Architecture V1.
+
+### Hybrid Retrieval
+Status: PLANNED
+Notes:
+- Unblocked. Awaiting implementation based on Memory Representation Architecture V1.

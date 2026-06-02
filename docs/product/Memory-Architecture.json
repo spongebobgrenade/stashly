@@ -1,262 +1,136 @@
 {
-  "document": {
+  "metadata": {
     "title": "Memory Architecture",
     "product": "Stashly",
     "version": "1.0",
-    "status": "Locked Source of Truth",
-    "type": "Product Architecture",
-    "layer": "Memory Architecture",
-    "hierarchy": [
-      "Philosophy",
-      "PRD",
-      "Memory Architecture",
-      "TRD",
-      "Implementation"
-    ]
+    "status": "LOCKED",
+    "last_updated": "2026-06-01"
   },
-  "authority": {
-    "memory_architecture_is_authoritative_for": [
-      "memory semantics",
-      "memory schema",
-      "memory lifecycle",
-      "memory ownership",
-      "memory trust boundaries",
-      "memory governance"
-    ],
-    "precedence_rules": [
-      "If implementation conflicts with Memory Architecture, implementation must change.",
-      "If TRD conflicts with Memory Architecture, Memory Architecture wins.",
-      "If generated types conflict with Memory Architecture, types must be regenerated.",
-      "If schema conflicts with Memory Architecture, schema must be aligned.",
-      "No subsystem may redefine Memory semantics independently."
-    ]
-  },
-  "core_entity": {
-    "name": "Memory",
-    "definition": "The authoritative, user-owned, trust-safe, asynchronously enrichable core record of something Stashly is responsible for remembering.",
-    "is_not": [
-      "bookmark",
-      "feed item",
-      "conversation",
-      "queue artifact",
-      "retrieval artifact",
-      "recommendation artifact",
-      "analytics artifact"
-    ]
-  },
-  "principles": {
-    "user_owned": true,
-    "preserve_user_intent": true,
-    "async_enrichment": true,
-    "retrieval_compatible": true,
-    "trust_safe": true,
-    "memory_evolution": {
-      "allowed": true,
-      "truth_replacement": false,
-      "future_systems_may": [
-        "classify",
-        "summarize",
-        "relate",
-        "enrich"
-      ],
-      "original_truth_remains_grounded_in": [
-        "user_provided_input",
-        "stable_source_information",
-        "canonical_memory_fields"
+  "purpose": [
+    "Define the canonical structure of a Memory inside Stashly.",
+    "Create durable, searchable, platform-independent knowledge representations that remain useful even when source platforms change.",
+    "Serve as the foundation for Semantic Retrieval, Hybrid Retrieval, AI Recall, Memory Chat, Cross-Memory Synthesis, and Future Intelligence Features."
+  ],
+  "core_principle": "A Memory is not the original content. A Memory is a structured representation of knowledge extracted from content. The original content remains the source of truth. The representation becomes the retrieval and intelligence layer.",
+  "guiding_principle": "The goal is not to build a better bookmark manager. The goal is to build a Memory Operating System. Every future architecture decision should be evaluated against that objective.",
+  "memory_layers": {
+    "layer_1_raw_source": {
+      "name": "Raw Source Layer",
+      "purpose": "Preserve the original source information exactly as received."
+    },
+    "layer_2_extracted_content": {
+      "name": "Extracted Content Layer",
+      "purpose": "Capture as much information as possible from the source."
+    },
+    "layer_3_understanding": {
+      "name": "Understanding Layer",
+      "purpose": "Convert extracted content into platform-independent knowledge.",
+      "fields": [
+        "summary",
+        "topics",
+        "entities",
+        "key_insights",
+        "intent",
+        "content_type"
       ]
+    },
+    "layer_4_user": {
+      "name": "User Layer",
+      "purpose": "Store knowledge added by the user."
+    },
+    "layer_5_retrieval": {
+      "name": "Retrieval Layer",
+      "purpose": "Generate embeddings and retrieval representations."
     }
   },
-  "canonical_memory_model": {
-    "identity_fields": {
-      "id": {
-        "type": "string",
-        "required": true
-      },
-      "user_id": {
-        "type": "string",
-        "required": true
-      },
-      "original_input": {
-        "type": "string",
-        "required": true
-      },
-      "content_type": {
-        "type": "enum",
-        "required": true,
-        "values": [
-          "link",
-          "note",
-          "image",
-          "screenshot",
-          "pdf",
-          "file",
-          "text",
-          "audio",
-          "video"
-        ]
-      },
-      "processing_status": {
-        "type": "enum",
-        "required": true,
-        "values": [
-          "queued",
-          "processing",
-          "completed",
-          "failed"
-        ]
-      },
-      "created_at": {
-        "type": "timestamp",
-        "required": true
-      },
-      "updated_at": {
-        "type": "timestamp",
-        "required": true
-      }
-    },
-    "metadata_fields": {
-      "source_platform": {
-        "type": "string|null",
-        "required": false,
-        "governance": {
-          "schema_level": "flexible_text",
-          "must_use_platform_registry": true,
-          "ad_hoc_values_forbidden": true
-        }
-      },
-      "canonical_url": {
-        "type": "string|null",
-        "required": false
-      },
-      "title": {
-        "type": "string|null",
-        "required": false
-      },
-      "description": {
-        "type": "string|null",
-        "required": false
-      },
-      "thumbnail_url": {
-        "type": "string|null",
-        "required": false
-      },
-      "creator_name": {
-        "type": "string|null",
-        "required": false
-      },
-      "raw_metadata": {
-        "type": "json|null",
-        "required": false
-      }
-    },
-    "future_extension_fields": {
-      "note": {
-        "type": "string|null"
-      },
-      "summary": {
-        "type": "string|null"
-      },
-      "captured_at": {
-        "type": "timestamp|null"
-      },
-      "processing_error": {
-        "type": "string|null"
-      }
-    }
-  },
-  "ownership_rules": {
-    "single_owner_rule": true,
-    "ownership_transfer_allowed": false,
-    "all_operations_user_scoped": true
-  },
-  "lifecycle": {
-    "states": [
-      "queued",
-      "processing",
-      "completed",
-      "failed"
-    ],
-    "allowed_transitions": [
-      "queued -> processing -> completed",
-      "queued -> processing -> failed"
-    ],
-    "capture_validity_depends_on_enrichment": false,
-    "failed_memory_remains_valid": true
-  },
-  "lifecycle_ownership": {
-    "capture_layer": [
-      "memory_creation"
-    ],
-    "processing_layer": [
-      "queued",
-      "processing",
-      "completed",
-      "failed"
-    ],
-    "retrieval_layer": {
-      "access": "read_only"
-    },
-    "ui_layer": {
-      "access": "display_only"
-    }
-  },
-  "trust_boundaries": {
-    "allowed": [
-      "original_input",
-      "normalized_source_information",
-      "extracted_metadata",
-      "timestamps",
-      "processing_state"
-    ],
-    "forbidden": [
-      "fabricated_interpretation",
-      "hidden_inference",
-      "speculative_personalization",
-      "unsupported_claims"
+  "retrieval_document_v1": {
+    "structure": [
+      "title",
+      "summary",
+      "topics",
+      "entities",
+      "key_insights",
+      "creator",
+      "user_notes"
     ]
   },
-  "retrieval_boundary": {
-    "memory_owns": [
-      "memory_facts",
-      "source_truth",
-      "ownership",
-      "metadata",
-      "lifecycle_state"
+  "retrieval_philosophy": {
+    "primary_goals": [
+      "Content Discovery",
+      "Knowledge Recall"
     ],
-    "retrieval_owns": [
-      "search_scores",
-      "ranking_outputs",
-      "confidence_scores",
-      "reranking_outputs",
-      "vector_distances",
-      "retrieval_explanations"
-    ],
-    "rule": "Retrieval derives from Memory. Memory must not persist retrieval artifacts as part of the base entity."
+    "priority": "Discovery > Precision"
   },
-  "schema_governance": {
-    "field_must_be": [
-      "foundational_to_memory",
-      "durable",
-      "broadly_reusable",
-      "part_of_user_truth_or_source_truth_or_memory_state"
+  "embedding_strategy": {
+    "what_gets_embedded": [
+      "title",
+      "summary",
+      "topics",
+      "entities",
+      "key_insights",
+      "creator",
+      "user_notes"
     ],
-    "field_must_not_be": [
-      "temporary_processing_artifact",
-      "ranking_output",
-      "index_artifact",
-      "speculative_experiment",
-      "subsystem_specific_state"
+    "what_does_not_get_embedded": [
+      "transcripts",
+      "OCR text",
+      "raw metadata",
+      "descriptions",
+      "extraction payloads"
     ]
   },
-  "compatibility": {
-    "retrieval": true,
-    "ai": true,
-    "relationship_graph": true,
-    "rediscovery": true
+  "known_weaknesses_v1": [
+    "Transcript blindness",
+    "OCR blindness",
+    "No visual understanding",
+    "Single-memory representation"
+  ],
+  "architecture_governance": {
+    "schema_evolution": {
+      "field_must_be": [
+        "foundational_to_memory",
+        "durable",
+        "broadly_reusable",
+        "part_of_user_truth_or_source_truth_or_memory_state"
+      ],
+      "field_must_not_be": [
+        "temporary_processing_artifact",
+        "ranking_output",
+        "index_artifact",
+        "speculative_experiment",
+        "subsystem_specific_state"
+      ]
+    },
+    "security_and_isolation": {
+      "user_isolation_required": true,
+      "cross_user_access_default": false,
+      "metadata_inherits_ownership": true
+    }
   },
-  "security": {
-    "user_isolation_required": true,
-    "cross_user_access_default": false,
-    "metadata_inherits_ownership": true
+  "architectural_decisions": {
+    "locked": [
+      "Five-layer memory architecture",
+      "Retrieval document abstraction",
+      "Platform-independent understanding layer",
+      "User-owned knowledge layer",
+      "Discovery-first retrieval philosophy",
+      "Key insights as a retrieval primitive",
+      "User notes participate in retrieval",
+      "Retrieval layer is derived, not authored"
+    ],
+    "not_yet_locked": [
+      "Transcript processing strategy",
+      "OCR processing strategy",
+      "Visual understanding strategy",
+      "Knowledge graph architecture",
+      "Multimodal embedding strategy",
+      "AI-generated memory synthesis architecture"
+    ]
+  },
+  "future_versions": {
+    "v2": "Transcript-aware retrieval",
+    "v3": "OCR-aware retrieval",
+    "v4": "Visual understanding",
+    "v5": "AI Recall"
   }
 }
