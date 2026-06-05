@@ -546,3 +546,16 @@ Backfills must:
 After completion:
 
 - Verify save count == embedding count
+
+# Large agent tasks must be split into:
+
+Phase 1:
+Read files
+
+Phase 2:
+Generate diff report
+
+Phase 3:
+Apply changes
+
+Never combine all phases into a single instruction.
