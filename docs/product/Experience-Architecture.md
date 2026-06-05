@@ -27,6 +27,8 @@ The experience should not feel like:
 - manual organization systems
 - database search
 
+The experience is not a bookmark manager.
+
 ---
 
 # Core Experiential Principle
@@ -172,6 +174,8 @@ The homepage should emotionally communicate:
 - memory accessibility
 
 The primary interaction should center around retrieval and rediscovery.
+
+The primary retrieval experience should feel like intent-based retrieval rather than query-mechanical search.
 
 ---
 

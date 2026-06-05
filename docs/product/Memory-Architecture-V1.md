@@ -3,6 +3,7 @@
 Status: LOCKED  
 Version: 1.0  
 Last Updated: 2026-06-01
+Purpose: Target Memory Representation Architecture
 
 ---
 

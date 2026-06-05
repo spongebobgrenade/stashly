@@ -12,6 +12,7 @@
     "backfill:embeddings": "tsx scripts/backfill-embeddings.ts",
     "validate": "tsx scripts/validate-runtime.ts",
     "schema:audit": "tsx scripts/schema-audit.ts",
+    "product:audit": "tsx scripts/product-alignment-audit.ts",
     "repo:audit": "tsx scripts/repo-audit.ts",
     "architecture:audit": "tsx scripts/architecture-drift-audit.ts",
     "dev:all": "concurrently \"npm run dev\" \"npm run worker\" \"npm run embedding-worker\""

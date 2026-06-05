@@ -1,15 +1,16 @@
 # Stashly Memory Architecture
 
 > Version: 2.0
-> Status: Active Source of Truth
+> Status: SUPERSEDED
 > Layer: Product Architecture
 > Hierarchy: Philosophy -> PRD -> Memory Architecture -> TRD -> Implementation
+> Purpose: Current Runtime Memory Architecture
 
 ---
 
 # 1. Purpose
 
-This document defines the canonical Memory entity for Stashly.
+This document defines the current runtime canonical Memory entity for Stashly.
 
 It establishes:
 

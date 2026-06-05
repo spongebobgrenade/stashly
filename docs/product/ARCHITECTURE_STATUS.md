@@ -2,6 +2,22 @@
 
 Last Updated: 2026-06-01
 
+Current Runtime Memory Architecture:
+Memory-Architecture.md
+
+Target Architecture:
+Memory Representation Architecture V1
+
+## ACTIVE
+
+### Stashly Search Architecture
+Status: ACTIVE
+Notes:
+- Active retrieval architecture for the current product.
+- Defines current and future retrieval evolution.
+
+---
+
 ## LOCKED
 
 ### Memory Representation Architecture (V1)
@@ -32,6 +48,18 @@ Embedding Provider:
 Status: ACTIVE
 Reason:
 Product direction remains valid.
+
+---
+
+## SUPERSEDED
+
+### Stashly Memory Architecture
+Status: SUPERSEDED
+Purpose:
+- Current Runtime Memory Architecture
+Notes:
+- Documents the current `saves`-table-backed runtime Memory model.
+- Remains useful as runtime documentation and is not archived.
 
 ---
 
