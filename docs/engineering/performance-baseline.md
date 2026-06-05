@@ -52,6 +52,10 @@ Metadata Source:
 
 YouTube
 
+Embedding Provider:
+
+Ollama (Nomic Embed Text)
+
 ---
 
 # Current Save Flow
@@ -80,7 +84,7 @@ Optimistic Card Appears
 
 ↓
 
-Worker Starts
+Metadata Worker Starts
 
 ↓
 
@@ -89,6 +93,22 @@ Metadata Extraction
 ↓
 
 Database Update
+
+↓
+
+Embedding Worker Starts
+
+↓
+
+Retrieval Document Generation
+
+↓
+
+Embedding Generation
+
+↓
+
+Vector Storage
 
 ↓
 
@@ -144,11 +164,11 @@ Time until final card displays metadata.
 
 Measured:
 
-3–4 seconds
+Measurement Required (Previously 3-4 seconds)
 
 Status:
 
-Acceptable
+Measurement Required
 
 ---
 
@@ -156,7 +176,7 @@ Acceptable
 
 Measured Job:
 
-YouTube Metadata Extraction
+YouTube Metadata Extraction & Embedding
 
 ---
 
@@ -170,10 +190,6 @@ Status:
 
 Largest bottleneck
 
-Contribution:
-
-~89%
-
 ---
 
 ## Database Update
@@ -186,9 +202,41 @@ Status:
 
 Healthy
 
-Contribution:
+---
 
-~11%
+## Retrieval Document Generation
+
+Measured:
+
+Measurement Required
+
+Status:
+
+Measurement Required
+
+---
+
+## Embedding Generation
+
+Measured:
+
+Measurement Required
+
+Status:
+
+Measurement Required
+
+---
+
+## Vector Storage
+
+Measured:
+
+Measurement Required
+
+Status:
+
+Measurement Required
 
 ---
 
@@ -196,11 +244,35 @@ Contribution:
 
 Measured:
 
-3103 ms
+Measurement Required (Previously 3103 ms without embeddings)
 
 Status:
 
-Acceptable
+Measurement Required
+
+---
+
+# Retrieval Metrics
+
+## Keyword Search Latency
+
+Measured:
+
+Measurement Required
+
+Status:
+
+Measurement Required
+
+## Semantic Retrieval V2 Latency
+
+Measured:
+
+Measurement Required
+
+Status:
+
+Measurement Required
 
 ---
 
@@ -236,15 +308,15 @@ Healthy
 
 Current Worker Count:
 
-1
+Multiple Workers (Metadata, Embedding)
 
 Current Queue:
 
-memory-processing
+memory-processing, embedding-processing
 
 Observed Throughput:
 
-Single-job execution
+Measurement Required
 
 Status:
 
@@ -352,7 +424,7 @@ No action required.
 
 Current Architecture
 
-Single Worker
+Multiple Workers
 
 Expected:
 
@@ -364,7 +436,7 @@ without issue.
 
 Future Architecture
 
-Multiple Workers
+Scaling Workers
 
 Shared Redis
 
@@ -467,6 +539,7 @@ Accepted
 7. Performance dashboard
 
 8. Extraction benchmarking suite
+9. Embedding generation optimization
 
 ---
 
@@ -496,6 +569,10 @@ Metadata Speed:
 
 Needs Optimization
 
+Embedding Speed:
+
+Measurement Required
+
 Overall System:
 
 MVP Ready
@@ -504,4 +581,4 @@ MVP Ready
 
 # Last Updated
 
-2026-05-28
+2026-06-02

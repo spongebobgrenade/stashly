@@ -1,4 +1,3 @@
-"}
 # Technology Roadmap
 
 ## Purpose
@@ -27,22 +26,58 @@ Avoid premature implementation of systems that are not yet dependencies.
 
 ## Current
 
-No AI features in MVP.
-
-Focus on memory ingestion, retrieval, metadata enrichment, and search.
+- Retrieval V2 operational
+- pgvector operational
+- Embedding pipeline operational
+- Backfill completed
+- Semantic retrieval operational
 
 ## Future
 
-Introduce AI capabilities after memory foundation is stable.
+- Hybrid Retrieval (V3)
+- AI Retrieval
+- Memory Representation Enrichment
+- Transcript Layer
+- OCR Layer
+- Visual Understanding Layer
+- Knowledge Layer
+- Multi-modal embeddings
+- Memory Intelligence
 
-Potential capabilities:
+---
 
-- Semantic retrieval
-- Memory summarization
-- Memory clustering
-- Topic extraction
-- Personalized recommendations
-- Agent-assisted rediscovery
+# MEMORY REPRESENTATION ROADMAP
+
+Future representation layers:
+
+1. Metadata Layer
+2. Transcript Layer
+3. OCR Layer
+4. Visual Layer
+5. Knowledge Layer
+6. User Layer
+7. Retrieval Layer
+
+Retrieval quality depends primarily on representation quality rather than embedding model quality.
+
+---
+
+# RETRIEVAL EVOLUTION ROADMAP
+
+V1:
+- Keyword Search
+
+V2:
+- Semantic Search (Completed)
+
+V3:
+- Hybrid Retrieval
+
+V4:
+- AI Retrieval
+
+V5:
+- Memory Intelligence
 
 ---
 
@@ -86,10 +121,6 @@ Potential models:
 
 ## Current
 
-Keyword search.
-
-## Future
-
 Supabase pgvector.
 
 Reason:
@@ -98,21 +129,22 @@ Existing infrastructure already supports vectors.
 
 Avoid introducing a dedicated vector database prematurely.
 
+## Future
+
+Evaluate Hybrid Search and Knowledge Graph Augmentation.
+
 ---
 
 # RAG Strategy
 
 ## Current
 
-Not implemented.
+Memory retrieval layer built on pgvector.
 
 ## Future
 
-Memory retrieval layer built on pgvector.
-
 Evaluate:
 
-- Native pgvector
 - Hybrid search
 - Knowledge graph augmentation
 

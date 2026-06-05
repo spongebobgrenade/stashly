@@ -20,11 +20,14 @@ Before starting any major new feature, review this document and verify that the 
 - Supabase authentication working
 - BullMQ queues working
 - Redis working
-- Metadata worker operational
-- Embedding worker operational
-- Ollama embeddings operational
-- Nomic Embed Text operational
-- Memory enrichment pipeline operational
+- Metadata Worker operational
+- Embedding Worker operational
+- Backfill completed
+- pgvector foundation operational
+- Schema Audit V2 operational
+- Architecture Audit operational
+- Runtime Alignment established
+- Schema Alignment established
 
 ### Memory Pipeline
 
@@ -52,9 +55,17 @@ This already functions as a lightweight optimistic-update system.
 
 Implemented:
 - Keyword Retrieval (V1)
+- Semantic retrieval serving path operational
+- Retrieval V2 operational
 
-In Progress:
-- Semantic Retrieval (V2)
+---
+
+# CURRENT ARCHITECTURAL POSITION
+
+- Retrieval V2 is complete.
+- The next major quality bottleneck is Memory Representation.
+- Better embeddings cannot compensate for poor memory representations.
+- Memory Architecture now becomes the highest-leverage area of development.
 
 ---
 
@@ -71,31 +82,6 @@ Bad representations will produce poor results even with advanced retrieval syste
 ---
 
 # REQUIRED NEXT MILESTONE
-
-## COMPLETE RETRIEVAL V2
-
-Goal:
-
-Replace keyword-only retrieval with embedding-based semantic retrieval using pgvector.
-
-Expected outcome:
-
-User can find memories using semantic meaning rather than exact keywords.
-
-Example:
-
-Query:
-"homemade cooking"
-
-Should retrieve:
-
-"Easy Pasta Recipe"
-
-even if the phrase "homemade cooking" does not appear anywhere.
-
----
-
-# AFTER RETRIEVAL V2
 
 ## LOCK MEMORY REPRESENTATION ARCHITECTURE
 
@@ -190,7 +176,6 @@ Architecture is still evolving rapidly.
 
 Multi-agent development should begin only after:
 
-- Retrieval V2 completed
 - Memory Representation Architecture locked
 - Documentation stabilized
 
@@ -323,21 +308,15 @@ Architecture should anticipate future subscription tiers even before billing is 
 
 # DEVELOPMENT ORDER (LOCKED)
 
-1. Finish Retrieval V2
-
-2. Lock Memory Representation Architecture
-
-3. Update Architecture Documents
-
-4. Build Documentation Agent
-
-5. Introduce Multi-Agent Development Workflow
-
-6. Build Hybrid Retrieval
-
-7. Build AI Recall
-
-8. Build Premium Intelligence Features
+Current Highest Priority:
+1. Lock Memory Representation Architecture
+2. Update Architecture Documents
+3. Design Retrieval V3 (Hybrid Retrieval)
+4. Documentation Agent
+5. Multi-Agent Development Workflow
+6. Hybrid Retrieval Implementation
+7. AI Recall
+8. Premium Intelligence Features
 
 Do not reorder without strong justification.
 
