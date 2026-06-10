@@ -16,6 +16,10 @@ import {
   composeMemoryV1,
 } from "@/lib/memory-v1/memory-composer";
 
+import {
+  saveMemoryRepresentation,
+} from "@/services/memory-representation";
+
 import type {
   ProcessMemoryJob,
 } from "@/types/jobs";
@@ -90,8 +94,47 @@ export async function processMemoryJob(
       };
 
     const memoryV1 =
-      composeMemoryV1(
-        enrichedSave
+      await composeMemoryV1(
+        enrichedSave,
+        {
+          onKnowledgeExtractionStarted:
+            () => {
+              console.log(
+                "🧠 Knowledge extraction started",
+                { memoryId }
+              );
+            },
+          onKnowledgeExtractionCompleted:
+            (knowledge) => {
+              console.log(
+                "✅ Knowledge extraction completed",
+                {
+                  memoryId,
+                  topics:
+                    knowledge.topics
+                      .length,
+                  entities:
+                    knowledge.entities
+                      .length,
+                  keyInsights:
+                    knowledge
+                      .keyInsights
+                      .length,
+                }
+              );
+            },
+          onSummaryGenerationCompleted:
+            (summary) => {
+              console.log(
+                "✅ Summary generation completed",
+                {
+                  memoryId,
+                  summaryLength:
+                    summary.length,
+                }
+              );
+            },
+        }
       );
 
     console.log(
@@ -104,6 +147,15 @@ export async function processMemoryJob(
         retrievalSummaryLength:
           memoryV1.retrieval
             .summary.length,
+      }
+    );
+
+    await saveMemoryRepresentation(memoryV1);
+
+    console.log(
+      "💾 MemoryV1 representation saved",
+      {
+        memoryId,
       }
     );
 

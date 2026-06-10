@@ -19,12 +19,24 @@ import {
 
 import type {
   MemoryV1,
+  MemoryKnowledgeV1,
   Save,
 } from "./types";
 
-export function composeMemoryV1(
-  save: Save
-): MemoryV1 {
+type MemoryComposerHooks = {
+  onKnowledgeExtractionStarted?: () => void;
+  onKnowledgeExtractionCompleted?: (
+    knowledge: MemoryKnowledgeV1
+  ) => void;
+  onSummaryGenerationCompleted?: (
+    summary: string
+  ) => void;
+};
+
+export async function composeMemoryV1(
+  save: Save,
+  hooks: MemoryComposerHooks = {}
+): Promise<MemoryV1> {
   const metadata =
     buildMetadataLayer(save);
 
@@ -34,8 +46,17 @@ export function composeMemoryV1(
   const visual =
     buildVisualLayer();
 
+  hooks.onKnowledgeExtractionStarted?.();
+
   const knowledge =
-    buildKnowledgeLayer();
+    await buildKnowledgeLayer({
+      metadata,
+      transcript,
+    });
+
+  hooks.onKnowledgeExtractionCompleted?.(
+    knowledge
+  );
 
   const user =
     buildUserLayer();
@@ -49,7 +70,7 @@ export function composeMemoryV1(
     createdAt;
 
   const retrieval =
-    buildRetrievalLayer({
+    await buildRetrievalLayer({
       memoryId: save.id,
       version: "1.0",
       createdAt,
@@ -60,6 +81,10 @@ export function composeMemoryV1(
       knowledge,
       user,
     });
+
+  hooks.onSummaryGenerationCompleted?.(
+    retrieval.summary
+  );
 
   return {
     memoryId: save.id,

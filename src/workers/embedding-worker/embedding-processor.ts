@@ -1,12 +1,14 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
+import { renderRetrievalDocument } from "@/lib/memory-v1/retrieval-renderer";
+
 import {
   generateEmbedding,
 } from "@/services/embeddings/gateway";
 
 import {
-  buildRetrievalDocument,
-} from "@/services/embeddings/retrieval-document";
+  getMemoryRepresentation,
+} from "@/services/memory-representation";
 
 import type {
   ProcessEmbeddingJob,
@@ -29,25 +31,19 @@ export async function processEmbeddingJob(
       "🧠 Generating embedding..."
     );
 
-    const {
-      data: memory,
-      error,
-    } = await supabase
-      .from("saves")
-      .select("*")
-      .eq("id", memoryId)
-      .single();
+    const memoryV1 = await getMemoryRepresentation(
+      memoryId
+    );
 
-    if (error || !memory) {
+    if (!memoryV1) {
       throw new Error(
-        "Memory not found"
+        "Memory representation not found"
       );
     }
 
-    const retrievalDocument =
-      buildRetrievalDocument(
-        memory
-      );
+    const retrievalDocument = renderRetrievalDocument(
+      memoryV1.retrieval.retrievalDocument
+    );
 
     if (!retrievalDocument) {
       console.log(
@@ -70,7 +66,7 @@ export async function processEmbeddingJob(
         "memory_embeddings"
       )
       .insert({
-        memory_id: memory.id,
+        memory_id: memoryId,
 
         chunk_index: 0,
 

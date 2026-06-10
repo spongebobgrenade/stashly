@@ -58,6 +58,41 @@ export type Database = {
           },
         ]
       }
+      memory_representations: {
+        Row: {
+          created_at: string | null
+          id: string
+          memory_id: string
+          representation: Json
+          updated_at: string | null
+          version: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          memory_id: string
+          representation: Json
+          updated_at?: string | null
+          version: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          memory_id?: string
+          representation?: Json
+          updated_at?: string | null
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_representations_memory_id_fkey"
+            columns: ["memory_id"]
+            isOneToOne: false
+            referencedRelation: "saves"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       save_processing_jobs: {
         Row: {
           created_at: string | null

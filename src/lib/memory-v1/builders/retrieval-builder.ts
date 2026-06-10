@@ -2,22 +2,31 @@ import {
   buildRetrievalDocumentV1,
 } from "../retrieval-document";
 
+import {
+  generateMemorySummary,
+} from "@/services/memory-intelligence/summary";
+
 import type {
   MemoryRetrievalV1,
   MemoryV1,
 } from "../types";
 
-const SUMMARY_LIMIT = 280;
-
-export function buildRetrievalLayer(
+export async function buildRetrievalLayer(
   memory: Omit<
     MemoryV1,
     "retrieval"
   >
-): MemoryRetrievalV1 {
+): Promise<MemoryRetrievalV1> {
   const summary =
-    buildDeterministicSummary(
-      memory
+    await generateMemorySummary(
+      {
+        metadata:
+          memory.metadata,
+        transcript:
+          memory.transcript,
+        knowledge:
+          memory.knowledge,
+      }
     );
 
   const memoryWithSummary: MemoryV1 =
@@ -46,29 +55,4 @@ export function buildRetrievalLayer(
     summary,
     retrievalDocument,
   };
-}
-
-function buildDeterministicSummary(
-  memory: Omit<
-    MemoryV1,
-    "retrieval"
-  >
-): string {
-  const sourceText =
-    memory.transcript.rawText ||
-    memory.metadata.title ||
-    "";
-
-  if (!sourceText) {
-    return "";
-  }
-
-  const firstSentence =
-    sourceText.match(
-      /^(.{1,280}?[.!?])(\s|$)/
-    )?.[1] ?? sourceText;
-
-  return firstSentence
-    .slice(0, SUMMARY_LIMIT)
-    .trim();
 }
