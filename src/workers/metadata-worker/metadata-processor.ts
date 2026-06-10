@@ -12,9 +12,15 @@ import {
   extractMetadata,
 } from "@/services/metadata/extractor";
 
+import {
+  composeMemoryV1,
+} from "@/lib/memory-v1/memory-composer";
+
 import type {
   ProcessMemoryJob,
 } from "@/types/jobs";
+
+import type { Memory } from "@/types/memory";
 
 export async function processMemoryJob(
   jobData: ProcessMemoryJob
@@ -36,6 +42,21 @@ export async function processMemoryJob(
       })
       .eq("id", memoryId);
 
+    const {
+      data: existingSave,
+      error: fetchError,
+    } = await supabase
+      .from("saves")
+      .select("*")
+      .eq("id", memoryId)
+      .single();
+
+    if (fetchError || !existingSave) {
+      throw new Error(
+        "Memory not found"
+      );
+    }
+
     console.log(
       "🚀 Processing memory job..."
     );
@@ -47,6 +68,44 @@ export async function processMemoryJob(
       await extractMetadata(
         resolved
       );
+
+    const enrichedSave: Memory =
+      {
+        ...existingSave,
+        source_platform:
+          resolved.platform,
+        content_type:
+          resolved.contentType,
+        title: metadata.title,
+        description:
+          metadata.description,
+        thumbnail_url:
+          metadata.thumbnailUrl,
+        creator_name:
+          metadata.creatorName,
+        canonical_url:
+          metadata.canonicalUrl,
+        raw_metadata:
+          metadata.rawMetadata,
+      };
+
+    const memoryV1 =
+      composeMemoryV1(
+        enrichedSave
+      );
+
+    console.log(
+      "🧱 MemoryV1 composed",
+      {
+        memoryId,
+        transcriptChunks:
+          memoryV1.transcript
+            .chunks.length,
+        retrievalSummaryLength:
+          memoryV1.retrieval
+            .summary.length,
+      }
+    );
 
     await supabase
       .from("saves")
