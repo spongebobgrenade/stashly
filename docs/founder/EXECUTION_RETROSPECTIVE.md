@@ -872,6 +872,34 @@ Long-term impact:
 
 This is the architectural decision that most clearly explains why the product matured from memory layer language into Memory Operating System language.
 
+
+---
+
+## Audit Gap: Security Governance
+
+The audit framework successfully evolved to detect:
+
+- architecture drift
+- runtime drift
+- schema drift
+- technical debt
+
+However, it did not explicitly cover security drift.
+
+This became visible when Supabase Security Advisor identified that
+`memory_representations` had RLS disabled.
+
+The issue was discovered before launch and before user data existed,
+demonstrating the value of external platform audits.
+
+Future governance should include:
+
+- Architecture Audit
+- Runtime Audit
+- Schema Audit
+- Security Audit
+- Performance Audit
+
 ---
 
 ## Permanent Rules For Future Startups

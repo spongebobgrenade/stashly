@@ -457,3 +457,36 @@ Status: DESIGN APPROVED
 - Extraneous table detection
 - Auto-remediation suggestions
 - CI enforcement
+
+## SECURITY-001: Missing Security Audit Layer
+
+Status: Open
+Severity: Medium
+Discovered: 2026-06-11
+
+Context:
+Supabase Security Advisor flagged `memory_representations` because RLS was not enabled.
+
+Root Cause:
+The governance system evolved around:
+- Architecture Audits
+- Runtime Alignment
+- Schema Alignment
+- Technical Debt Tracking
+
+but did not include a dedicated Security Audit layer.
+
+Impact:
+No active vulnerability was present because:
+- Retrieval is not live
+- memory_representations is empty
+
+However, future Memory V1 data (topics, entities, insights, summaries) is sensitive user data and must be protected by ownership policies.
+
+Resolution:
+- Enable RLS on memory_representations
+- Enable RLS on memory_embeddings
+- Add Security Audit checklist to repository governance
+
+Lesson:
+Architecture drift is not the only drift category. Security drift must also be monitored.
