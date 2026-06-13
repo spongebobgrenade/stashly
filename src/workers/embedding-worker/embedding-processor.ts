@@ -1,7 +1,5 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
-import { renderRetrievalDocument } from "@/lib/memory-v1/retrieval-renderer";
-
 import {
   generateEmbedding,
 } from "@/services/embeddings/gateway";
@@ -28,12 +26,13 @@ export async function processEmbeddingJob(
 
   try {
     console.log(
-      "🧠 Generating embedding..."
+      "🧠 Generating chunk embeddings..."
     );
 
-    const memoryV1 = await getMemoryRepresentation(
-      memoryId
-    );
+    const memoryV1 =
+      await getMemoryRepresentation(
+        memoryId
+      );
 
     if (!memoryV1) {
       throw new Error(
@@ -41,65 +40,92 @@ export async function processEmbeddingJob(
       );
     }
 
-    const retrievalDocument = renderRetrievalDocument(
-      memoryV1.retrieval.retrievalDocument
-    );
+    const chunks =
+      memoryV1.transcript
+        .chunks;
 
-    if (!retrievalDocument) {
+    if (
+      !chunks ||
+      chunks.length === 0
+    ) {
       console.log(
-        "⚠️ Empty retrieval document. Skipping embedding."
+        "⚠️ No transcript chunks found. Skipping embedding."
       );
 
       return;
     }
 
-    const embeddingResult =
-      await generateEmbedding(
-        retrievalDocument
-      );
-
-    const {
-      data: insertedRows,
-      error: insertError,
-    } = await supabase
+    await supabase
       .from(
         "memory_embeddings"
       )
-      .insert({
-        memory_id: memoryId,
-
-        chunk_index: 0,
-
-        chunk_text:
-          retrievalDocument,
-
-        embedding:
-          embeddingResult.vector as never,
-
-        provider:
-          embeddingResult.provider,
-
-        model:
-          embeddingResult.model,
-      })
-      .select();
-
-    if (insertError) {
-      console.error(
-        "❌ Failed to store embedding:",
-        insertError
+      .delete()
+      .eq(
+        "memory_id",
+        memoryId
       );
 
-      throw insertError;
+    console.log(
+      `📄 Embedding ${chunks.length} chunks`
+    );
+
+    for (
+      let i = 0;
+      i < chunks.length;
+      i++
+    ) {
+      const chunk =
+        chunks[i];
+
+      if (
+        !chunk ||
+        !chunk.trim()
+      ) {
+        continue;
+      }
+
+      const embeddingResult =
+        await generateEmbedding(
+          chunk
+        );
+
+      const {
+        error: insertError,
+      } = await supabase
+        .from(
+          "memory_embeddings"
+        )
+        .insert({
+          memory_id:
+            memoryId,
+
+          chunk_index: i,
+
+          chunk_text:
+            chunk,
+
+          embedding:
+            embeddingResult.vector as never,
+
+          provider:
+            embeddingResult.provider,
+
+          model:
+            embeddingResult.model,
+        });
+
+      if (insertError) {
+        throw insertError;
+      }
     }
 
     console.log(
-      "✅ Embedding stored"
+      "✅ Chunk embeddings stored"
     );
 
     console.log(
-      "📦 Stored rows:",
-      insertedRows?.length ?? 0
+      "📦 Stored chunks:",
+      chunks.length
     );
 
     console.log(

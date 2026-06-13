@@ -18,28 +18,63 @@ export function renderRetrievalDocument(
   }
 
   if (doc.creatorName) {
-    parts.push(`Creator: ${doc.creatorName}`);
-  }
-
-  if (doc.topics && doc.topics.length > 0) {
-    parts.push(`Topics: ${doc.topics.join(", ")}`);
-  }
-
-  if (doc.entities && doc.entities.length > 0) {
-    parts.push(`Entities: ${doc.entities.join(", ")}`);
-  }
-
-  if (doc.keyInsights && doc.keyInsights.length > 0) {
     parts.push(
-      `Key Insights:\n${doc.keyInsights.map((i) => `- ${i}`).join("\n")}`
+      `Creator: ${doc.creatorName}`
     );
   }
 
-  if (doc.userNotes && doc.userNotes.length > 0) {
+  if (doc.topics.length > 0) {
     parts.push(
-      `User Notes:\n${doc.userNotes.map((n) => `- ${n}`).join("\n")}`
+      `Topics: ${doc.topics
+        .map(
+          (topic) =>
+            topic.name
+        )
+        .join(", ")}`
     );
   }
 
-  return parts.filter(Boolean).join("\n\n").trim();
+  if (doc.entities.length > 0) {
+    parts.push(
+      `Entities: ${doc.entities
+        .map(
+          (entity) =>
+            entity.name
+        )
+        .join(", ")}`
+    );
+  }
+
+  if (
+    doc.keyInsights.length >
+    0
+  ) {
+    parts.push(
+      `Key Insights:\n${doc.keyInsights
+        .map(
+          (insight) =>
+            `- ${insight}`
+        )
+        .join("\n")}`
+    );
+  }
+
+  if (
+    doc.userNotes.length >
+    0
+  ) {
+    parts.push(
+      `User Notes:\n${doc.userNotes
+        .map(
+          (note) =>
+            `- ${note}`
+        )
+        .join("\n")}`
+    );
+  }
+
+  return parts
+    .filter(Boolean)
+    .join("\n\n")
+    .trim();
 }

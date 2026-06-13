@@ -50,13 +50,31 @@ export async function extractOpenGraphMetadata(
         "content"
       ) || null;
 
+    const articleText =
+      extractArticleText($);
+
     return {
       title,
       description,
       thumbnailUrl,
       creatorName,
       canonicalUrl,
-      rawMetadata: null,
+
+      transcript: null,
+
+      articleText,
+
+      documentText: null,
+
+      ocrText: null,
+
+      imageDescriptions: [],
+
+      rawMetadata: {
+        title,
+        description,
+        articleText,
+      },
     };
   } catch (error) {
     console.error(
@@ -70,7 +88,60 @@ export async function extractOpenGraphMetadata(
       thumbnailUrl: null,
       creatorName: null,
       canonicalUrl: url,
+
+      transcript: null,
+
+      articleText: null,
+
+      documentText: null,
+
+      ocrText: null,
+
+      imageDescriptions: [],
+
       rawMetadata: null,
     };
   }
+}
+
+function extractArticleText(
+  $: cheerio.CheerioAPI
+): string | null {
+  const selectors = [
+    "article",
+    "main",
+    "[role='main']",
+    ".post-content",
+    ".entry-content",
+    ".article-content",
+    ".content",
+  ];
+
+  for (const selector of selectors) {
+    const text = normalizeText(
+      $(selector).text()
+    );
+
+    if (text.length > 500) {
+      return text;
+    }
+  }
+
+  const bodyText =
+    normalizeText(
+      $("body").text()
+    );
+
+  return bodyText.length > 500
+    ? bodyText
+    : null;
+}
+
+function normalizeText(
+  value: string | null | undefined
+): string {
+  return (value ?? "")
+    .replace(/\r/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }

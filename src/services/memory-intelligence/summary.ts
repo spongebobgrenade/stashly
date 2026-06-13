@@ -27,6 +27,10 @@ export async function generateMemorySummary(
     buildSummaryPrompt(input);
 
   if (!prompt) {
+    console.log(
+      "⚠️ Summary generation skipped: empty prompt"
+    );
+
     return "";
   }
 
@@ -41,23 +45,80 @@ export async function generateMemorySummary(
         }
       );
 
-    const parsed =
-      SUMMARY_SCHEMA.safeParse(
-        JSON.parse(rawOutput)
+    console.log(
+      "📝 SUMMARY RAW OUTPUT:"
+    );
+
+    console.log(rawOutput);
+
+    let parsedJson: unknown;
+
+    try {
+      parsedJson =
+        JSON.parse(rawOutput);
+    } catch (parseError) {
+      console.error(
+        "❌ Summary JSON parse failed"
       );
 
-    if (!parsed.success) {
+      console.error(
+        parseError
+      );
+
+      console.error(
+        "Raw output:"
+      );
+
+      console.error(
+        rawOutput
+      );
+
       return "";
     }
 
-    return normalizeSummary(
-      parsed.data.summary
+    const parsed =
+      SUMMARY_SCHEMA.safeParse(
+        parsedJson
+      );
+
+    if (!parsed.success) {
+      console.error(
+        "❌ Summary schema validation failed"
+      );
+
+      console.error(
+        parsed.error.flatten()
+      );
+
+      console.error(
+        "Parsed JSON:"
+      );
+
+      console.error(
+        parsedJson
+      );
+
+      return "";
+    }
+
+    const summary =
+      normalizeSummary(
+        parsed.data.summary
+      );
+
+    console.log(
+      "✅ Summary generated"
     );
+
+    console.log(summary);
+
+    return summary;
   } catch (error) {
     console.error(
-      "Summary generation failed:",
-      error
+      "❌ Summary generation failed:"
     );
+
+    console.error(error);
 
     return "";
   }
@@ -131,8 +192,34 @@ function buildSummaryPrompt(input: {
 function normalizeSummary(
   value: string
 ): string {
-  return value
+  const cleaned = value
     .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, SUMMARY_LIMIT);
+    .trim();
+
+  if (
+    cleaned.length <=
+    SUMMARY_LIMIT
+  ) {
+    return cleaned;
+  }
+
+  const truncated =
+    cleaned.slice(
+      0,
+      SUMMARY_LIMIT
+    );
+
+  const lastPeriod =
+    truncated.lastIndexOf(".");
+
+  if (lastPeriod > 50) {
+    return truncated
+      .slice(
+        0,
+        lastPeriod + 1
+      )
+      .trim();
+  }
+
+  return truncated.trim();
 }

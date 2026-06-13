@@ -490,3 +490,72 @@ Resolution:
 
 Lesson:
 Architecture drift is not the only drift category. Security drift must also be monitored.
+
+### DEBT-014: Missing RLS on Memory Tables
+
+Status: Resolved
+
+Date Resolved: 2026-06-11
+
+Issue
+
+The Memory Architecture introduced two new canonical tables:
+
+- memory_representations
+- memory_embeddings
+
+Both tables were created successfully and functioned correctly.
+
+However, Row Level Security (RLS) was never enabled on either table.
+
+As a result, the implementation drifted from the project's documented security architecture.
+
+Discovery
+
+The issue was discovered during founder documentation consolidation while reviewing Supabase Security Advisor warnings.
+
+The repository audit process did not detect the issue because existing audits focused on:
+
+- architecture alignment
+- schema alignment
+- runtime alignment
+
+but did not include a security advisor review step.
+
+Impact
+
+No user-facing failures occurred.
+
+However:
+
+- database security posture diverged from architecture expectations
+- future environments recreated from incomplete migrations would inherit the issue
+- the architecture repository no longer fully represented production reality
+
+Resolution
+
+Created Migration 008:
+
+008_enable_rls_on_memory_tables.sql
+
+The migration:
+
+- enabled RLS on memory_representations
+- enabled RLS on memory_embeddings
+- added ownership-based SELECT policies
+
+The migration was applied successfully to production and committed to source control.
+
+Lessons
+
+1. Repository audits alone are insufficient.
+2. Security Advisor reviews must be included in audit procedures.
+3. Production fixes must always be backported into migrations.
+4. New tables should never be considered complete until:
+   - RLS is enabled
+   - policies exist
+   - Security Advisor passes review
+
+Preventive Action
+
+Add Security Advisor verification to future repository audit checklists.

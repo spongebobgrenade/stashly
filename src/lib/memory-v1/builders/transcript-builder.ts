@@ -8,57 +8,109 @@ import type {
 const CONTENT_KEYS = [
   "transcript",
   "caption",
+  "articleText",
+  "documentText",
+  "ocrText",
   "article_text",
   "document_text",
+  "ocr_text",
   "content",
   "text",
   "body",
   "description",
 ] as const;
 
-const CHUNK_SIZE = 1000;
+const CHUNK_SIZE = 4000;
 
 export function buildTranscriptLayer(
   save: Save
 ): MemoryTranscriptV1 {
-  const rawText = normalizeText(
-    findTextInMetadata(
+  const textSources =
+    collectTextSources(
       save.raw_metadata
-    ) ?? save.description
+    );
+
+  if (save.description) {
+    textSources.push(
+      save.description
+    );
+  }
+
+  const deduplicated =
+    deduplicateText(
+      textSources
+    );
+
+  const rawText =
+    normalizeText(
+      deduplicated.join(
+        "\n\n"
+      )
+    );
+
+  const chunks =
+    buildChunks(rawText);
+
+  console.log(
+    "📄 Transcript stats",
+    {
+      textSources:
+        textSources.length,
+
+      deduplicatedSources:
+        deduplicated.length,
+
+      rawTextLength:
+        rawText.length,
+
+      chunks:
+        chunks.length,
+    }
   );
 
   return {
     rawText,
-    chunks: buildChunks(rawText),
+    chunks,
   };
 }
 
-function findTextInMetadata(
+function collectTextSources(
   value: Json | null
-): string | null {
-  if (!value) {
-    return null;
+): string[] {
+  const results: string[] =
+    [];
+
+  collectStructuredFields(
+    value,
+    results
+  );
+
+  return results;
+}
+
+function collectStructuredFields(
+  value: Json | null,
+  results: string[]
+): void {
+  if (
+    !value ||
+    typeof value !==
+      "object"
+  ) {
+    return;
   }
 
-  if (typeof value === "string") {
-    return null;
-  }
-
-  if (typeof value !== "object") {
-    return null;
-  }
-
-  if (Array.isArray(value)) {
+  if (
+    Array.isArray(value)
+  ) {
     for (const item of value) {
-      const text =
-        findTextInMetadata(item);
-
-      if (text) {
-        return text;
-      }
+      collectStructuredFields(
+        item,
+        results
+      );
     }
 
-    return null;
+    return;
   }
 
   for (const key of CONTENT_KEYS) {
@@ -70,10 +122,17 @@ function findTextInMetadata(
       "string"
     ) {
       const normalized =
-        normalizeText(candidate);
+        normalizeText(
+          candidate
+        );
 
-      if (normalized) {
-        return normalized;
+      if (
+        normalized.length >
+        50
+      ) {
+        results.push(
+          normalized
+        );
       }
     }
   }
@@ -81,17 +140,55 @@ function findTextInMetadata(
   for (const nestedValue of Object.values(
     value
   )) {
-    const text =
-      findTextInMetadata(
-        nestedValue ?? null
+    if (
+      nestedValue &&
+      typeof nestedValue ===
+        "object"
+    ) {
+      collectStructuredFields(
+        nestedValue as Json,
+        results
       );
-
-    if (text) {
-      return text;
     }
   }
+}
 
-  return null;
+function deduplicateText(
+  values: string[]
+): string[] {
+  const seen =
+    new Set<string>();
+
+  const output: string[] =
+    [];
+
+  for (const value of values) {
+    const cleaned =
+      normalizeText(
+        value
+      );
+
+    if (
+      cleaned.length < 50
+    ) {
+      continue;
+    }
+
+    const key =
+      cleaned.toLowerCase();
+
+    if (
+      seen.has(key)
+    ) {
+      continue;
+    }
+
+    seen.add(key);
+
+    output.push(cleaned);
+  }
+
+  return output;
 }
 
 function buildChunks(
@@ -101,18 +198,8 @@ function buildChunks(
     return [];
   }
 
-  const paragraphs =
+  return splitLongText(
     rawText
-      .split(/\n\s*\n/g)
-      .map(normalizeText)
-      .filter(Boolean);
-
-  if (paragraphs.length === 0) {
-    return splitLongText(rawText);
-  }
-
-  return paragraphs.flatMap(
-    splitLongText
   );
 }
 
@@ -123,19 +210,22 @@ function splitLongText(
     return [];
   }
 
-  const chunks: string[] = [];
+  const chunks: string[] =
+    [];
 
   for (
     let index = 0;
     index < value.length;
     index += CHUNK_SIZE
   ) {
-    const chunk = normalizeText(
-      value.slice(
-        index,
-        index + CHUNK_SIZE
-      )
-    );
+    const chunk =
+      normalizeText(
+        value.slice(
+          index,
+          index +
+            CHUNK_SIZE
+        )
+      );
 
     if (chunk) {
       chunks.push(chunk);
@@ -146,9 +236,14 @@ function splitLongText(
 }
 
 function normalizeText(
-  value: string | null | undefined
+  value:
+    | string
+    | null
+    | undefined
 ): string {
-  return (value ?? "")
+  return (
+    value ?? ""
+  )
     .replace(/\r/g, "")
     .replace(/\s+/g, " ")
     .trim();

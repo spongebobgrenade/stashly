@@ -9,5 +9,18 @@ export interface MetadataEnrichment {
 
   canonicalUrl: string | null;
 
-  rawMetadata: Record<string, unknown> | null;
+  transcript: string | null;
+
+  articleText: string | null;
+
+  documentText: string | null;
+
+  ocrText: string | null;
+
+  imageDescriptions: string[];
+
+  rawMetadata: Record<
+    string,
+    unknown
+  > | null;
 }

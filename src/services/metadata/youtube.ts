@@ -18,27 +18,46 @@ export async function extractYoutubeMetadata(
   }
 
   const info =
-    await youtube.getInfo(videoId);
+    await youtube.getInfo(
+      videoId
+    );
 
   return {
     title:
-      info.basic_info.title || null,
+      info.basic_info
+        .title || null,
 
     thumbnailUrl:
-      info.basic_info.thumbnail?.[0]
+      info.basic_info
+        .thumbnail?.[0]
         ?.url || null,
 
     description:
       info.basic_info
-        .short_description || null,
+        .short_description ||
+      null,
 
     creatorName:
-      info.basic_info.author || null,
+      info.basic_info
+        .author || null,
 
     canonicalUrl: `https://youtube.com/watch?v=${videoId}`,
 
+    transcript: null,
+
+    articleText: null,
+
+    documentText: null,
+
+    ocrText: null,
+
+    imageDescriptions: [],
+
     rawMetadata:
-      info.basic_info,
+      info.basic_info as Record<
+        string,
+        unknown
+      >,
   };
 }
 
@@ -48,8 +67,6 @@ function extractVideoId(
   try {
     const parsedUrl =
       new URL(url);
-
-    // youtu.be/VIDEO_ID
 
     if (
       parsedUrl.hostname.includes(
@@ -62,8 +79,6 @@ function extractVideoId(
       );
     }
 
-    // youtube.com/watch?v=VIDEO_ID
-
     const watchId =
       parsedUrl.searchParams.get(
         "v"
@@ -73,15 +88,16 @@ function extractVideoId(
       return watchId;
     }
 
-    // youtube.com/shorts/VIDEO_ID
-
     if (
       parsedUrl.pathname.startsWith(
         "/shorts/"
       )
     ) {
       return parsedUrl.pathname
-        .replace("/shorts/", "")
+        .replace(
+          "/shorts/",
+          ""
+        )
         .split("/")[0];
     }
 

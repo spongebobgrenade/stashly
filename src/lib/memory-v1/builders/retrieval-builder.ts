@@ -2,10 +2,6 @@ import {
   buildRetrievalDocumentV1,
 } from "../retrieval-document";
 
-import {
-  generateMemorySummary,
-} from "@/services/memory-intelligence/summary";
-
 import type {
   MemoryRetrievalV1,
   MemoryV1,
@@ -18,15 +14,8 @@ export async function buildRetrievalLayer(
   >
 ): Promise<MemoryRetrievalV1> {
   const summary =
-    await generateMemorySummary(
-      {
-        metadata:
-          memory.metadata,
-        transcript:
-          memory.transcript,
-        knowledge:
-          memory.knowledge,
-      }
+    buildDeterministicSummary(
+      memory
     );
 
   const memoryWithSummary: MemoryV1 =
@@ -55,4 +44,57 @@ export async function buildRetrievalLayer(
     summary,
     retrievalDocument,
   };
+}
+
+function buildDeterministicSummary(
+  memory: Omit<
+    MemoryV1,
+    "retrieval"
+  >
+): string {
+  const parts: string[] =
+    [];
+
+  if (
+    memory.metadata.title
+  ) {
+    parts.push(
+      memory.metadata.title
+    );
+  }
+
+  if (
+    memory.knowledge.keyInsights
+      .length > 0
+  ) {
+    parts.push(
+      memory.knowledge
+        .keyInsights[0]
+    );
+  }
+
+  if (
+    memory.knowledge.topics
+      .length > 0
+  ) {
+    const topicNames =
+      memory.knowledge.topics
+        .slice(0, 3)
+        .map((topic) =>
+          typeof topic ===
+          "string"
+            ? topic
+            : topic.name
+        );
+
+    parts.push(
+      `Topics: ${topicNames.join(", ")}`
+    );
+  }
+
+  return parts
+    .join(". ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 320);
 }

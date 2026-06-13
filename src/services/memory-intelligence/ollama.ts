@@ -4,7 +4,7 @@ const OLLAMA_GENERATE_URL =
 const DEFAULT_MODEL =
   process.env
     .OLLAMA_GENERATION_MODEL ??
-  "llama3.2:3b";
+  "qwen2.5:1.5b";
 
 type OllamaGenerateOptions = {
   format?: "json";
@@ -44,8 +44,11 @@ export async function generateWithOllama(
     );
 
   if (!response.ok) {
+    const errorText =
+      await response.text();
+
     throw new Error(
-      `Ollama generation failed with status ${response.status}`
+      `Ollama generation failed (${response.status}): ${errorText}`
     );
   }
 
