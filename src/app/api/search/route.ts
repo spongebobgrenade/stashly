@@ -11,7 +11,9 @@ import {
   retrieveMemories,
 } from "@/lib/retrieval/retrieve-memories";
 
-import { logSearchEvent } from "@/lib/analytics/log-search-event";
+import {
+  logSearchEvent,
+} from "@/lib/analytics/log-search-event";
 
 export async function GET(
   request: NextRequest
@@ -49,22 +51,27 @@ export async function GET(
     }
 
     const memories =
-      await retrieveMemories({
-        query,
-        mode:
-          retrievalMode,
-      }, {
-        userId:
-          user.id,
-      });
+      await retrieveMemories(
+        {
+          query,
+          mode:
+            retrievalMode,
+        },
+        {
+          userId:
+            user.id,
+        }
+      );
 
-    if (user && query.trim()) {
-      // Log search event asynchronously without blocking the response
-      logSearchEvent({
+    if (query.trim()) {
+      void logSearchEvent({
         userId: user.id,
         query: query.trim(),
-        retrievalMode: retrievalMode ?? "keyword",
-        resultsCount: memories.length,
+        retrievalMode:
+          retrievalMode ??
+          "keyword",
+        resultsCount:
+          memories.length,
       });
     }
 
