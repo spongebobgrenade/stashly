@@ -36,6 +36,7 @@ export type SearchMemory =
     keywordScore?: number;
     finalScore?: number;
     duplicateCount?: number;
+    highlightSnippet?: string;
   };
 
 export type RetrievalResult =

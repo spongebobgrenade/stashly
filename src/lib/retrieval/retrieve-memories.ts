@@ -7,6 +7,8 @@ import {
   semanticRetrievalStrategy,
 } from "./semantic-retrieval-strategy";
 
+import { highlightMatch } from "./highlight-match";
+
 import type {
   RetrievalContext,
   RetrievalQuery,
@@ -243,55 +245,71 @@ export async function retrieveMemories(
     return [];
   }
 
-  switch (
-    input.mode ??
-    "keyword"
-  ) {
-    case "semantic":
-      return collapseDuplicateResults(
-        rankResults(
-          await semanticRetrievalStrategy(
+  const results = await (async () => {
+    switch (
+      input.mode ??
+      "keyword"
+    ) {
+      case "semantic":
+        return collapseDuplicateResults(
+          rankResults(
+            await semanticRetrievalStrategy(
+              input,
+              context
+            )
+          )
+        );
+
+      case "hybrid": {
+        const [
+          semanticResults,
+          keywordResults,
+        ] = await Promise.all([
+          semanticRetrievalStrategy(
             input,
             context
-          )
-        )
-      );
+          ),
+          keywordRetrievalStrategy(
+            input,
+            context
+          ),
+        ]);
 
-    case "hybrid": {
-      const [
-        semanticResults,
-        keywordResults,
-      ] = await Promise.all([
-        semanticRetrievalStrategy(
-          input,
-          context
-        ),
-        keywordRetrievalStrategy(
-          input,
-          context
-        ),
-      ]);
-
-      return applyHybridThreshold(
-        collapseDuplicateResults(
-          fuseHybridResults(
-            input.query,
-            semanticResults,
-            keywordResults
+        return applyHybridThreshold(
+          collapseDuplicateResults(
+            fuseHybridResults(
+              input.query,
+              semanticResults,
+              keywordResults
+            )
           )
-        )
-      );
+        );
+      }
+
+      case "keyword":
+      default:
+        return collapseDuplicateResults(
+          rankResults(
+            await keywordRetrievalStrategy(
+              input,
+              context
+            )
+          )
+        );
     }
+  })();
 
-    case "keyword":
-    default:
-      return collapseDuplicateResults(
-        rankResults(
-          await keywordRetrievalStrategy(
-            input,
-            context
-          )
-        )
-      );
+  const query = input.query;
+  for (const memory of results) {
+    const snippet =
+      highlightMatch(memory.title, query) ??
+      highlightMatch(memory.description, query) ??
+      highlightMatch(memory.original_input, query);
+
+    if (snippet !== null) {
+      memory.highlightSnippet = snippet;
+    }
   }
+
+  return results;
 }
