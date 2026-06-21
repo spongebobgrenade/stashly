@@ -1,24 +1,87 @@
-import { createClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 import type {
+  RetrievalContext,
   RetrievalQuery,
   RetrievalResult,
+  SearchMemory,
 } from "./retrieval-types";
 
+function includesMatch(
+  value: string | null,
+  normalizedQuery: string
+): boolean {
+  return (
+    value?.toLowerCase().includes(
+      normalizedQuery
+    ) ?? false
+  );
+}
+
+export function getKeywordScore(
+  memory: Pick<
+    SearchMemory,
+    | "title"
+    | "creator_name"
+    | "description"
+    | "original_input"
+  >,
+  query: string
+): number {
+  const normalizedQuery =
+    query.trim().toLowerCase();
+
+  if (!normalizedQuery) {
+    return 0;
+  }
+
+  let score = 0;
+
+  if (
+    includesMatch(
+      memory.title,
+      normalizedQuery
+    )
+  ) {
+    score += 10;
+  }
+
+  if (
+    includesMatch(
+      memory.creator_name,
+      normalizedQuery
+    )
+  ) {
+    score += 5;
+  }
+
+  if (
+    includesMatch(
+      memory.description,
+      normalizedQuery
+    )
+  ) {
+    score += 3;
+  }
+
+  if (
+    includesMatch(
+      memory.original_input,
+      normalizedQuery
+    )
+  ) {
+    score += 2;
+  }
+
+  return score;
+}
+
 export async function keywordRetrievalStrategy(
-  input: RetrievalQuery
+  input: RetrievalQuery,
+  context: RetrievalContext
 ): Promise<RetrievalResult> {
   const supabase =
-    await createClient();
-
-  const {
-    data: { user },
-  } =
-    await supabase.auth.getUser();
-
-  if (!user) {
-    return [];
-  }
+    getSupabaseAdmin();
 
   const trimmedQuery =
     input.query.trim();
@@ -32,8 +95,25 @@ export async function keywordRetrievalStrategy(
     error,
   } = await supabase
     .from("saves")
-    .select("*")
-    .eq("user_id", user.id)
+    .select(`
+      id,
+      user_id,
+      content_type,
+      original_input,
+      source_platform,
+      title,
+      description,
+      thumbnail_url,
+      creator_name,
+      canonical_url,
+      processing_status,
+      created_at,
+      updated_at
+    `)
+    .eq(
+      "user_id",
+      context.userId
+    )
     .or(
       [
         `title.ilike.%${trimmedQuery}%`,
@@ -57,5 +137,20 @@ export async function keywordRetrievalStrategy(
     return [];
   }
 
-  return data ?? [];
+  return (data ?? []).map(
+    (memory) => {
+      const keywordScore =
+        getKeywordScore(
+          memory,
+          trimmedQuery
+        );
+
+      return {
+        ...memory,
+        keywordScore,
+        finalScore:
+          keywordScore,
+      };
+    }
+  );
 }

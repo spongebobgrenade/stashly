@@ -1,0 +1,54 @@
+[
+  {
+    "query": "swarmclaw",
+    "mustContain": [
+      "swarmvault"
+    ]
+  },
+  {
+    "query": "rick astley",
+    "mustContain": [
+      "rick astley"
+    ]
+  },
+  {
+    "query": "stripe",
+    "mustContain": [
+      "stripe"
+    ]
+  },
+  {
+    "query": "blog",
+    "mustContain": [
+      "how to start a blog"
+    ]
+  },
+  {
+    "query": "muscle",
+    "minResults": 5
+  },
+  {
+    "query": "youtube shorts",
+    "minResults": 3
+  },
+  {
+    "query": "audience",
+    "mustContain": [
+      "audience member"
+    ]
+  },
+  {
+    "query": "diet",
+    "mustContain": [
+      "calories"
+    ]
+  },
+  {
+    "query": "protein",
+    "minResults": 2
+  },
+  {
+    "query": "quantum physics banana spaceship",
+    "maxResults": 0
+  }
+]

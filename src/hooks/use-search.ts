@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import type { Memory } from "@/types/memory";
 
 const DEFAULT_RETRIEVAL_MODE =
-  "semantic";
+  "hybrid";
 
 export function useSearch(query: string) {
   const [results, setResults] = useState<Memory[]>([]);

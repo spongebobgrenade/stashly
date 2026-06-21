@@ -15,6 +15,8 @@
     "product:audit": "tsx scripts/product-alignment-audit.ts",
     "repo:audit": "tsx scripts/repo-audit.ts",
     "architecture:audit": "tsx scripts/architecture-drift-audit.ts",
+    "search:evaluate": "tsx scripts/evaluate-search.ts",
+    "search:benchmark": "tsx scripts/search-benchmark.ts",
     "dev:all": "concurrently \"npm run dev\" \"npm run worker\" \"npm run embedding-worker\""
   },
   "dependencies": {

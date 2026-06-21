@@ -1,0 +1,292 @@
+[
+  {
+    "query": "diet",
+    "results_count": 2,
+    "title": "CUTS - Fat Shredding Full Week Workout | 60 Days Transformation Plan",
+    "similarity": null,
+    "semanticScore": 0,
+    "keywordScore": 3,
+    "finalScore": 3,
+    "duplicateCount": 1
+  },
+  {
+    "query": "diet",
+    "results_count": 2,
+    "title": "Such a fun way of explaining calories in, calories out",
+    "similarity": 0.572247653016566,
+    "semanticScore": 0.572247653016566,
+    "keywordScore": 0,
+    "finalScore": 0.572247653016566,
+    "duplicateCount": 1
+  },
+  {
+    "query": "protein",
+    "results_count": 2,
+    "title": "The Anatomy of THC cannabinoids",
+    "similarity": 0.455174951870774,
+    "semanticScore": 0.455174951870774,
+    "keywordScore": 3,
+    "finalScore": 3.455174951870774,
+    "duplicateCount": 1
+  },
+  {
+    "query": "protein",
+    "results_count": 2,
+    "title": "How I Grew My Shoulders... QUICK",
+    "similarity": 0.415748849753263,
+    "semanticScore": 0.415748849753263,
+    "keywordScore": 3,
+    "finalScore": 3.415748849753263,
+    "duplicateCount": 1
+  },
+  {
+    "query": "muscle",
+    "results_count": 5,
+    "title": "Why Your Chest Still Lacks Thickness",
+    "similarity": 0.572062242808201,
+    "semanticScore": 0.572062242808201,
+    "keywordScore": 3,
+    "finalScore": 3.572062242808201,
+    "duplicateCount": 1
+  },
+  {
+    "query": "muscle",
+    "results_count": 5,
+    "title": "BY FAR the most efficient workout split (for busy guys)",
+    "similarity": 0.580022263245524,
+    "semanticScore": 0.580022263245524,
+    "keywordScore": 0,
+    "finalScore": 0.580022263245524,
+    "duplicateCount": 1
+  },
+  {
+    "query": "muscle",
+    "results_count": 5,
+    "title": "How I Grew My Shoulders... QUICK",
+    "similarity": 0.560494570458101,
+    "semanticScore": 0.560494570458101,
+    "keywordScore": 0,
+    "finalScore": 0.560494570458101,
+    "duplicateCount": 1
+  },
+  {
+    "query": "muscle",
+    "results_count": 5,
+    "title": "7 Amazing Exercises No One Does (ALL S TIER)",
+    "similarity": 0.512993882990199,
+    "semanticScore": 0.512993882990199,
+    "keywordScore": 0,
+    "finalScore": 0.512993882990199,
+    "duplicateCount": 1
+  },
+  {
+    "query": "muscle",
+    "results_count": 5,
+    "title": "Do Fitness Influencers Actually Know Fitness? (Ep. 2 Will Tennyson)",
+    "similarity": 0.504995550818072,
+    "semanticScore": 0.504995550818072,
+    "keywordScore": 0,
+    "finalScore": 0.504995550818072,
+    "duplicateCount": 1
+  },
+  {
+    "query": "home decor",
+    "results_count": 2,
+    "title": "How to Start a Blog in 2024",
+    "similarity": 0.541962074875617,
+    "semanticScore": 0.541962074875617,
+    "keywordScore": 0,
+    "finalScore": 0.541962074875617,
+    "duplicateCount": 8
+  },
+  {
+    "query": "home decor",
+    "results_count": 2,
+    "title": "i still live in those memories. [indie playlist]",
+    "similarity": 0.501053003047985,
+    "semanticScore": 0.501053003047985,
+    "keywordScore": 0,
+    "finalScore": 0.501053003047985,
+    "duplicateCount": 1
+  },
+  {
+    "query": "swarmclaw",
+    "results_count": 1,
+    "title": "GitHub - swarmclawai/swarmvault: The local-first LLM Wiki: open-source knowledge graph builder, RAG knowledge base, and agent memory store. Built on Andrej Karpathy's pattern. An Obsidian alternative for personal knowledge management, AI second brain, and durable Claude Code / Codex / OpenClaw memory.",
+    "similarity": 0.675799611205076,
+    "semanticScore": 0.675799611205076,
+    "keywordScore": 12,
+    "finalScore": 12.675799611205075,
+    "duplicateCount": 1
+  },
+  {
+    "query": "rick astley",
+    "results_count": 1,
+    "title": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)",
+    "similarity": 0.518935037278833,
+    "semanticScore": 0.518935037278833,
+    "keywordScore": 18,
+    "finalScore": 18.518935037278833,
+    "duplicateCount": 2
+  },
+  {
+    "query": "youtube shorts",
+    "results_count": 5,
+    "title": "Saved from youtube",
+    "similarity": 0.644995756551925,
+    "semanticScore": 0.644995756551925,
+    "keywordScore": 0,
+    "finalScore": 0.644995756551925,
+    "duplicateCount": 1
+  },
+  {
+    "query": "youtube shorts",
+    "results_count": 5,
+    "title": "Useless Son-in-Law He’s a One-Man Army #shorts #movie",
+    "similarity": 0.63068085030537,
+    "semanticScore": 0.63068085030537,
+    "keywordScore": 0,
+    "finalScore": 0.63068085030537,
+    "duplicateCount": 1
+  },
+  {
+    "query": "youtube shorts",
+    "results_count": 5,
+    "title": "GitHub - harry0703/MoneyPrinterTurbo: 利用AI大模型，一键生成高清短视频 Generate short videos with one click using AI LLM.",
+    "similarity": 0.580170311997818,
+    "semanticScore": 0.580170311997818,
+    "keywordScore": 0,
+    "finalScore": 0.580170311997818,
+    "duplicateCount": 1
+  },
+  {
+    "query": "youtube shorts",
+    "results_count": 5,
+    "title": "I Trained to Failure Every Day for 6 Months...",
+    "similarity": 0.519076961731486,
+    "semanticScore": 0.519076961731486,
+    "keywordScore": 0,
+    "finalScore": 0.519076961731486,
+    "duplicateCount": 1
+  },
+  {
+    "query": "youtube shorts",
+    "results_count": 5,
+    "title": "Suits Clips to Watch On Your Way to Work",
+    "similarity": 0.50369857969219,
+    "semanticScore": 0.50369857969219,
+    "keywordScore": 0,
+    "finalScore": 0.50369857969219,
+    "duplicateCount": 1
+  },
+  {
+    "query": "blog",
+    "results_count": 6,
+    "title": "How to Start a Blog in 2024",
+    "similarity": 0.75923430211908,
+    "semanticScore": 0.75923430211908,
+    "keywordScore": 20,
+    "finalScore": 20.75923430211908,
+    "duplicateCount": 12
+  },
+  {
+    "query": "blog",
+    "results_count": 6,
+    "title": "I Found 5 FREE Claude Code Alternatives (Unlimited & Full Workflow) 2026",
+    "similarity": null,
+    "semanticScore": 0,
+    "keywordScore": 3,
+    "finalScore": 3,
+    "duplicateCount": 1
+  },
+  {
+    "query": "blog",
+    "results_count": 6,
+    "title": "Next.js Tutorial 2026 (UPDATED) - Full Course - Start Your Next.js Journey Here",
+    "similarity": null,
+    "semanticScore": 0,
+    "keywordScore": 3,
+    "finalScore": 3,
+    "duplicateCount": 1
+  },
+  {
+    "query": "blog",
+    "results_count": 6,
+    "title": "0 Jobs to ₹4L/Month: The AI Business That Changed My Life",
+    "similarity": null,
+    "semanticScore": 0,
+    "keywordScore": 3,
+    "finalScore": 3,
+    "duplicateCount": 1
+  },
+  {
+    "query": "blog",
+    "results_count": 6,
+    "title": "The Data Movie | Data Literacy Explained Visually",
+    "similarity": null,
+    "semanticScore": 0,
+    "keywordScore": 3,
+    "finalScore": 3,
+    "duplicateCount": 1
+  },
+  {
+    "query": "stripe",
+    "results_count": 2,
+    "title": "Stripe | Financial Infrastructure to Grow Your Revenue",
+    "similarity": 0.469933089436979,
+    "semanticScore": 0.469933089436979,
+    "keywordScore": 15,
+    "finalScore": 15.46993308943698,
+    "duplicateCount": 1
+  },
+  {
+    "query": "stripe",
+    "results_count": 2,
+    "title": "https://stripe.com",
+    "similarity": null,
+    "semanticScore": 0,
+    "keywordScore": 2,
+    "finalScore": 2,
+    "duplicateCount": 1
+  },
+  {
+    "query": "audience",
+    "results_count": 3,
+    "title": "stop being an audience member of your own life",
+    "similarity": 0.516008132701639,
+    "semanticScore": 0.516008132701639,
+    "keywordScore": 10,
+    "finalScore": 10.51600813270164,
+    "duplicateCount": 1
+  },
+  {
+    "query": "audience",
+    "results_count": 3,
+    "title": "the client acquisition system behind our $32k/mo agency",
+    "similarity": null,
+    "semanticScore": 0,
+    "keywordScore": 3,
+    "finalScore": 3,
+    "duplicateCount": 1
+  },
+  {
+    "query": "audience",
+    "results_count": 3,
+    "title": "How to Start a Blog in 2024",
+    "similarity": 0.508144560248935,
+    "semanticScore": 0.508144560248935,
+    "keywordScore": 0,
+    "finalScore": 0.508144560248935,
+    "duplicateCount": 2
+  },
+  {
+    "query": "quantum physics banana spaceship",
+    "results_count": 0,
+    "title": "",
+    "similarity": null,
+    "semanticScore": null,
+    "keywordScore": null,
+    "finalScore": null,
+    "duplicateCount": null
+  }
+]
