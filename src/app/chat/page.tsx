@@ -7,6 +7,73 @@ interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  memories?: {
+    id: string;
+    title: string | null;
+    highlightSnippet?: string;
+    canonical_url?: string | null;
+  }[];
+}
+
+function MessageSources({
+  memories,
+}: {
+  memories: {
+    id: string;
+    title: string | null;
+    highlightSnippet?: string;
+    canonical_url?: string | null;
+  }[];
+}) {
+  const [show, setShow] = useState(false);
+
+  return (
+    <div className="mt-2 text-xs w-full max-w-[85%]">
+      <button
+        onClick={() => setShow(!show)}
+        type="button"
+        className="flex items-center gap-1.5 text-zinc-400 hover:text-zinc-200 transition font-medium focus:outline-none"
+      >
+        <span>📚</span>
+        <span>Sources ({memories.length})</span>
+        <span className="text-[10px] text-zinc-500 font-normal ml-1">
+          ({show ? "Hide Sources" : "Show Sources"})
+        </span>
+      </button>
+
+      {show && (
+        <div className="mt-2 grid grid-cols-1 gap-2">
+          {memories.map((m) => (
+            <div
+              key={m.id}
+              className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 space-y-1.5"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <span className="font-semibold text-zinc-200 truncate">
+                  {m.title || "Untitled Document"}
+                </span>
+                {m.canonical_url && (
+                  <a
+                    href={m.canonical_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-teal-400 hover:text-teal-300 transition text-[10px] shrink-0 font-medium"
+                  >
+                    Visit Link ↗
+                  </a>
+                )}
+              </div>
+              {m.highlightSnippet && (
+                <p className="text-zinc-400 leading-normal line-clamp-3 bg-zinc-950/40 p-2 rounded border border-zinc-800/40 font-mono text-[11px]">
+                  &ldquo;{m.highlightSnippet}&rdquo;
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function ChatPage() {
@@ -90,8 +157,8 @@ export default function ChatPage() {
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          content:
-            data.answer,
+          content: data.answer,
+          memories: data.memories,
         },
       ]);
     } catch (error) {
@@ -177,13 +244,9 @@ export default function ChatPage() {
 
                 return (
                   <div
-                    key={
-                      message.id
-                    }
-                    className={`flex ${
-                      isUser
-                        ? "justify-end"
-                        : "justify-start"
+                    key={message.id}
+                    className={`flex flex-col ${
+                      isUser ? "items-end" : "items-start"
                     }`}
                   >
                     <div
@@ -193,10 +256,12 @@ export default function ChatPage() {
                           : "rounded-tl-none border border-zinc-800 bg-zinc-900 text-zinc-100"
                       }`}
                     >
-                      {
-                        message.content
-                      }
+                      {message.content}
                     </div>
+
+                    {!isUser && message.memories && message.memories.length > 0 && (
+                      <MessageSources memories={message.memories} />
+                    )}
                   </div>
                 );
               }
