@@ -29,13 +29,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { message } = body;
+    const { message, history } = body;
     if (!message || typeof message !== "string" || !message.trim()) {
       return NextResponse.json(
         { error: "Message is required and must be a string" },
         { status: 400 }
       );
     }
+
+    // Validate and harden conversation history
+    const validatedHistory: { role: "user" | "assistant"; content: string }[] = [];
+    if (Array.isArray(history)) {
+      for (const entry of history) {
+        if (
+          entry &&
+          typeof entry === "object" &&
+          (entry.role === "user" || entry.role === "assistant") &&
+          typeof entry.content === "string"
+        ) {
+          const trimmedContent = entry.content.trim();
+          if (trimmedContent !== "") {
+            const truncatedContent = trimmedContent.slice(0, 1000);
+            validatedHistory.push({
+              role: entry.role,
+              content: truncatedContent,
+            });
+          }
+        }
+      }
+    }
+    const finalHistory = validatedHistory.slice(-10);
 
     // 3. Retrieve memories using hybrid mode
     const memories = await retrieveMemories(
@@ -49,31 +72,86 @@ export async function POST(request: NextRequest) {
     );
 
     // 4. Take top 10 memories
-    const topMemories = memories.slice(0, 10);
+    const topMemories = memories.slice(0, 8);
 
     // 5. Build context
     const contextBlock = topMemories
       .map((m, idx) => {
+        const label = `[Memory ${idx + 1}]`;
         const title = m.title || "Untitled";
         const description = m.description || "No description";
         const originalInput = m.original_input || "N/A";
-        return `Memory #${idx + 1}:
+        return `${label}
+Memory ID: ${m.id}
 Title: ${title}
 Description: ${description}
-Original Input: ${originalInput}
-`;
+Original Input: ${originalInput}`;
       })
-      .join("\n---\n\n");
+      .join("\n\n");
 
     // 6. Build system and user prompts
-    const systemPrompt = `You answer questions only using the supplied memory context.
-If the answer is not present in memory context, say:
-"I could not find that in your saved memories."`;
+    const systemPrompt = `You are Stashly Memory Chat.
 
-    const userPrompt = `User question: ${message}
+You answer questions ONLY using the retrieved memories provided.
 
-Retrieved Memory Context:
-${contextBlock || "No memories retrieved."}`;
+Rules:
+
+1. Use only information present in the memory context.
+
+2. Do not use outside knowledge.
+
+3. Do not infer facts that are not explicitly supported by the memories.
+
+4. When information comes from a memory, cite it using:
+
+[Memory X]
+
+Example:
+
+Protein is important for muscle growth [Memory 2]
+
+5. Multiple citations are allowed.
+
+Example:
+
+Protein supports muscle growth [Memory 2]
+and recovery [Memory 4].
+
+6. If the retrieved memories do not contain enough information
+to answer confidently, respond exactly with:
+
+"I could not find that in your saved memories."
+
+7. Never fabricate citations.
+
+8. Never reference memories that were not provided.
+
+9. Prefer concise answers over long explanations.`;
+
+    let historyBlock = "";
+    if (finalHistory.length > 0) {
+      const historyLines = finalHistory
+        .map((h) => {
+          const roleLabel = h.role === "user" ? "User" : "Assistant";
+          return `${roleLabel}: ${h.content}`;
+        })
+        .join("\n");
+
+      historyBlock = `Conversation History:
+
+${historyLines}`;
+    }
+
+    const promptParts: string[] = [];
+    if (historyBlock) {
+      promptParts.push(historyBlock);
+    }
+    promptParts.push(
+      `Retrieved Memory Context:\n${contextBlock || "No memories retrieved."}`
+    );
+    promptParts.push(`Current Question:\n${message}`);
+
+    const userPrompt = promptParts.join("\n\n");
 
     // 7. Call generateAnswer()
     const { answer } = await generateAnswer({

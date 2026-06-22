@@ -50,6 +50,13 @@ export default function ChatPage() {
 
     setLoading(true);
 
+    const history = messages
+      .slice(-10)
+      .map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
     try {
       const response =
         await fetch(
@@ -63,6 +70,7 @@ export default function ChatPage() {
             body: JSON.stringify({
               message:
                 trimmedInput,
+              history,
             }),
           }
         );
