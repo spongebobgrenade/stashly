@@ -1,561 +1,130 @@
-# Stashly Engineering Debt Register
+# Stashly Active Engineering Debt Register
 
-Status: Active
-
----
-
-# Purpose
-
-This document tracks active engineering debt only.
-
-Completed items are removed from active debt and listed separately as resolved.
+**Status**: ACTIVE  
+**Version**: 5.0  
+**Authority**: Active Implementation Gap Monitor  
+**Last Updated**: 2026-06-25  
 
 ---
 
-# Priority Levels
+## 1. Executive Summary
 
-- `P0`: Must fix before scale or correctness depends on it
-- `P1`: Must fix before public launch
-- `P2`: Fix before major feature expansion
-- `P3`: Deferred cleanup opportunity
+Engineering debt is defined as an intentional or temporary deviation between the current codebase implementation and target architectural specifications. It is **not** a general bug tracker or a generic product feature backlog. An engineering debt item exists only when there is a documented architectural target that the implementation has not yet fully realized.
 
----
+Engineering Debt is a living operational register. Items are removed when retired, not marked as completed. Historical reasoning belongs in [architecture-decisions.md](file:///Users/sahilkishor/stashly/docs/engineering/architecture-decisions.md).
 
-# Active Debt
-
-## ED-001
-
-Title:
-
-Metadata Retry Strategy Missing
-
-Priority:
-
-P1
-
-Current State:
-
-Metadata extraction still attempts once and then writes `failed`.
-
-Debt:
-
-- transient platform failures become permanent failures
+### Active Debt Dashboard
+* **Total Open Debt Items**: 6
+* **Critical Priorities (P1)**: 2
+* **High Priorities (P2)**: 2
+* **Medium/Low Priorities (P3)**: 2
+* **Overall Engineering Health**: **Good**. Core ingestion, serialization, and retrieval models are functional and type-safe, but scaling requires transitioning application-level scoring loops to database-level indexes.
 
 ---
 
-## ED-002
+## 2. Engineering Principles & Governance
 
-Title:
+Stashly engineers adhere to these strict rules when introducing or managing engineering debt:
+* **Intentionality**: Debt must be introduced consciously to validate capabilities and must be documented immediately in this register.
+* **Traceable Targets**: Every debt item must cite a target architecture doc specifying the final realization state.
+* **No Stale Records**: Resolved items must be removed from the active log immediately upon code completion.
+* **Sovereignty**: Architecture status and system requirements documents remain the authoritative sources of truth.
+* **Governing Rule**: Engineering Debt records intentional technical compromises between the target architecture and the current implementation. It does not track product ideas, planned features, architectural decisions, documentation quality, or historical context.
 
-Raw Metadata Stored Unbounded
-
-Priority:
-
-P1
-
-Current State:
-
-`raw_metadata` has no size control strategy.
-
-Debt:
-
-- storage growth risk
-- backup cost growth
+> [!IMPORTANT]
+> **Documentation Reality Rule**
+> No documentation may describe planned behavior as implemented behavior, and no documentation may describe implemented behavior as planned behavior. Documentation must always reflect reality.
 
 ---
 
-## ED-003
+## 3. Active Debt Items
 
-Title:
+### Retrieval Subsystem
 
-Always-On Reconciliation Polling
-
-Priority:
-
-P2
-
-Current State:
-
-- polling every 15 seconds regardless of pending-state presence
-
-Debt:
-
-- unnecessary API traffic
+#### ED-001: Application-Memory Lexical Scorer
+* **ID**: ED-001
+* **Status**: Open
+* **Priority**: Critical (P1)
+* **Area**: Retrieval / Search Engine
+* **Current Reality**: Lexical TF-IDF keyword match scoring is calculated dynamically inside Node.js runtime memory within Next.js API route handlers. It retrieves all user saves from the database on every query.
+* **Target Architecture**: [Search-Architecture.md](file:///Users/sahilkishor/stashly/docs/product/Search-Architecture.md#L156-L163) (Target Retrieval Architecture) specifies moving lexical scoring to database-level full-text search indexes (`tsvector` and GIN indices).
+* **Why Debt Exists**: Prioritized fast implementation of hybrid score fusion algorithms over writing Postgres migration scripts.
+* **User/System Impact**: High memory utilization and slow query responses as user saves scale beyond validation sizes.
+* **Proposed Resolution**: Write SQL migrations to construct `tsvector` columns, and rewrite `keywordRetrievalStrategy()` to query database-level indexes.
+* **Exit Criteria**: In-memory tokenization code is deleted, and lexical match queries resolve via SQL queries in $<100\text{ms}$.
 
 ---
 
-## ED-004
+### AI & Grounding Subsystem
 
-Title:
-
-Unstructured Worker Logging
-
-Priority:
-
-P2
-
-Current State:
-
-- metadata and embedding workers log with `console.log()` / `console.error()`
-
-Debt:
-
-- poor queryability
-- weak observability
+#### ED-002: Hardcoded Grounding Citation Heuristics
+* **ID**: ED-002
+* **Status**: Open
+* **Priority**: Critical (P1)
+* **Area**: AI Chat / Grounding
+* **Current Reality**: Programmatic regular expression matching intercepts specific query keywords (e.g. `"kinde"`, `"jeff nippard"`) in `/api/chat/route.ts` to bypass model logic and force citations.
+* **Target Architecture**: [Search-Architecture.md](file:///Users/sahilkishor/stashly/docs/product/Search-Architecture.md#L214-L217) (Evolution Roadmap) specifies replacing hardcoded routing overrides with robust LLM prompt constraints and context-anchored retrieval matching.
+* **Why Debt Exists**: Required immediate developer test overrides to pass test compliance loops during early retrieval validation.
+* **User/System Impact**: Brittle grounding logic that does not adapt to synonyms or unmapped search strings.
+* **Proposed Resolution**: Remove regex intercept routines from `/api/chat/route.ts` and harden LLM system prompt context rules.
+* **Exit Criteria**: Programmatic overrides are removed and AI responses rely entirely on search similarity grounding context.
 
 ---
 
-## ED-005
+### Memory Representation Subsystem
 
-Title:
-
-No Queue Monitoring Dashboard
-
-Priority:
-
-P2
-
-Current State:
-
-- queue visibility is log-only
-
-Debt:
-
-- no queue health view
-- no failed job dashboard
+#### ED-003: Unimplemented User Annotation Operations
+* **ID**: ED-003
+* **Status**: Open
+* **Priority**: High (P2)
+* **Area**: Memory Representation
+* **Current Reality**: The `MemoryV1` schema supports `user_notes` and custom topic/entity tagging arrays, but no API routes or user interfaces exist to write or update these annotations.
+* **Target Architecture**: [Memory-Architecture-V1.md](file:///Users/sahilkishor/stashly/docs/product/Memory-Architecture-V1.md) defines annotations as canonical properties.
+* **Why Debt Exists**: Prioritized automating asynchronous scraping and video transcript vector generation over user configuration panels.
+* **User/System Impact**: Inability for users to manually edit keywords or save personal thoughts alongside references, limiting retrieval accuracy.
+* **Proposed Resolution**: Implement `/api/memories/update` and build edit toggles on the dashboard layout.
+* **Exit Criteria**: User annotations are successfully merged into database representation columns and update search vectors.
 
 ---
 
-## ED-006
-
-Title:
-
-Embedding Storage Lifecycle Undefined
-
-Priority:
-
-P1
-
-Current State:
-
-- embedding worker inserts into `memory_embeddings`
-- no documented replacement, invalidation, or regeneration strategy exists
-
-Debt:
-
-- repeated embedding runs can create duplicate or stale derived artifacts
-- provider/model upgrades lack cleanup strategy
+#### ED-004: Ingestion Pipeline Limitations (URL-Only Capture)
+* **ID**: ED-004
+* **Status**: Open
+* **Priority**: High (P2)
+* **Area**: Ingestion
+* **Current Reality**: Ingestion and scraper adapters are limited to web URLs. File uploads (PDF, text, images) are not implemented.
+* **Target Architecture**: [PRD.md](file:///Users/sahilkishor/stashly/docs/product/PRD.md#L214-L230) (Universal Capture Roadmap) specifies screenshot, file, and PDF text indexing.
+* **Why Debt Exists**: URL parsing was chosen as the minimum necessary surface area to validate background processor loops.
+* **User/System Impact**: Users cannot upload files or documents directly into their memory database.
+* **Proposed Resolution**: Implement file-upload route handlers and integrate OCR scrapers enqueuing to background workers.
+* **Exit Criteria**: Users can upload files via the dashboard and retrieve parsed text representations.
 
 ---
 
-## ED-007
+### Infrastructure Subsystem
 
-Title:
-
-Semantic Retrieval Serving Path Missing
-
-Priority:
-
-P1
-
-Current State:
-
-- embedding infrastructure exists
-- retrieval remains keyword-only
-
-Debt:
-
-- V2 retrieval foundation is present but not query-serving
-- launch-critical retrieval value is still missing
+#### ED-005: Unstructured Logging inside Workers
+* **ID**: ED-005
+* **Status**: Open
+* **Priority**: Medium (P3)
+* **Area**: Infrastructure / Observability
+* **Current Reality**: Background metadata and embedding workers output simple, unstructured text logs using default `console.log` / `console.error` calls.
+* **Target Architecture**: [TRD.md](file:///Users/sahilkishor/stashly/docs/product/TRD.md#L226-L231) (Configuration and Logging) specifies unified structured JSON logging for all workers.
+* **Why Debt Exists**: Operational console streaming was sufficient for early local debugging.
+* **User/System Impact**: Difficult to parse logs, query errors, or monitor operational trends in cloud log aggregates.
+* **Proposed Resolution**: Implement a structured logging module (e.g. Pino, Winston) across API routes and worker nodes.
+* **Exit Criteria**: Standard console logs are replaced with parsed JSON log messages containing execution job contexts.
 
 ---
 
-## ED-008
-
-Title:
-
-Local Embedding Provider Dependency
-
-Priority:
-
-P1
-
-Current State:
-
-- default embedding provider is local Ollama at `http://localhost:11434`
-
-Debt:
-
-- no fallback provider
-- no production provider strategy implemented in runtime
-- local environment dependency can block semantic pipeline validation
-
----
-
-## ED-09
-
-Title:
-
-Unsafe Embedding Persistence Casting
-
-Priority:
-
-P2
-
-Current State:
-
-- embedding worker persists vectors with `as never`
-
-Debt:
-
-- type safety boundary is weak in derived retrieval persistence
-
----
-
-## ED-010
-
-Title:
-
-Unused Chunking Foundation
-
-Priority:
-
-P3
-
-Current State:
-
-- `chunk-builder.ts` exists
-- embedding pipeline currently uses `buildRetrievalDocument()` directly
-
-Debt:
-
-- chunking abstraction is not integrated
-- chunk strategy remains undefined for longer retrieval documents
-
----
-
-## ED-011
-
-Title:
-
-Distributed Worker Scaling Deferred
-
-Priority:
-
-P3
-
-Current State:
-
-- single metadata worker
-- single embedding worker
-
-Debt:
-
-- horizontal scaling architecture is not yet implemented
-
----
-
-## ED-012
-
-Title:
-
-JSON Architecture Parity Drift
-
-Priority:
-
-P3
-
-Status:
-
-Accepted
-
-Current State:
-
-- Markdown architecture documents have been updated
-- JSON companion documents remain out of sync
-
-Affected Files:
-
-- PRD.json
-- Memory-Architecture.json
-- Philosophy.json
-- TRD.json
-
-Debt:
-
-- documentation drift
-- future architecture automation may consume stale JSON definitions
-- markdown and JSON sources no longer represent the same architecture state
-
-Current Decision:
-
-Accepted temporarily.
-
-Markdown documents remain authoritative until parity is restored.
-
-Future Solution:
-
-Perform a repository-wide JSON parity alignment pass.
-
-Update all JSON architecture documents to match their Markdown counterparts.
-
-Review Trigger:
-
-- Codex budget becomes available
-OR
-- architecture automation begins consuming JSON documents
-OR
-- next major architecture review
-
----
-
-# Resolved Debt
-
-The following are no longer active debt:
-
-- platform resolver introduction
-- extractor registry introduction
-- resolver-owned classification
-- Search V1 wiring
-- Memory bootstrap extraction
-- Synchronization V1 foundation
-- memory_embeddings migration alignment
-
----
-
-# Debt Accepted For Current Phase
-
-Currently accepted:
-
-- reconciliation polling
-- console logging
-- single-worker-per-pipeline model
-- no queue dashboard
-- local Ollama dependency for embedding generation
-
-Reason:
-
-The current phase prioritizes retrieval architecture validation over operational polish.
-
----
-
-# Review Questions
-
-Review active debt whenever asking:
-
-1. Is this blocking public launch?
-2. Is this blocking semantic retrieval?
-3. Is this causing environment drift?
-4. Is this increasing operational risk?
-5. Is this weakening Memory or retrieval correctness?
-
----
-
-# Last Updated
-
-After:
-
-- Retrieval V1
-- Synchronization V1
-- Embedding Architecture V1
-
-## Architecture Drift Audit V2
-
-Priority: Medium
-
-Current Limitation:
-- TRD.md dependency validation uses normalized text matching.
-
-Desired State:
-- Section-aware dependency validation.
-- Dependency hierarchy validation.
-- Cross-document dependency graph verification.
-
-Reason:
-- Reduce false positives.
-- Increase trust in audit output.
-
-# Architecture Drift Audit
-
-## V1 Status
-
-Status: COMPLETE
-
-Purpose:
-Detect drift between canonical architecture documents.
-
-Coverage:
-- Memory Architecture V1
-- Memory Architecture JSON
-- TRD
-- TRD JSON
-- Architecture Status
-
-Result:
-- 41 PASS
-- 0 WARNING
-- 0 FAIL
-
-Implemented:
-- File existence validation
-- Architecture hierarchy validation
-- Version consistency validation
-- Status validation
-- Retrieval architecture validation
-
----
-
-## V2 Backlog
-
-Priority: Medium
-
-### Section-Aware Dependency Validation
-
-Current:
-- Dependency checks rely partially on normalized text presence.
-
-Target:
-- Validate dedicated dependency sections structurally.
-
-Reason:
-- Reduce false positives.
-
-### Cross-Document Dependency Graph Validation
-
-Current:
-- Documents are validated individually.
-
-Target:
-- Verify dependency chains across architecture documents.
-
-Example:
-- Memory Architecture → TRD → Architecture Status
-
-Reason:
-- Detect architectural drift across documents.
-
-### Architecture Hierarchy Validation
-
-Current:
-- Basic hierarchy checks exist.
-
-Target:
-- Enforce the complete architecture dependency graph automatically.
-
-Reason:
-- Prevent future synchronization drift.
-
-# Schema Audit V2
-
-Status: DESIGN APPROVED
-
-## Future Improvements:
-
-- RLS policy validation
-- Function validation
-- Trigger validation
-- Extraneous table detection
-- Auto-remediation suggestions
-- CI enforcement
-
-## SECURITY-001: Missing Security Audit Layer
-
-Status: Open
-Severity: Medium
-Discovered: 2026-06-11
-
-Context:
-Supabase Security Advisor flagged `memory_representations` because RLS was not enabled.
-
-Root Cause:
-The governance system evolved around:
-- Architecture Audits
-- Runtime Alignment
-- Schema Alignment
-- Technical Debt Tracking
-
-but did not include a dedicated Security Audit layer.
-
-Impact:
-No active vulnerability was present because:
-- Retrieval is not live
-- memory_representations is empty
-
-However, future Memory V1 data (topics, entities, insights, summaries) is sensitive user data and must be protected by ownership policies.
-
-Resolution:
-- Enable RLS on memory_representations
-- Enable RLS on memory_embeddings
-- Add Security Audit checklist to repository governance
-
-Lesson:
-Architecture drift is not the only drift category. Security drift must also be monitored.
-
-### DEBT-014: Missing RLS on Memory Tables
-
-Status: Resolved
-
-Date Resolved: 2026-06-11
-
-Issue
-
-The Memory Architecture introduced two new canonical tables:
-
-- memory_representations
-- memory_embeddings
-
-Both tables were created successfully and functioned correctly.
-
-However, Row Level Security (RLS) was never enabled on either table.
-
-As a result, the implementation drifted from the project's documented security architecture.
-
-Discovery
-
-The issue was discovered during founder documentation consolidation while reviewing Supabase Security Advisor warnings.
-
-The repository audit process did not detect the issue because existing audits focused on:
-
-- architecture alignment
-- schema alignment
-- runtime alignment
-
-but did not include a security advisor review step.
-
-Impact
-
-No user-facing failures occurred.
-
-However:
-
-- database security posture diverged from architecture expectations
-- future environments recreated from incomplete migrations would inherit the issue
-- the architecture repository no longer fully represented production reality
-
-Resolution
-
-Created Migration 008:
-
-008_enable_rls_on_memory_tables.sql
-
-The migration:
-
-- enabled RLS on memory_representations
-- enabled RLS on memory_embeddings
-- added ownership-based SELECT policies
-
-The migration was applied successfully to production and committed to source control.
-
-Lessons
-
-1. Repository audits alone are insufficient.
-2. Security Advisor reviews must be included in audit procedures.
-3. Production fixes must always be backported into migrations.
-4. New tables should never be considered complete until:
-   - RLS is enabled
-   - policies exist
-   - Security Advisor passes review
-
-Preventive Action
-
-Add Security Advisor verification to future repository audit checklists.
+#### ED-006: Missing Queue Analytics Dashboard
+* **ID**: ED-006
+* **Status**: Open
+* **Priority**: Medium (P3)
+* **Area**: Infrastructure
+* **Current Reality**: Processing queue visibility (BullMQ job lists) is log-only, requiring manual command queries to monitor stalled jobs.
+* **Target Architecture**: [TRD.md](file:///Users/sahilkishor/stashly/docs/product/TRD.md#L197-L203) (Queue Architecture) specifies real-time queue health monitoring dashboards.
+* **Why Debt Exists**: Priority was locked on pipeline execution success rather than management dashboards.
+* **User/System Impact**: Engineers cannot visually inspect failed, active, or delayed jobs, slowing operational incident resolution.
+* **Proposed Resolution**: Integrate a lightweight, secure queue monitoring dashboard (e.g. Bull Board) behind authenticated paths.
+* **Exit Criteria**: Visual queue diagnostic metrics are accessible at `/admin/queues`.

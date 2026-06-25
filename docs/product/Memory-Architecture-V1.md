@@ -1,530 +1,323 @@
 # Memory Architecture V1
 
-Status: LOCKED  
-Version: 1.0  
-Last Updated: 2026-06-01
-Purpose: Target Memory Representation Architecture
+**Status**: ACTIVE  
+**Version**: 1.0  
+**Pipeline Version**: v2  
+**Authority**: Ingestion and Memory Representation Lifecycle  
+**Last Updated**: 2026-06-25  
 
 ---
 
-# Purpose
-
-This document defines the canonical structure of a Memory inside Stashly.
-
-The goal is not to store links.
-
-The goal is to create durable, searchable, platform-independent knowledge representations that remain useful even when source platforms change.
-
-This architecture serves as the foundation for:
-
-- Semantic Retrieval
-- Hybrid Retrieval
-- AI Recall
-- Memory Chat
-- Cross-Memory Synthesis
-- Future Intelligence Features
-
----
-
-# Core Principle
-
-A Memory is not the original content.
-
-A Memory is a structured representation of knowledge extracted from content.
-
-The original content remains the source of truth.
-
-The representation becomes the retrieval and intelligence layer.
+## Table of Contents
+1. [Why MemoryV1 Exists](#why-memoryv1-exists)
+2. [The Memory Contract](#the-memory-contract)
+3. [Universal Knowledge Ingestion](#universal-knowledge-ingestion)
+4. [Design Principles](#design-principles)
+5. [MemoryV1 Schema & Layers](#memoryv1-schema--layers)
+6. [Database Model](#database-model)
+7. [Canonical vs Derived Data](#canonical-vs-derived-data)
+8. [MemoryV1 as the System Boundary](#memoryv1-as-the-system-boundary)
+9. [Pipeline Lifecycle](#pipeline-lifecycle)
+10. [Pipeline Versioning](#pipeline-versioning)
+11. [Embedding Contract](#embedding-contract)
+12. [Recovery & Maintenance](#recovery--maintenance)
+13. [Search & Chat Relationship](#search--chat-relationship)
+14. [Evolution Path](#evolution-path)
+15. [Architectural Principle](#architectural-principle)
 
 ---
 
-# Memory Layers
+## Why MemoryV1 Exists
 
-Every memory consists of five logical layers.
+In Stashly, a saved item is not treated simply as a link or title bookmark. Source platforms are volatile: links break, layouts change, access disappears, and metadata shifts over time.
 
-```text
-Memory
-│
-├── Raw Source Layer
-├── Extracted Content Layer
-├── Understanding Layer
-├── User Layer
-└── Retrieval Layer
+`MemoryV1` exists to give every saved item a durable, platform-independent **Canonical Representation**. By normalizing raw inputs into one structured memory document, Stashly preserves the user's saved knowledge in a form that remains stable even when source platforms do not.
+
+This architecture serves four purposes:
+
+* **Durable Knowledge Retention**: Stored knowledge remains useful even if the source changes or disappears.
+* **Platform Independence**: Downstream systems operate on one representation rather than many source-specific formats.
+* **Retrieval Readiness**: Memory is structured so retrieval can operate consistently across all content types.
+* **Grounded AI Readiness**: Memory can be safely supplied to downstream reasoning without depending on raw source payloads.
+
+---
+
+## The Memory Contract
+
+Every supported input source must satisfy the same lifecycle. Raw inputs move through capture, normalization, understanding, representation, retrieval preparation, and downstream reasoning.
+
+```mermaid
+graph TD
+    Capture[Capture] --> Normalize[Normalize]
+    Normalize --> Understand[Understand]
+    Understand --> Represent[Represent]
+    Represent --> Retrieve[Retrieve]
+    Retrieve --> Reason[Reason]
 ```
 
----
-
-# Layer 1: Raw Source Layer
-
-Purpose:
-
-Preserve the original source information exactly as received.
-
-This layer is never modified.
-
-## Example Fields
-
-```json
-{
-  "original_input": "",
-  "canonical_url": "",
-  "source_platform": "",
-  "saved_at": "",
-  "creator_name": ""
-}
-```
-
-## Responsibilities
-
-- Maintain source provenance
-- Preserve original URLs
-- Support future re-processing
-- Enable debugging and recovery
+### Stages of the Contract
+* **Capture**: Accept the user's save intent and preserve the original input.
+* **Normalize**: Resolve source-specific material into a uniform memory structure.
+* **Understand**: Extract useful structure and meaning without changing the user's saved truth.
+* **Represent**: Persist the Canonical Representation as the durable memory record.
+* **Retrieve**: Prepare Derived Data used by retrieval systems.
+* **Reason**: Supply retrieved memory context to downstream reasoning systems.
 
 ---
 
-# Layer 2: Extracted Content Layer
+## Universal Knowledge Ingestion
 
-Purpose:
+Stashly is designed as a Universal AI Memory OS. Regardless of origin, every supported input is normalized into one canonical Memory representation:
 
-Capture as much information as possible from the source.
-
-This layer is platform-specific.
-
-## Examples
-
-### YouTube
-
-```json
-{
-  "title": "",
-  "description": "",
-  "transcript": "",
-  "creator_name": ""
-}
+```mermaid
+graph TD
+    YouTube[YouTube] --> MemoryV1[MemoryV1 Representation]
+    GitHub[GitHub] --> MemoryV1
+    Instagram[Instagram] --> MemoryV1
+    PDF[PDF] --> MemoryV1
+    Image[Image] --> MemoryV1
+    Voice[Voice Note] --> MemoryV1
+    Email[Email] --> MemoryV1
+    Calendar[Calendar] --> MemoryV1
+    API[API] --> MemoryV1
+    MemoryV1 --> Downstream[Downstream Systems]
 ```
 
-### Instagram Reel
+Every adapter has one architectural job: convert source-specific inputs into the Canonical Representation. Search, Context Builder, and downstream reasoning should not need to know where a memory came from.
 
-```json
-{
-  "caption": "",
-  "transcript": "",
-  "ocr_text": "",
-  "creator_name": ""
-}
-```
-
-### Article
-
-```json
-{
-  "title": "",
-  "article_text": "",
-  "author": ""
-}
-```
-
-### PDF
-
-```json
-{
-  "document_text": "",
-  "page_count": 0
-}
-```
-
-## Responsibilities
-
-- Preserve maximum information
-- Support future AI processing
-- Enable future re-indexing
-- Avoid information loss
+> [!NOTE]
+> **Current Implementation Note**
+> Active adapters currently focus on URL-first inputs, including video pages, repositories, and general web documents.
 
 ---
 
-# Layer 3: Understanding Layer
+## Design Principles
 
-Purpose:
+The Memory layer follows these architectural principles:
 
-Convert extracted content into platform-independent knowledge.
+* **Universal Ingestion**: Any supported digital artifact should be representable inside the memory system.
+* **Platform Independence**: Knowledge must be represented uniformly regardless of source origin.
+* **Canonical Representation**: Every supported source becomes exactly one durable Memory representation.
+* **Deterministic Schema**: Memory structure must remain explicit, versioned, and predictable.
+* **Source Preservation**: Original input and raw source metadata are preserved for traceability and recovery.
+* **Retrieval Readiness**: Memory must be structured so retrieval can derive useful search artifacts from it.
+* **Recoverability**: Derived Data must be fully rebuildable from Canonical Representation.
+* **Versioned Evolution**: Schema and pipeline evolution must be explicit and traceable.
+* **AI as Enhancement, Not Truth**: AI may enrich memory, but it must not replace canonical memory truth.
 
-This layer becomes one of Stashly's primary long-term moats.
+---
 
-Even if platform extraction breaks later, stored understanding remains usable.
+## MemoryV1 Schema & Layers
 
-## Example Fields
+The `MemoryV1` schema maps to the TypeScript definition declared in [types.ts](/Users/sahilkishor/stashly/src/lib/memory-v1/types.ts). Each layer exists to serve a distinct architectural purpose:
 
-```json
-{
-  "summary": "",
-  "topics": [],
-  "entities": [],
-  "key_insights": [],
-  "intent": "",
-  "content_type": ""
-}
+### 1. Metadata Layer (`metadata`)
+* **Layer Purpose**: Establishes source identity, provenance, and ingestion facts.
+* **Guarantee**: This layer tells the system what the memory is and where it came from.
+
+### 2. Transcript Layer (`transcript`)
+* **Layer Purpose**: Holds extracted text and the segmentation basis used to derive retrieval artifacts.
+* **Guarantee**: This layer preserves the primary textual body needed for retrieval and grounding.
+
+### 3. Visual Layer (`visual`)
+* **Layer Purpose**: Holds image-derived text and visual understanding when available.
+* **Guarantee**: This layer reserves space for non-textual content without changing the Canonical Representation model.
+
+### 4. Knowledge Layer (`knowledge`)
+* **Layer Purpose**: Holds structured semantic takeaways derived from the source.
+* **Guarantee**: This layer enriches memory for retrieval and reasoning without replacing the source-derived record.
+
+### 5. User Layer (`user`)
+* **Layer Purpose**: Holds explicit user-authored annotations.
+* **Guarantee**: User-authored memory additions remain distinct from system-derived enrichment.
+
+### 6. Retrieval Layer (`retrieval`)
+* **Layer Purpose**: Holds deterministic retrieval-oriented text derived from the memory.
+* **Guarantee**: Retrieval preparation lives close to memory while remaining derived from it.
+
+> [!NOTE]
+> **Current Implementation Note**
+> The current schema stores source metadata, extracted text, structured knowledge signals, user notes, and retrieval-oriented summary fields inside the `MemoryV1` document.
+
+---
+
+## Database Model
+
+Stashly separates capture records, Canonical Representation, and Derived Data into distinct storage responsibilities:
+
+1. **`saves` Table**:
+   * **Responsibility**: Holds the canonical list of saved items, ownership, processing state, and pipeline version.
+2. **`memory_representations` Table**:
+   * **Responsibility**: Stores the serialized `MemoryV1` Canonical Representation.
+3. **`memory_embeddings` Table**:
+   * **Responsibility**: Stores Derived Data used for semantic retrieval.
+
+### Separation Rationale
+The memory record is durable and user-meaningful. Retrieval artifacts are disposable and machine-oriented. Separating them ensures retrieval can evolve without redefining memory truth.
+
+> [!NOTE]
+> **Current Implementation Note**
+> The current persistence model stores `MemoryV1` as JSONB and stores semantic retrieval vectors separately from the canonical record.
+
+---
+
+## Canonical vs Derived Data
+
+Stashly makes a strict distinction between **Canonical Representation** and **Derived Data**:
+
+* **Canonical Data**: User saves and `MemoryV1` representations.
+* **Derived Data**: Embeddings, lexical indexes, retrieval caches, temporary context structures, and any other search-oriented artifacts derived from memory.
+
+```mermaid
+graph TD
+    Save[Saves Table] -->|Authoritative Row| Rep[memory_representations]
+    Rep -->|Canonical Representation| MemV1[MemoryV1]
+    MemV1 -->|Regenerate retrieval artifacts| Derived[Derived Data]
 ```
 
-## Example
+### Recovery Philosophy
+All Derived Data is disposable. If all retrieval artifacts are lost, Stashly can rebuild them from the Canonical Representation without reinterpreting the user's saved truth.
 
-Raw Content:
+---
 
-```text
-3 mistakes beginners make while investing
+## MemoryV1 as the System Boundary
+
+`MemoryV1` forms the boundary between source-specific ingestion and downstream platform-independent systems.
+
+```mermaid
+graph TD
+    subgraph Ingestion Layer
+        Source[Source Adapters] --> Resolver[Normalization Layer]
+    end
+
+    Resolver -->|Canonical Representation| Boundary[MemoryV1 System Boundary]
+
+    subgraph Downstream Application Layer
+        Boundary --> Retrieval[Retrieval Engine]
+        Boundary --> Context[Context Builder]
+        Boundary --> Reasoning[Reasoning Engine]
+    end
 ```
 
-Understanding:
+Platform-specific logic ends at `MemoryV1`. Every system beyond this boundary operates only on the Canonical Representation.
 
-```json
-{
-  "summary": "Common beginner investing mistakes involving emotional decisions, lack of diversification, and poor risk management.",
-  "topics": [
-    "investing",
-    "finance",
-    "risk management"
-  ],
-  "entities": [
-    "diversification",
-    "index funds",
-    "asset allocation"
-  ],
-  "key_insights": [
-    "Emotional investing often reduces long-term returns",
-    "Diversification lowers concentration risk",
-    "Risk management matters more than stock picking"
-  ]
-}
+---
+
+## Pipeline Lifecycle
+
+The lifecycle of a memory is split into three phases:
+
+### 1. Ingestion & Storage
+```mermaid
+graph TD
+    Save[User Save] --> Capture[Capture Request]
+    Capture --> SavesDB[(saves)]
+    SavesDB --> Process[Processing Pipeline]
+    Process --> RepresentationDB[(memory_representations)]
+    RepresentationDB --> Status[Completed Memory]
 ```
 
-## Responsibilities
-
-- Platform-independent representation
-- Knowledge extraction
-- Search optimization
-- Future AI Recall support
-- Cross-platform memory durability
-
----
-
-# Layer 4: User Layer
-
-Purpose:
-
-Store knowledge added by the user.
-
-User-generated information is treated as highly valuable.
-
-## Example Fields
-
-```json
-{
-  "notes": "",
-  "tags": [],
-  "collections": []
-}
+### 2. Retrieval Preparation
+```mermaid
+graph TD
+    RepresentationDB[(memory_representations)] --> Prepare[Prepare Derived Data]
+    Prepare --> Embeddings[(memory_embeddings)]
 ```
 
-## Responsibilities
-
-- User annotations
-- Personal context
-- Organization
-- Collection membership
-
-## Rule
-
-AI systems must never overwrite user-created information.
-
-User-created notes are considered part of the memory representation and participate in retrieval.
-
----
-
-# Layer 5: Retrieval Layer
-
-Purpose:
-
-Generate embeddings and retrieval representations.
-
-This layer is derived from all previous layers.
-
-It is not manually authored.
-
-## Generation Flow
-
-```text
-Raw Layer
-+
-Extracted Content Layer
-+
-Understanding Layer
-+
-User Layer
-
-↓
-
-Retrieval Document
-
-↓
-
-Embedding Generation
-
-↓
-
-Semantic Retrieval
+### 3. Maintenance & Downstream Consumption
+```mermaid
+graph TD
+    RepresentationDB[(memory_representations)] --> Retrieval[Retrieval Engine]
+    Embeddings[(memory_embeddings)] --> Retrieval
+    Retrieval --> Context[Context Builder]
+    Context --> Reasoning[Reasoning Engine]
+    Audit[Audit & Recovery Tooling] --> RepresentationDB
+    Audit --> Embeddings
 ```
 
+> [!NOTE]
+> **Current Implementation Note**
+> The current pipeline persists a save record, builds `MemoryV1` asynchronously, then generates embedding records in a follow-up background step.
+
 ---
 
-# Retrieval Document V1
+## Pipeline Versioning
 
-The retrieval document is the canonical text used for semantic embeddings.
+Representation and processing layers use explicit pipeline versioning so the system can track which memories were produced under which contract.
 
-## Structure
+* **Purpose**: Detect out-of-date memories and enable deterministic reprocessing.
+* **Reprocessing**: Older records can be re-run through the current pipeline contract.
+* **Backfills**: Reprocessing updates the Canonical Representation and regenerates Derived Data when required.
 
-```text
-TITLE
+> [!NOTE]
+> **Current Implementation Note**
+> The current codebase tracks pipeline version explicitly and uses background jobs to reprocess outdated records.
 
-SUMMARY
+---
 
-TOPICS
+## Embedding Contract
 
-ENTITIES
+The embedding contract defines how semantic retrieval artifacts relate to canonical memory:
 
-KEY INSIGHTS
+1. **Vector Target**: Embeddings are generated from retrieval-oriented text segments derived from memory.
+2. **Out of Scope**: The embedding layer does not redefine the Canonical Representation.
+3. **Architectural Role**: Embeddings exist only to support retrieval and can always be replaced or regenerated.
 
-CREATOR
+> [!NOTE]
+> **Current Implementation Note**
+> The current embedding pipeline vectorizes transcript-derived chunks and stores those vectors separately from the `MemoryV1` document.
 
-USER NOTES
+---
+
+## Recovery & Maintenance
+
+To maintain corpus integrity, Stashly uses recovery and audit tooling:
+
+* **Audit Tooling**: Verifies representation coverage, pipeline version alignment, and missing Derived Data.
+* **Requeue Tooling**: Re-enqueues work required to restore missing retrieval artifacts.
+
+> [!NOTE]
+> **Current Implementation Note**
+> Current administrative scripts include [audit-corpus.ts](/Users/sahilkishor/stashly/scripts/audit-corpus.ts) and [requeue-missing-embeddings.ts](/Users/sahilkishor/stashly/scripts/requeue-missing-embeddings.ts).
+
+---
+
+## Search & Chat Relationship
+
+`MemoryV1` is the source of truth for both retrieval and grounded reasoning, but this document does not define how those systems rank or answer queries. Those responsibilities belong to [Search-Architecture.md](/Users/sahilkishor/stashly/docs/product/Search-Architecture.md).
+
+```mermaid
+graph TD
+    Mem[MemoryV1 Canonical Representation] --> Retrieval[Retrieval Engine]
+    Retrieval --> Context[Context Builder]
+    Context --> Reasoning[Reasoning Engine]
 ```
 
-## Example
-
-```text
-How To Lose Fat Without Losing Muscle
-
-Summary:
-Explains maintaining muscle during calorie deficit through protein intake and resistance training.
-
-Topics:
-fitness
-nutrition
-fat loss
-
-Entities:
-protein
-hypertrophy
-calorie deficit
-
-Key Insights:
-Protein preserves muscle during calorie deficits.
-Resistance training reduces muscle loss.
-
-Creator:
-Jeff Nippard
-
-User Notes:
-Use during cutting phase.
-```
+Memory Architecture defines what these downstream systems receive. Search Architecture defines how they use it.
 
 ---
 
-# What Gets Embedded
+## Evolution Path
 
-## Included
+`MemoryV1` is the baseline memory contract. Future evolution should deepen representation without weakening its guarantees:
 
-- Title
-- Summary
-- Topics
-- Entities
-- Key Insights
-- Creator
-- User Notes
+### Current Architecture
+* URL-first memory normalization into `MemoryV1`.
+* Derived retrieval artifacts built from Canonical Representation.
+* Grounded downstream systems consuming memory through retrieval.
 
----
-
-# What Does Not Get Embedded
-
-## Stored But Not Embedded
-
-- Full transcripts
-- OCR text
-- Raw metadata
-- Full descriptions
-- Raw extraction payloads
-
-Reason:
-
-These fields are often noisy, excessively large, and reduce retrieval quality.
-
-They remain available for future retrieval systems and AI Recall.
+### Future Architectural Extensions
+* Broader input coverage through additional adapters.
+* Richer non-textual memory understanding.
+* Stronger user-authored memory customization.
 
 ---
 
-# Retrieval Philosophy
-
-Stashly optimizes for both:
-
-## Content Discovery
-
-Example:
-
-```text
-Find the recipe video I saved last month.
-```
-
-## Knowledge Recall
-
-Example:
-
-```text
-Show me everything I saved about muscle growth.
-```
-
-Both goals are first-class requirements.
-
-However:
-
-```text
-Discovery > Precision
-```
-
-When conflicts occur, the system should favor discovery.
-
-## Rationale
-
-The primary goal of Stashly is not simply to retrieve saved content.
-
-The primary goal is to surface valuable knowledge the user may have forgotten exists.
-
-Discovery-first retrieval better supports:
-
-- Long-term memory augmentation
-- AI Recall
-- Cross-memory synthesis
-- Future intelligence systems
-
----
-
-# Future Versions
-
-## V2
-
-Transcript-aware retrieval.
-
-## V3
-
-OCR-aware retrieval.
-
-## V4
-
-Visual understanding.
-
-Example:
-
-```text
-Person cooking homemade pasta.
-Kitchen.
-Tomatoes.
-Parmesan.
-```
-
-## V5
-
-AI Recall.
-
-Example:
-
-```text
-Show me everything I saved related to homemade cooking.
-```
-
-Across:
-
-- YouTube
-- Instagram
-- Articles
-- PDFs
-- User Notes
-
----
-
-# Known Weaknesses of V1
-
-These limitations are accepted intentionally to maximize execution speed and reduce complexity.
-
-## Transcript Blindness
-
-V1 ignores transcripts during embedding generation.
-
-Some valuable information will not be discoverable semantically.
-
-Mitigation:
-
-Transcripts remain stored for future re-indexing.
-
----
-
-## OCR Blindness
-
-Text present inside images is not included in retrieval.
-
-Mitigation:
-
-OCR storage remains available for future retrieval upgrades.
-
----
-
-## No Visual Understanding
-
-Images and videos are represented through extracted text only.
-
-Mitigation:
-
-Visual understanding is planned for future architecture versions.
-
----
-
-## Single Memory Representation
-
-Memories are retrieved independently.
-
-Relationships between memories are not yet modeled.
-
-Mitigation:
-
-Knowledge graph architecture remains a future initiative.
-
----
-
-# Architectural Decisions
-
-## Locked
-
-- Five-layer memory architecture
-- Retrieval document abstraction
-- Platform-independent understanding layer
-- User-owned knowledge layer
-- Discovery-first retrieval philosophy
-- Key insights as a retrieval primitive
-- User notes participate in retrieval
-- Retrieval layer is derived, not authored
-
-## Not Yet Locked
-
-- Transcript processing strategy
-- OCR processing strategy
-- Visual understanding strategy
-- Knowledge graph architecture
-- Multimodal embedding strategy
-- AI-generated memory synthesis architecture
-
----
-
-# Guiding Principle
-
-The goal is not to build a better bookmark manager.
-
-The goal is to build a Memory Operating System.
-
-Every future architecture decision should be evaluated against that objective.
+## Architectural Principle
+
+The following rules must always remain true:
+* Every saved item eventually becomes exactly one `MemoryV1` representation.
+* `MemoryV1` is the Canonical Representation of saved knowledge.
+* Derived Data may be regenerated, replaced, or discarded without redefining memory truth.
+* Platform-specific logic must terminate before the memory boundary.
+* Downstream systems must consume memory through the Canonical Representation rather than through source-specific formats.

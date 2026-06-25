@@ -12,9 +12,9 @@ Stashly is not a bookmark manager.
 
 Stashly is a Universal AI Memory OS.
 
-The system exists to reduce the user’s remembering burden.
+The system exists to reduce the user's remembering burden.
 
-Bookmark management is only a small subset of the long-term product.
+Bookmark management is only a small subset of the broader product category.
 
 ---
 
@@ -22,7 +22,7 @@ Mission
 
 Users should be able to:
 
-Save → Forget → Retrieve
+Save -> Forget -> Retrieve
 
 without needing to manually organize information.
 
@@ -43,11 +43,11 @@ Product Promise
 
 Primary promise:
 
-“Save once. Recover later.”
+"Save once. Recover later."
 
 Expanded promise:
 
-“Your digital life should remember itself.”
+"Your digital life should remember itself."
 
 ---
 
@@ -100,12 +100,11 @@ Memory remains canonical.
 
 Derived systems may evolve aggressively:
 
-- search
-- semantic retrieval
-- hybrid retrieval
-- AI retrieval
+- retrieval
 - rediscovery
-- embeddings
+- contextual reasoning
+- search indexing
+- derived representations
 
 But none of those systems may become the source of truth for what the user saved.
 
@@ -140,39 +139,27 @@ Retrieval explanations must remain transparent and grounded.
 
 Bad:
 
-“You saved this during exam season.”
+"You saved this during exam season."
 
 Good:
 
-“Saved on March 14. Similar to other startup-related items you saved.”
+"Saved on March 14. Similar to other startup-related items you saved."
 
 ---
 
-Current Product Philosophy
+Product Expression Principle
 
-The current application is a validation environment.
+Stashly reaches full product expression through intent-based retrieval and grounded AI assistance.
 
-The UI exists primarily to validate:
-
-- Memory architecture
-- asynchronous enrichment
-- synchronization
-- Retrieval V1
-- embedding architecture foundations
-
-The current UI is not the final product experience.
-
-Final product expression should arrive with AI-powered retrieval, not before.
+Capture and storage matter only insofar as they make later recovery trustworthy and effortless.
 
 ---
 
 Launch Principle
 
-Stashly should not be publicly launched until AI-powered retrieval exists.
+Stashly should be judged by whether users can recover value by intent, not by whether they can merely store links.
 
-Keyword search alone is not the product promise.
-
-It is only a validation milestone on the path to intent-based recovery.
+Keyword lookup alone is not the product promise.
 
 ---
 
@@ -195,7 +182,7 @@ Users should not feel:
 
 Desired user thought:
 
-“Stashly will remember this for me.”
+"Stashly will remember this for me."
 
 ---
 

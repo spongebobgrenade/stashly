@@ -1,11 +1,11 @@
 # Stashly Memory Architecture
 
-> Version: 2.0
-> Status: SUPERSEDED
-> Layer: Product Architecture
-> Hierarchy: Philosophy -> PRD -> Memory Architecture -> TRD -> Implementation
-> Purpose: Current Runtime Memory Architecture
+Status: ARCHIVED
+Superseded By:
+docs/product/Memory-Architecture-V1.md
 
+Do not edit.
+Retained for historical reference only.
 ---
 
 # 1. Purpose

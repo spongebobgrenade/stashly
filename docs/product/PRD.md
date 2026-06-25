@@ -1,353 +1,234 @@
-# Stashly PRD
+# Stashly Product Requirements Document (PRD)
 
-> Version: 5.0
-> Status: Active
-> Phase: Pre-Launch Retrieval Foundation
-> Classification: Internal
-
----
-
-# 1. Executive Summary
-
-Stashly is a Universal AI Memory OS.
-
-The product exists to reduce remembering burden by letting users save information once, forget it safely, and recover it later through retrieval systems that increasingly understand intent rather than exact storage details.
-
-Current repository focus:
-
-- validate canonical Memory architecture
-- validate asynchronous capture and enrichment
-- validate synchronization reliability
-- validate Retrieval V1
-- lay the foundation for semantic and AI retrieval
-
-Stashly is not being publicly launched yet.
-
-Public launch requires AI-powered retrieval, not just storage and keyword search.
+**Status**: ACTIVE  
+**Version**: 6.0  
+**Authority**: Product Vision and Scope Definition  
+**Last Updated**: 2026-06-25
 
 ---
 
-# 2. Product Positioning
-
-## What Stashly Is
-
-Stashly is:
-
-- a Universal AI Memory OS
-- a personal memory layer for a user’s digital life
-- a retrieval-first system
-- an asynchronous enrichment system
-- a foundation for semantic and AI retrieval
-
-Core positioning statement:
-
-> Users should not need to remember where they saved something. Users should only need to remember intent.
-
-## What Stashly Is Not
-
-Stashly is not:
-
-- a bookmark manager
-- a read-later tool
-- a folder-based archive
-- a manual organization workspace
-- a dashboard product in its final form
-
-Bookmark management is only a small subset of the long-term product surface.
+## Table of Contents
+1. [Vision](#vision)
+2. [Product Mission](#product-mission)
+3. [Product Principles](#product-principles)
+4. [Product Scope](#product-scope)
+5. [Core Product Capabilities](#core-product-capabilities)
+6. [Product Workflow](#product-workflow)
+7. [User Personas](#user-personas)
+8. [Primary User Jobs](#primary-user-jobs)
+9. [Functional Requirements](#functional-requirements)
+10. [Non-Functional Requirements](#non-functional-requirements)
+11. [Current Product State](#current-product-state)
+12. [Product Roadmap](#product-roadmap)
+13. [Success Metrics](#success-metrics)
+14. [Product Boundaries](#product-boundaries)
+15. [Guiding Product Principles](#guiding-product-principles)
 
 ---
 
-# 3. Current Product State
+## Vision
 
-The current UI is a validation environment.
-
-Its job is to prove:
-
-- Memory creation works
-- asynchronous enrichment works
-- synchronization works
-- Retrieval V1 works
-- embedding generation works
-- future retrieval systems can be layered onto canonical Memory
-
-The current UI is not the final product expression.
-
-It is intentionally simple because the current priority is validating architecture and retrieval foundations.
+Stashly’s vision is to build a Universal AI Memory OS that reduces the human cognitive burden of remembering. A user's digital life should remember itself. Stashly exists to bridge information capture with trustworthy recovery so people can focus on learning, creating, and deciding rather than manually organizing.
 
 ---
 
-# 4. Product Promise
+## Product Mission
 
-Primary promise:
+Modern digital life is fragmented across many platforms. Users save articles, repositories, videos, documents, and ideas in disconnected places, then later struggle to remember where something was saved or what it was called.
 
-> Save once. Recover later without remembering storage details.
+Stashly solves this fragmentation by turning saved information into one memory system and making it recoverable by intent. Users should be able to save once, forget safely, and retrieve later without administrative effort.
 
-Expanded promise:
+The representation contract for saved knowledge is defined in [Memory-Architecture-V1.md](/Users/sahilkishor/stashly/docs/product/Memory-Architecture-V1.md). The retrieval behavior that turns saved knowledge back into answers is defined in [Search-Architecture.md](/Users/sahilkishor/stashly/docs/product/Search-Architecture.md).
 
-> The system remembers your digital life so you do not have to.
+---
 
-Primary user loop:
+## Product Principles
 
-```text
-See something valuable
-→ Save it to Stashly
-→ Forget naturally
-→ Retrieve by intent later
-→ Trust increases
+Derived from [Philosophy.md](/Users/sahilkishor/stashly/docs/product/Philosophy.md), the following principles govern Stashly's product behavior:
+
+* **Retrieval is the Primary Value**: Product success is measured by whether users can recover what matters.
+* **Zero Organizational Burden**: Users should not need to maintain folders, tags, or manual classification just to recover saved value later.
+* **Canonical Memory, Disposable Retrieval Artifacts**: The user's saved memory remains authoritative even as retrieval methods improve.
+* **Grounded Trust**: AI-assisted features must remain bounded by retrieved user memory.
+
+---
+
+## Product Scope
+
+Stashly maintains a strict boundary defining its role in the user's stack:
+
+### What Stashly IS
+* A personal AI-powered memory layer.
+* A system for capturing and normalizing saved information.
+* An intent-based retrieval experience over the user's own corpus.
+* A grounded reasoning companion for saved knowledge.
+
+### What Stashly IS NOT
+* **Not a Bookmark Manager**: Manual organization is not the primary interaction model.
+* **Not a Note-Taking Application**: Stashly may preserve notes, but it does not exist to replace rich authoring tools.
+* **Not Cloud Storage**: It is a memory system, not a general-purpose file store.
+* **Not a Generic Search Engine**: It searches the user's approved memory corpus, not the public web.
+
+---
+
+## Core Product Capabilities
+
+Stashly's product capability model comprises the following core pillars:
+
+### 1. Universal Capture
+* *Purpose*: Let users save information with minimal interruption.
+* *User Value*: Capture should feel immediate and low-friction.
+* *Current Status*: Operational for URL-first capture.
+
+### 2. Normalization & Memory Composition
+* *Purpose*: Turn heterogeneous inputs into one consistent memory system.
+* *User Value*: Saved information feels unified regardless of where it came from.
+* *Current Status*: Operational for supported source types. Architectural details live in the Memory Architecture.
+
+### 3. Hybrid Search & Retrieval
+* *Purpose*: Recover the right memories from vague, partial, or exact user intent.
+* *User Value*: Users can find what they saved without remembering titles, folders, or platforms.
+* *Current Status*: Operational. Retrieval details live in the Search Architecture.
+
+### 4. Grounded AI Chat
+* *Purpose*: Let users ask questions against their saved knowledge.
+* *User Value*: Users can get synthesized, memory-grounded help instead of manually piecing together many saved items.
+* *Current Status*: Operational with grounded-memory constraints.
+
+### 5. Corpus Diagnostics & Auditing
+* *Purpose*: Preserve retrieval quality and memory recoverability over time.
+* *User Value*: Saved knowledge remains dependable even when derived retrieval artifacts need repair or regeneration.
+* *Current Status*: Operational as an internal maintenance capability.
+
+---
+
+## Product Workflow
+
+The product workflow is designed around the lifecycle of a user's memory:
+
+```mermaid
+graph TD
+    Capture[User Capture] --> Processing[Memory Normalization]
+    Processing --> Representation[Canonical Representation]
+    Representation --> Retrieval[Intent-Based Retrieval]
+    Retrieval --> Grounding[Context Construction]
+    Grounding --> AI[Grounded AI Interaction & Rediscovery]
 ```
 
 ---
 
-# 5. Locked Product Principles
+## User Personas
 
-- Retrieval quality is the primary product value.
-- Memory remains canonical.
-- Heavy processing remains asynchronous.
-- Backend owns business logic.
-- Users should not manage manual organization.
-- UI may evolve quickly while architecture remains stable.
-- Derived retrieval systems must never become the source of truth.
-- Build systems in their final architectural shape, with minimum necessary surface area now.
+Stashly is built for individuals managing dense streams of professional and personal information:
+
+* **Knowledge Workers**: Need to recover references without interrupting deep work.
+* **Developers**: Need to surface saved repositories, documentation, issues, or patterns later.
+* **Researchers & Students**: Need to recover sources, evidence, and quotes across many saved materials.
+* **Founders & Creators**: Need a durable memory layer for inspiration, plans, and long-running ideas.
 
 ---
 
-# 6. Current Implemented Scope
+## Primary User Jobs
 
-## Capture and Memory Flow
-
-Implemented:
-
-- Google authentication
-- URL saving
-- optimistic save confirmation
-- async metadata enrichment
-- canonical Memory persistence in `saves`
-- realtime plus reconciliation synchronization
-
-## Retrieval Foundation
-
-Implemented:
-
-- Search / Retrieval V1
-- keyword retrieval across canonical Memory fields
-- dashboard search UI
-- retrieval layer abstraction
-
-## Embedding Foundation
-
-Implemented:
-
-- `memory_embeddings` persisted vector artifacts
-- embedding queue
-- embedding worker
-- retrieval document generation
-- embedding gateway abstraction
-- Ollama embedding provider
-- pgvector-backed storage contract in the current schema/types
+Users hire Stashly to satisfy these needs:
+1. *"I want to save this now and return to what I was doing."*
+2. *"I remember the idea, but not the title, source, or platform."*
+3. *"I need to recover the exact source that mentioned something specific."*
+4. *"I want to ask my saved knowledge a question and get a grounded answer."*
+5. *"I want confidence that my saved knowledge remains recoverable over time."*
 
 ---
 
-# 7. Retrieval Roadmap
+## Functional Requirements
 
-Stashly retrieval evolves in four explicit stages.
+### Current (Implemented)
+* **Authenticated Saves**: Users can securely save supported inputs.
+* **Fast Capture Confirmation**: Saving should confirm immediately while deeper processing happens later.
+* **Memory Normalization**: Supported inputs are converted into a consistent memory form.
+* **Intent-Based Retrieval**: Users can search using partial recall, exact terms, or conceptual intent.
+* **Interactive Grounded Chat**: Users can ask questions and receive responses bounded by retrieved memory.
+* **Citation Support**: AI-assisted responses must point back to retrieved source memories.
+* **Recovery Operations**: Internal tooling can restore missing retrieval artifacts.
 
-## Retrieval V1
-
-Status:
-
-Implemented
-
-Description:
-
-- keyword retrieval
-- lexical matching across Memory metadata
-- search UI wired into the dashboard
-
-## Retrieval V2
-
-Status:
-
-Foundation implemented, query path not yet active
-
-Description:
-
-- semantic retrieval
-- embedding generation from retrieval documents
-- vector-backed memory retrieval
-
-## Retrieval V3
-
-Status:
-
-Planned
-
-Description:
-
-- hybrid retrieval
-- keyword + semantic fusion
-- improved ranking and confidence behavior
-
-## Retrieval V4
-
-Status:
-
-Planned
-
-Description:
-
-- AI retrieval
-- query understanding
-- retrieval planning
-- retrieval explanations
-- memory recovery by intent rather than exact query wording
-
-Public launch gate:
-
-```text
-AI-powered retrieval must exist before public launch.
-```
+### Planned (Roadmap)
+* **Multimodal Capture**: Capture beyond URL-first inputs.
+* **Browser & Mobile Extensions**: Reduce capture friction across more user surfaces.
+* **Contextual Auto-Collections**: Surface relationships without requiring manual organization.
+* **Offline Local Mode**: Preserve access and assistance in more constrained environments.
+* **Collaborative Contexts**: Share selected memory contexts with others.
 
 ---
 
-# 8. Core Product Systems
+## Non-Functional Requirements
 
-## C1. Universal Memory Capture
-
-Current implementation:
-
-- URL-first capture
-- asynchronous enrichment pipeline
-
-Long-term direction:
-
-- screenshots
-- images
-- PDFs
-- notes
-- text
-- audio
-- files
-
-## C2. Retrieval
-
-Current implementation:
-
-- Retrieval V1 keyword search
-
-Required before launch:
-
-- AI-powered retrieval
-
-## C3. Synchronization
-
-Current implementation:
-
-- realtime delivery
-- reconciliation polling
-- shared store contract
-
-## C4. Embedding Infrastructure
-
-Current implementation:
-
-- retrieval document builder
-- embedding worker
-- local embedding provider strategy
-- derived embedding persistence
-
-Purpose:
-
-- enable semantic retrieval without redefining Memory
+* **Low Capture Friction**: Capture confirmation must feel immediate; deeper processing must remain asynchronous.
+* **Grounded Reasoning Safety**: The Reasoning Engine must not answer from unsupported memory context.
+* **User Isolation & Security**: Retrieval and reasoning must remain strictly scoped to the authenticated user.
+* **Durable Recoverability**: Derived retrieval artifacts must be rebuildable from Canonical Representation.
+* **Responsive Retrieval**: Search should feel fast enough to support natural recall.
 
 ---
 
-# 9. Memory and Retrieval Relationship
+## Current Product State
 
-Memory remains authoritative.
+An honest assessment of the current product state:
 
-Retrieval derives from Memory.
+### Implemented
+* URL-first capture.
+* Canonical memory normalization for supported sources.
+* Intent-based retrieval across saved memory.
+* Grounded AI chat over retrieved memory.
+* Internal audit and recovery workflows to maintain retrieval integrity.
 
-Embeddings are derived artifacts.
+### Partially Implemented
+* Retrieval quality controls are still evolving toward a more mature retrieval stack.
+* Some user-facing capture surfaces remain narrower than the long-term product vision.
 
-Retrieval documents are generated views of Memory.
-
-Neither embeddings nor retrieval documents may become the source of truth for user memory.
-
----
-
-# 10. Current Launch Boundary
-
-Stashly is not ready for public launch.
-
-Reasons:
-
-- AI retrieval is not implemented
-- semantic retrieval is not queryable yet
-- hybrid retrieval is not implemented
-- rediscovery systems are not implemented
-- capture remains URL-first
-
-Current milestone:
-
-```text
-Architecture validation before public launch.
-```
+### Planned (Roadmap)
+* Broader capture formats.
+* Stronger relationship discovery across memories.
 
 ---
 
-# 11. Success Criteria For Current Phase
+## Product Roadmap
 
-The current phase is successful if the repository proves:
+Future product direction remains organized around a few clear themes:
 
-- canonical Memory architecture remains stable
-- asynchronous enrichment remains reliable
-- synchronization stays consistent
-- Retrieval V1 is usable
-- embedding generation is reliable enough to unlock Retrieval V2
-- future retrieval layers can derive from Memory without changing Memory truth
+* **Capture Expansion**: Make saving easier across more surfaces and formats.
+* **Retrieval Quality**: Improve recovery accuracy, confidence, and scale.
+* **Intelligence & Discovery**: Help users rediscover related knowledge without manual organization.
+* **Grounded Synthesis**: Improve the quality of memory-grounded answers and explanations.
 
 ---
 
-# 12. Product Metrics Direction
+## Success Metrics
 
-Current internal validation metrics should prioritize:
-
-- save success rate
-- enrichment completion rate
-- synchronization correctness
-- keyword retrieval usefulness
-- embedding generation success rate
-- retrieval document coverage
-
-Future launch metrics should prioritize:
-
-- successful retrieval rate
-- time to retrieval success
-- retrieval confidence success
-- semantic retrieval quality
-- AI retrieval satisfaction
+* **Retrieval Success Rate**: Percentage of queries where the user successfully recovers the intended memory or answer.
+* **Enrichment Completion Rate**: Percentage of saves that successfully become usable memory.
+* **Grounding Citation Accuracy**: Percentage of AI-assisted outputs that remain correctly tied to retrieved memory.
+* **Time-to-Save**: Time between user capture and visible save confirmation.
+* **Recovery Readiness**: Ability to restore retrieval capability from canonical memory after index loss.
 
 ---
 
-# 13. Non-Goals For Current Phase
+## Product Boundaries
 
-- polished final UI
-- public launch branding
-- social or creator features
-- manual organization workflows
-- bookmark-manager feature parity as a primary goal
-- AI chat without retrieval grounding
+### In-Scope
+* Turning raw saved inputs into durable memory.
+* Retrieving saved knowledge by intent.
+* Grounding AI-assisted answers in retrieved memory.
+* Preserving recoverability and user trust.
+
+### Out-of-Scope
+* Manual folder hierarchies as the primary model.
+* Editing source platforms or replacing source-authoring tools.
+* Public web search.
+* Ungrounded generative writing disconnected from saved memory.
 
 ---
 
-# 14. Final Product Statement
+## Guiding Product Principles
 
-Stashly is a Universal AI Memory OS.
-
-The current application is a validation environment for Memory, retrieval, synchronization, and embedding architecture.
-
-The long-term product promise is not “save links.”
-
-It is:
-
-> remember by intent, not by storage location.
+* **Save Once, Recover Later**: The core product contract is durable later recovery.
+* **Intent Over Organization**: The system should reduce the urge to manually organize.
+* **Context Over Hype**: AI is valuable only when it improves grounded recovery and understanding.
