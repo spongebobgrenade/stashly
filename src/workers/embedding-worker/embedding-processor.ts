@@ -15,11 +15,9 @@ import type {
 export async function processEmbeddingJob(
   jobData: ProcessEmbeddingJob
 ) {
-  const startedAt =
-    Date.now();
+  const startedAt = Date.now();
 
-  const { memoryId } =
-    jobData;
+  const { memoryId } = jobData;
 
   const supabase =
     getSupabaseAdmin();
@@ -41,8 +39,7 @@ export async function processEmbeddingJob(
     }
 
     const chunks =
-      memoryV1.transcript
-        .chunks;
+      memoryV1.transcript.chunks;
 
     if (
       !chunks ||
@@ -55,15 +52,19 @@ export async function processEmbeddingJob(
       return;
     }
 
-    await supabase
-      .from(
-        "memory_embeddings"
-      )
+    const {
+      error: deleteError,
+    } = await supabase
+      .from("memory_embeddings")
       .delete()
       .eq(
         "memory_id",
         memoryId
       );
+
+    if (deleteError) {
+      throw deleteError;
+    }
 
     console.log(
       `📄 Embedding ${chunks.length} chunks`
@@ -118,6 +119,30 @@ export async function processEmbeddingJob(
         throw insertError;
       }
     }
+
+    const {
+      count,
+      error: verifyError,
+    } = await supabase
+      .from(
+        "memory_embeddings"
+      )
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .eq(
+        "memory_id",
+        memoryId
+      );
+
+    if (verifyError) {
+      throw verifyError;
+    }
+
+    console.log(
+      `✅ Verified ${count} embeddings in database`
+    );
 
     console.log(
       "✅ Chunk embeddings stored"

@@ -29,17 +29,26 @@ export async function generateOllamaEmbedding(
       }
     );
 
-  if (!response.ok) {
+    const body = await response.text();
+
+    if (!response.ok) {
     throw new Error(
-      "Failed to generate embedding"
+      `Ollama returned ${response.status}: ${body}`
     );
   }
+  
+  const data = JSON.parse(body);
 
-  const data =
-    await response.json();
+  const vector = data.embedding;
 
-  const vector =
-    data.embedding as number[];
+  if (
+    !Array.isArray(vector) ||
+    vector.length === 0
+  ) {
+  throw new Error(
+    "Ollama returned an invalid embedding."
+  );
+}
 
   return {
     vector,

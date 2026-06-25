@@ -1,4 +1,5 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { PIPELINE_VERSION } from "@/lib/pipeline/version";
 
 import {
   getEmbeddingProcessingQueue,
@@ -24,15 +25,20 @@ import type {
   ProcessMemoryJob,
 } from "@/types/jobs";
 
-import type { Memory } from "@/types/memory";
+import type {
+  Memory,
+} from "@/types/memory";
 
 export async function processMemoryJob(
   jobData: ProcessMemoryJob
 ) {
-  const startedAt = Date.now();
+  const startedAt =
+    Date.now();
 
-  const { memoryId, url } =
-    jobData;
+  const {
+    memoryId,
+    url,
+  } = jobData;
 
   const supabase =
     getSupabaseAdmin();
@@ -55,7 +61,10 @@ export async function processMemoryJob(
       .eq("id", memoryId)
       .single();
 
-    if (fetchError || !existingSave) {
+    if (
+      fetchError ||
+      !existingSave
+    ) {
       throw new Error(
         "Memory not found"
       );
@@ -76,19 +85,28 @@ export async function processMemoryJob(
     const enrichedSave: Memory =
       {
         ...existingSave,
+
         source_platform:
           resolved.platform,
+
         content_type:
           resolved.contentType,
-        title: metadata.title,
+
+        title:
+          metadata.title,
+
         description:
           metadata.description,
+
         thumbnail_url:
           metadata.thumbnailUrl,
+
         creator_name:
           metadata.creatorName,
+
         canonical_url:
           metadata.canonicalUrl,
+
         raw_metadata:
           metadata.rawMetadata,
       };
@@ -101,21 +119,31 @@ export async function processMemoryJob(
             () => {
               console.log(
                 "🧠 Knowledge extraction started",
-                { memoryId }
+                {
+                  memoryId,
+                }
               );
             },
+
           onKnowledgeExtractionCompleted:
-            (knowledge) => {
+            (
+              knowledge
+            ) => {
               console.log(
                 "✅ Knowledge extraction completed",
                 {
                   memoryId,
+
                   topics:
-                    knowledge.topics
+                    knowledge
+                      .topics
                       .length,
+
                   entities:
-                    knowledge.entities
+                    knowledge
+                      .entities
                       .length,
+
                   keyInsights:
                     knowledge
                       .keyInsights
@@ -123,12 +151,16 @@ export async function processMemoryJob(
                 }
               );
             },
+
           onSummaryGenerationCompleted:
-            (summary) => {
+            (
+              summary
+            ) => {
               console.log(
                 "✅ Summary generation completed",
                 {
                   memoryId,
+
                   summaryLength:
                     summary.length,
                 }
@@ -141,16 +173,24 @@ export async function processMemoryJob(
       "🧱 MemoryV1 composed",
       {
         memoryId,
+
         transcriptChunks:
-          memoryV1.transcript
-            .chunks.length,
+          memoryV1
+            .transcript
+            .chunks
+            .length,
+
         retrievalSummaryLength:
-          memoryV1.retrieval
-            .summary.length,
+          memoryV1
+            .retrieval
+            .summary
+            .length,
       }
     );
 
-    await saveMemoryRepresentation(memoryV1);
+    await saveMemoryRepresentation(
+      memoryV1
+    );
 
     console.log(
       "💾 MemoryV1 representation saved",
@@ -188,18 +228,38 @@ export async function processMemoryJob(
 
         processing_status:
           "completed",
+
+        pipeline_version:
+          PIPELINE_VERSION,
       })
       .eq("id", memoryId);
 
-    await getEmbeddingProcessingQueue().add(
-      "generate-embedding",
-      {
-        memoryId,
-      }
-    );
+    const embeddingJob =
+      await getEmbeddingProcessingQueue().add(
+        "generate-embedding",
+        {
+          memoryId,
+        },
+        {
+          jobId:
+            memoryId,
+
+          removeOnComplete:
+            true,
+
+          removeOnFail:
+            100,
+        }
+      );
 
     console.log(
-      "🧠 Embedding job queued"
+      "🧠 Embedding job queued",
+      {
+        memoryId,
+
+        jobId:
+          embeddingJob.id,
+      }
     );
 
     console.log(

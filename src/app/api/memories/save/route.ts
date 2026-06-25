@@ -87,6 +87,11 @@ export async function POST(req: Request) {
         url,
 
         userId: user.id,
+      },
+      {
+        jobId: memoryId,
+        removeOnComplete: true,
+        removeOnFail: 100,
       }
     );
 

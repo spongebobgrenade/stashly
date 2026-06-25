@@ -56,6 +56,7 @@ new Worker(
   {
     connection:
       workerConnection as never,
+    lockDuration: 300000,
   }
 );
 

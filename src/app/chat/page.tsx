@@ -80,6 +80,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -125,42 +126,80 @@ export default function ChatPage() {
       }));
 
     try {
-      const response =
-        await fetch(
-          "/api/chat",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            body: JSON.stringify({
-              message:
-                trimmedInput,
-              history,
-            }),
-          }
-        );
-
-      const data =
-        await response.json();
+      const tempAssistantId = crypto.randomUUID();
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: trimmedInput,
+          history,
+          stream: true,
+        }),
+      });
 
       if (!response.ok) {
-        throw new Error(
-          data.error ??
-            "Failed to get answer"
-        );
+        const errorData = await response.json();
+        throw new Error(errorData.error ?? "Failed to get answer");
       }
 
+      // Extract Memories from headers
+      const memoriesHeader = response.headers.get("X-Memories");
+      const retrievedMemories = memoriesHeader
+        ? JSON.parse(decodeURIComponent(memoriesHeader))
+        : [];
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      // Create temporary placeholder for assistant
       setMessages((prev) => [
         ...prev,
         {
-          id: crypto.randomUUID(),
+          id: tempAssistantId,
           role: "assistant",
-          content: data.answer,
-          memories: data.memories,
+          content: "",
+          memories: retrievedMemories,
         },
       ]);
+      setActiveMessageId(tempAssistantId);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedAnswer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        accumulatedAnswer += chunk;
+
+        // Render tokens live
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === tempAssistantId
+              ? { ...msg, content: accumulatedAnswer }
+              : msg
+          )
+        );
+      }
+
+      // Replace temporary message with final message when stream completes
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === tempAssistantId
+            ? {
+                id: crypto.randomUUID(),
+                role: "assistant",
+                content: accumulatedAnswer,
+                memories: retrievedMemories,
+              }
+            : msg
+        )
+      );
     } catch (error) {
       console.error(error);
 
@@ -179,6 +218,7 @@ export default function ChatPage() {
       ]);
     } finally {
       setLoading(false);
+      setActiveMessageId(null);
     }
   }
 
@@ -257,6 +297,9 @@ export default function ChatPage() {
                       }`}
                     >
                       {message.content}
+                      {message.id === activeMessageId && (
+                        <span className="inline-block w-1.5 h-3.5 ml-1 bg-teal-400 animate-pulse align-middle" />
+                      )}
                     </div>
 
                     {!isUser && message.memories && message.memories.length > 0 && (
@@ -267,7 +310,7 @@ export default function ChatPage() {
               }
             )}
 
-            {loading && (
+            {loading && !activeMessageId && (
               <div className="flex justify-start">
                 <div className="flex items-center gap-2 rounded-2xl rounded-tl-none border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm text-zinc-400">
                   <span className="relative flex h-2 w-2">
